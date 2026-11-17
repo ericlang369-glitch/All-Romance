@@ -16,7 +16,7 @@ type Ripple = { id: number; x: number; y: number };
 type Mote = { id: number; x: number; y: number; size: number; mx: string; my: string };
 
 /** 02 那束花：02-C 实拍校准彩墨点染扩散 + 青凤蝶停落微澜交互 */
-export default function Flower({ register, index, total }: ScreenProps) {
+export default function Flower({ register, index, total, onNext }: ScreenProps) {
   const art = useRef<HTMLDivElement>(null);
   const bfRef = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
@@ -89,7 +89,7 @@ export default function Flower({ register, index, total }: ScreenProps) {
         <div ref={art} className="full" style={FRAME_T}>
           {/* 暗夜群青白线相框底 */}
           <img
-            data-src={`${A}framed-bg@3x.png`}
+            data-src={`${A}framed-bg@3x.webp`}
             alt=""
             style={{ position: "absolute", left: -20, top: 140, width: 430.1, height: 573.4 }}
           />
@@ -103,8 +103,8 @@ export default function Flower({ register, index, total }: ScreenProps) {
               height: 844,
               pointerEvents: "none",
               clipPath: `circle(${inkPct}% at 261px 435px)`,
-              WebkitMaskImage: `url(${A}flower-mask-02c.png)`,
-              maskImage: `url(${A}flower-mask-02c.png)`,
+              WebkitMaskImage: `url(${A}flower-mask-02c.webp)`,
+              maskImage: `url(${A}flower-mask-02c.webp)`,
               WebkitMaskSize: "390px 844px",
               maskSize: "390px 844px",
               WebkitMaskRepeat: "no-repeat",
@@ -114,7 +114,7 @@ export default function Flower({ register, index, total }: ScreenProps) {
           >
             {/* 可见晨雾暖香槟光晕衬底 */}
             <img
-              data-src={`${A}flower-mask-02c.png`}
+              data-src={`${A}flower-mask-02c.webp`}
               alt=""
               style={{ position: "absolute", left: 0, top: 0, width: 390, height: 844 }}
             />
@@ -126,12 +126,12 @@ export default function Flower({ register, index, total }: ScreenProps) {
               }}
             />
             <img
-              data-src={`${A}framed-colored-real@3x.png`}
+              data-src={`${A}framed-colored-real@3x.webp`}
               alt=""
               style={{ position: "absolute", left: -20, top: 182, width: 430.1, height: 573.4 }}
             />
             <img
-              data-src={`${A}butterfly-colored-real@3x.png`}
+              data-src={`${A}butterfly-colored-real@3x.webp`}
               alt=""
               style={{
                 position: "absolute",
@@ -151,9 +151,9 @@ export default function Flower({ register, index, total }: ScreenProps) {
           {/* 用外层 wrapper 隐藏停稳后的白描蝴蝶，避开 butterfly.ts finish() 强制重写 .bf opacity=1 */}
           <div style={{ position: "absolute", inset: 0, opacity: settled ? 0 : 1, transition: "opacity 0.65s ease", pointerEvents: "none" }}>
             <div className="bf">
-              <img className="w" data-src={`${A}butterfly-wing-left@3x.png`} alt="" />
-              <img className="w" data-src={`${A}butterfly-wing-right@3x.png`} alt="" />
-              <img data-src={`${A}butterfly-body@3x.png`} alt="" />
+              <img className="w" data-src={`${A}butterfly-wing-left@3x.webp`} alt="" />
+              <img className="w" data-src={`${A}butterfly-wing-right@3x.webp`} alt="" />
+              <img data-src={`${A}butterfly-body@3x.webp`} alt="" />
             </div>
           </div>
 
@@ -258,9 +258,25 @@ export default function Flower({ register, index, total }: ScreenProps) {
 
         <p
           className="tilt-center-tight"
+          role="button"
+          tabIndex={0}
+          aria-label="继续前往下一页"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext?.();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onNext?.();
+            }
+          }}
           style={{
-            top: YB(786, -1, 14),
-            zIndex: 15,
+            top: YB(764, -1, 36),
+            zIndex: 20,
+            padding: "8px 16px",
+            cursor: "pointer",
             fontFamily: "var(--sans)",
             fontWeight: 500,
             fontSize: 12,

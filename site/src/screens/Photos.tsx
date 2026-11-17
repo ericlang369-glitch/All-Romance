@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
-import { loadImgs } from "@/lib/kit";
+import { YB, loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const P = `${BASE_PATH}/photos/`;
@@ -36,6 +36,7 @@ export function Photos({
   index,
   total,
   modal,
+  onNext,
 }: ScreenProps & { modal: (on: boolean) => void }) {
   const root = useRef<HTMLDivElement>(null);
   const [entered, setEntered] = useState(false);
@@ -450,11 +451,27 @@ export function Photos({
         {/* Two-line understated Zhi Mang Xing quote over bottom warm champagne glow */}
         <div
           className="ep-ang"
+          role="button"
+          tabIndex={0}
+          aria-label="继续前往下一页"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext?.();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onNext?.();
+            }
+          }}
           style={{
-            left: 48,
-            top: 696,
+            left: 42,
+            top: YB(682, -0.45, 72),
+            padding: "6px 6px",
             transform: "rotate(-4.5deg)",
-            zIndex: 15,
+            zIndex: 20,
+            cursor: "pointer",
             opacity: entered ? 1 : 0,
             transition: "opacity 0.85s ease 0.34s",
           }}

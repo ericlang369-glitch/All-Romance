@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
-import { loadImgs } from "@/lib/kit";
+import { YB, loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const B = `${BASE_PATH}/assets/birds/`;
@@ -12,6 +12,7 @@ export function Postcards({
   index,
   total,
   modal,
+  onNext,
 }: ScreenProps & { modal: (on: boolean) => void }) {
   const root = useRef<HTMLDivElement>(null);
   const [entered, setEntered] = useState(false);
@@ -139,7 +140,7 @@ export function Postcards({
       <div ref={root} style={{ position: "relative", width: 390, height: 844, overflow: "hidden" }}>
         {/* Atmospheric mist-silver echo birds in open right margin (directly on pure #1430C4, zero blobs) */}
         <img
-          data-src={`${B}s05-echo-birds@2x.png`}
+          data-src={`${B}s05-echo-birds@2x.webp`}
           alt=""
           draggable={false}
           style={{
@@ -255,9 +256,25 @@ export function Postcards({
         {/* Bottom Whisper */}
         <p
           className="tilt-center-tight ep-note"
+          role="button"
+          tabIndex={0}
+          aria-label="继续前往下一页"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext?.();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onNext?.();
+            }
+          }}
           style={{
-            top: 786,
-            zIndex: 15,
+            top: YB(764, -1, 36),
+            zIndex: 20,
+            padding: "8px 16px",
+            cursor: "pointer",
             opacity: entered ? 1 : 0,
             transition: "opacity 0.8s ease 0.35s",
           }}

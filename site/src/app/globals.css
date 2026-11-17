@@ -24,7 +24,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--blue);height:100%;overflow:hidden;overscroll-behavior:none}
 body{font-feature-settings:"lnum" 1;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;color:var(--white);
-  -webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 
 .display {font-family:var(--serif);font-weight:700;font-size:40px;line-height:40px;letter-spacing:.04em}
 .title   {font-family:var(--serif);font-weight:700;font-size:24px;line-height:28px;letter-spacing:.06em}
@@ -74,9 +74,8 @@ html[data-wide] .lens.sides{display:block;background:linear-gradient(90deg,
   rgba(11,30,140,.16) calc(var(--colL) + 64px - 136px), rgba(11,30,140,0) calc(var(--colL) + 64px + 24px),
   rgba(11,30,140,0) calc(100% - var(--colL) - 64px - 24px), rgba(11,30,140,.16) calc(100% - var(--colL) - 64px + 136px))}
 /* 宽屏时滚动容器左右各多 64px（--bx），只给风里的落花飘出列外用 */
-#scroller{position:absolute;top:0;bottom:0;left:calc(-1 * var(--bx));right:calc(-1 * var(--bx));overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#scroller{position:absolute;top:0;bottom:0;left:calc(-1 * var(--bx));right:calc(-1 * var(--bx));overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:none}
 #scroller::-webkit-scrollbar{display:none}
-html[data-scroll="locked"] #scroller{overflow-y:hidden;touch-action:none}
 html[data-rec] #scroller{scroll-snap-type:none}
 /* 每屏按屏裁切（G2）；横向出血由 .shift 内容自带 */
 .screen{position:relative;height:var(--H);scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
@@ -112,6 +111,7 @@ html:not(.js) #pass{display:none}
 /* 宽屏：落花可以飘出列外最多 64px，在列边外 0→64px 内淡到 0（§6.3） */
 html[data-wide] #gust{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--bx),#000 calc(100% - var(--bx)),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 var(--bx),#000 calc(100% - var(--bx)),transparent 100%)}
 #passInput{position:absolute;left:96px;top:calc(384px + var(--o));width:198px;height:80px;opacity:0;font-size:16px;color:transparent;background:transparent;border:0;outline:0;caret-color:transparent;text-align:center}
+#passInput:disabled{display:none;pointer-events:none}
 #again{opacity:0}
 html.js #title .l, html.js #hintTxt, html.js #hintLine{opacity:0}
 #hintLine{transform-origin:50% 0}

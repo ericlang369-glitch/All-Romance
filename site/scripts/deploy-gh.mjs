@@ -16,16 +16,13 @@ if (!existsSync(join(OUT, "index.html"))) {
 const git = (args, cwd = STAGE) => execFileSync("git", args, { cwd, stdio: "inherit" });
 
 try {
-  execFileSync("git", ["clone", "--depth", "1", REPO_URL, STAGE], { stdio: "inherit" });
+  execFileSync("git", ["clone", "--depth", "1", "--no-checkout", REPO_URL, STAGE], { stdio: "inherit" });
   git(["config", "user.name", "ericlang369-glitch"]);
   git(["config", "user.email", "ericlang369-glitch@users.noreply.github.com"]);
   git(["config", "http.postBuffer", "524288000"]);
 
-  // Clean existing working tree files (keep .git)
-  for (const name of readdirSync(STAGE)) {
-    if (name === ".git") continue;
-    rmSync(join(STAGE, name), { recursive: true, force: true });
-  }
+  // Clear cached index entries (no-checkout avoids Defender locks on old _next/*.js files)
+  git(["rm", "-rf", "-q", "--cached", "--ignore-unmatch", "."]);
 
   // Copy static Next.js export to repo root for GitHub Pages (/)
   for (const name of readdirSync(OUT)) {
@@ -62,9 +59,10 @@ try {
   git(["add", "-A"]);
   git(["commit", "-m", "Deploy 100-day anniversary interactive site"]);
   git(["push", "origin", "main"]);
-  console.log("Pushed cleanly to", REPO_URL);
+  const sha = execFileSync("git", ["rev-parse", "HEAD"], { cwd: STAGE, encoding: "utf8" }).trim();
+  console.log("Pushed cleanly to", REPO_URL, "commit", sha);
 } finally {
   try {
-    rmSync(STAGE, { recursive: true, force: true });
+    rmSync(STAGE, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
   } catch {}
 }

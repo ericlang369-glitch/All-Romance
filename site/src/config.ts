@@ -14,12 +14,12 @@ export const PHOTOS = {
   /** 第 03 屏手写信原图：待补拍上传后填入文件名即可无缝切换 */
   letter: null as string | null,
   /** 第 05 屏 两张 1:1 真实复刻明信片 */
-  p1: "p1-beijing-restored.png",
-  p2: "p2-shanghai19m-restored.png",
+  p1: "p1-beijing-restored.webp",
+  p2: "p2-shanghai19m-restored.webp",
   /** 第 06 屏 三张拍立得及彩蛋原图对照 */
   pailepai: "pailepai-flights.jpg",
-  catRemake: "polaroid-cat-remake.png",
-  gdRemake: "polaroid-gd-remake.png",
+  catRemake: "polaroid-cat-remake.webp",
+  gdRemake: "polaroid-gd-remake.webp",
   catFull: "polaroid-cat-full.jpg",
   gdFull: "polaroid-gd-full.jpg",
 };

@@ -317,7 +317,7 @@ export function Ending({ register, index, total }: ScreenProps) {
 
           {/* Top Bouquet (74, 50, 242x310): Line Art -> Starry Prelude Color A */}
           <img
-            data-src={`${A}bouquet-lines@3x.png`}
+            data-src={`${A}bouquet-lines@3x.webp`}
             alt="花束线稿"
             draggable={false}
             style={{
@@ -333,7 +333,7 @@ export function Ending({ register, index, total }: ScreenProps) {
             }}
           />
           <img
-            data-src={`${A}bouquet-color-a@3x.png`}
+            data-src={`${A}bouquet-color-a@3x.webp`}
             alt=""
             draggable={false}
             style={{
@@ -461,7 +461,7 @@ export function Ending({ register, index, total }: ScreenProps) {
 
           {/* Original 06-scheme-B Watercolor Bouquet */}
           <img
-            data-src={`${A}bouquet-color-b@3x.png`}
+            data-src={`${A}bouquet-color-b@3x.webp`}
             alt="破晓色彩花束"
             draggable={false}
             style={{

@@ -103,9 +103,9 @@ function initClock() {
 
 /* ---------- 环境：整站三档画质（plan v7 §10.9） ----------
    档 2 正常 / 档 1 低端 / 档 0 关闭（= reduced-motion，入场只淡入）。
-   - 初始档：?tier=0|1|2 强制（忽略帧率与系统设置）；?low = 档 1；?rm 或系统「减少动态效果」= 档 0；
+   - 初始档：?tier=0|1|2 强制（忽略帧率与系统设置）；?low = 档 1；?rm = 档 0（不因系统 prefers-reduced-motion 自动降入档 0）；
      hardwareConcurrency ≤ 4 或 deviceMemory ≤ 4 → 档 1；其余档 2。录屏（?rec）固定档 2，除非带 ?tier / ?low / ?rm。
-   - 判定档 judged：rAF 帧间隔 2s 滑动窗口实时判定，只降不升；出花速率这类可以立刻跟着 judged 变（onJudge）。
+   - 判定档 judged：rAF 帧间隔 2s 滑动窗口实时判定，只降不升（自动降档最高只降到档 1，永不自动降到档 0）；出花速率这类可以立刻跟着 judged 变（onJudge）。
    - 生效档 applied：树怎么摆、镜头、入场是滑还是淡等「观感」只在静止时由 commitTier() 落地（开场解锁、屏间吸附稳定后）。
    env.rm / env.low / env.tier 读的都是生效档。 */
 let applied: 0 | 1 | 2 = 2;
@@ -153,7 +153,6 @@ function initEnv() {
   if (qt === "0" || qt === "1" || qt === "2") { t = +qt as 0 | 1 | 2; forced = true; }
   else if (q.has("rm")) { t = 0; forced = true; }
   else if (q.has("low")) { t = 1; forced = true; }
-  else if (matchMedia("(prefers-reduced-motion: reduce)").matches) t = 0;
   else if (q.has("rec")) { t = 2; forced = true; }
   else {
     const nav = navigator as Navigator & { deviceMemory?: number };
@@ -166,7 +165,7 @@ function initEnv() {
 
 /* ---------- 帧率监测（§10.9「测什么 / 窗口 / 阈值」） ----------
    主指标 rAF 帧间隔 Δt；2.0s 滑动窗口，实际覆盖 ≥ 1.8s 才判定。
-   档 1：慢帧（Δt>20ms）≥ 40% 或平均 fps < 45；档 0：慢帧 ≥ 80% 或平均 fps < 28 或 Δt>33.3ms ≥ 50%。
+   自动降档上限为档 1（慢帧 Δt>20ms ≥ 40% 或平均 fps < 45），永不自动判入档 0（避免 iOS 键盘弹出或图片解码抖动误杀全部动效）。
    只在有东西在动（kit 的动画循环在跑、或最近 300ms 内滚动过）时记帧；空闲间隙不计入窗口。 */
 const WIN = 2000, COVER = 1800;
 /* 「低于 30 帧（Δt > 33.3ms）」：正好隔两个 vsync 的帧是 33.33ms（= 30 帧，不算低于），
@@ -191,9 +190,9 @@ function monFrame(t: number) {
     if (slow > frameStats.worst.slow) frameStats.worst.slow = +slow.toFixed(3);
     if (fps < frameStats.worst.fps) frameStats.worst.fps = +fps.toFixed(1);
     if (over33 > frameStats.worst.over33) frameStats.worst.over33 = +over33.toFixed(3);
-    const to = slow >= 0.8 || fps < 28 || over33 >= 0.5 ? 0 : slow >= 0.4 || fps < 45 ? 1 : 2;
+    const to = slow >= 0.4 || fps < 45 ? 1 : 2;
     if (to < judged) frameStats.log.push({ at: Math.round(t), tier: to, slow: +slow.toFixed(3), fps: +fps.toFixed(1), over33: +over33.toFixed(3), from: Math.round(samples[0][0] - samples[0][1]) }); // 验收读：何时、凭哪个窗口降档
-    if (to < 2) judge(to as 0 | 1);
+    if (to < 2) judge(to);
   }
   const busy = loops.length > 0 || performance.now() - lastPoke < 300;
   if (busy && judged > 0 && !document.hidden) requestAnimationFrame(monFrame);

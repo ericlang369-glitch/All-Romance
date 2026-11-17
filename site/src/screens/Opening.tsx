@@ -5,8 +5,8 @@ import { $, $$, Y, YB } from "@/lib/kit";
 import { TEXT } from "@/config";
 import { Screen, type ScreenProps } from "./common";
 
-/** 「轻触 · 向下」：top 744 − D（贴底，§6.2），离底边 ≥ safe-bottom + 8 */
-const HINT_TOP = YB(744, -1, 20);
+/** 「轻触 · 向下」：top 718 − D（避让微信底部栏，§6.2），离底边 ≥ safe-bottom + 44 */
+const HINT_TOP = YB(718, -1, 36);
 
 export default function Opening({
   register,

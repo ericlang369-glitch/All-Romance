@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
-import { loadImgs } from "@/lib/kit";
+import { Y, YB, loadImgs } from "@/lib/kit";
 import { Photo, Screen, type ScreenProps } from "./common";
 
 const SK_PATH =
@@ -28,6 +28,7 @@ export function Letter({
   index,
   total,
   modal,
+  onNext,
 }: ScreenProps & { modal: (on: boolean) => void }) {
   const root = useRef<HTMLDivElement>(null);
   const [entered, setEntered] = useState(false);
@@ -199,7 +200,7 @@ export function Letter({
         >
           {/* Back Open Pocket */}
           <img
-            data-src={`${BASE_PATH}/assets/envelope-back@2x.png`}
+            data-src={`${BASE_PATH}/assets/envelope-back@2x.webp`}
             alt=""
             draggable={false}
             style={{
@@ -267,7 +268,7 @@ export function Letter({
 
           {/* Front Translucent V-Flap Cutout */}
           <img
-            data-src={`${BASE_PATH}/assets/envelope-front@2x.png`}
+            data-src={`${BASE_PATH}/assets/envelope-front@2x.webp`}
             alt=""
             draggable={false}
             style={{
@@ -311,7 +312,7 @@ export function Letter({
           className="ep-ang"
           style={{
             left: "50%",
-            top: 668,
+            top: Y(668, -0.5),
             transform: "translateX(-50%) rotate(-5deg)",
             zIndex: 15,
             textAlign: "center",
@@ -327,9 +328,25 @@ export function Letter({
         {/* Bottom Whisper */}
         <p
           className="tilt-center-tight ep-note"
+          role="button"
+          tabIndex={0}
+          aria-label="继续前往下一页"
+          onClick={(e) => {
+            e.stopPropagation();
+            onNext?.();
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              e.stopPropagation();
+              onNext?.();
+            }
+          }}
           style={{
-            top: 786,
-            zIndex: 15,
+            top: YB(764, -1, 36),
+            zIndex: 20,
+            padding: "8px 16px",
+            cursor: "pointer",
             opacity: entered ? 1 : 0,
             transition: "opacity 0.8s ease 0.35s",
           }}

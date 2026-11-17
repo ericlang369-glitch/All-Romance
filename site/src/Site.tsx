@@ -151,9 +151,14 @@ export default function Site() {
     });
   }, []);
   const lock = useCallback((on: boolean) => {
-    const h = document.documentElement, st = state.current;
+    const h = document.documentElement, st = state.current, sc = scroller.current;
     st.locked = on;
-    st.lockTop = scroller.current!.scrollTop;
+    if (sc) {
+      st.lockTop = sc.scrollTop;
+      sc.style.touchAction = on ? "none" : "pan-y";
+      sc.style.overflowY = on ? "hidden" : "scroll";
+      if (!on) void sc.offsetHeight;
+    }
     if (on) h.dataset.scroll = "locked";
     else delete h.dataset.scroll;
   }, []);
@@ -206,20 +211,21 @@ export default function Site() {
     const i = Math.round(sc.scrollTop / L.H);
     if (i >= SCREENS.length - 1) return;
     if (isVirtual()) smoothTo(sc, (i + 1) * L.H, update);
-    else sections()[i + 1].scrollIntoView({ behavior: env.rm ? "auto" : "smooth" });
+    else sc.scrollTo({ top: sections()[i + 1]?.offsetTop ?? (i + 1) * L.H, behavior: env.rm ? "auto" : "smooth" });
   }, [update]);
 
   useEffect(() => {
     const h = document.documentElement, st = state.current;
     const sc = scroller.current!;
+    let dead = false;
     lock(true);
     applyInert();
 
-    // spec §6：H 取首次加载的 100svh，只在旋转（宽度变化）时重算；键盘、地址栏都不重排（G3）
+    // spec §6：H 取 min(100svh, innerHeight)，在宽度变化或微信底栏伸缩时重算；键盘弹出不重排（G3）
     const probe = document.createElement("div");
     probe.style.cssText = "position:fixed;left:0;top:0;width:0;height:100svh;visibility:hidden;pointer-events:none";
     document.body.appendChild(probe);
-    const read = () => ({ W: h.clientWidth || innerWidth, H: probe.offsetHeight || innerHeight });
+    const read = () => ({ W: h.clientWidth || innerWidth, H: Math.min(probe.offsetHeight || innerHeight, innerHeight) });
     let cur = read();
     const apply = () => {
       const idx = Math.round(sc.scrollTop / (L.H || 1));
@@ -232,7 +238,12 @@ export default function Site() {
     update();
     const onResize = () => {
       const n = read();
-      if (n.W === cur.W) return; // 只有宽度变了（旋转、电脑窗口改宽）才重排
+      const widthChanged = n.W !== cur.W;
+      const toolbarChanged =
+        document.activeElement?.tagName !== "INPUT" &&
+        Math.abs(n.H - cur.H) > 36 &&
+        Math.abs(n.H - cur.H) < 160;
+      if (!widthChanged && !toolbarChanged) return;
       cur = n;
       apply();
     };
@@ -257,7 +268,15 @@ export default function Site() {
       if (st.locked || Math.abs(p - Math.round(p)) > 0.002) return;
       if (commitTier()) update();
     };
+    const onTouchMove = (e: TouchEvent) => {
+      if (state.current.locked) e.preventDefault();
+    };
+    const onWheel = (e: WheelEvent) => {
+      if (state.current.locked) e.preventDefault();
+    };
     sc.addEventListener("scroll", onScroll, { passive: true });
+    sc.addEventListener("touchmove", onTouchMove, { passive: false });
+    sc.addEventListener("wheel", onWheel, { passive: false });
     // S1：锁定期间挡住所有能翻页的按键（输入框里的数字和退格不受影响）
     const onKey = (e: KeyboardEvent) => {
       if (st.locked && SCROLL_KEYS.has(e.key)) e.preventDefault();
@@ -271,15 +290,19 @@ export default function Site() {
     w.__settle = onSettle;
     w.__frames = frameStats;
 
-    // §10.8：字体就绪后才开始各屏入场
-    document.fonts.ready.then(() => {
+    // §10.8：字体就绪后开始各屏入场，500ms 超时兜底防止弱网永久阻塞
+    Promise.race([document.fonts.ready, new Promise<void>((r) => setTimeout(r, 500))]).then(() => {
+      if (dead) return;
       st.ready = true;
       h.dataset.ready = "";
       update();
     });
     return () => {
+      dead = true;
       removeEventListener("resize", onResize); removeEventListener("orientationchange", onOrient);
       removeEventListener("keydown", onKey, true); sc.removeEventListener("scroll", onScroll);
+      sc.removeEventListener("touchmove", onTouchMove); sc.removeEventListener("wheel", onWheel);
+      probe.remove();
     };
   }, [lock, update, applyInert]);
 
@@ -308,11 +331,11 @@ export default function Site() {
               const tot = SCREENS.length;
               switch (name) {
                 case "opening": return <Opening key={name} register={register} index={idx} total={tot} onUnlock={onUnlock} onNext={goNext} />;
-                case "flower": return <Flower key={name} register={register} index={idx} total={tot} />;
-                case "letter": return <Letter key={name} register={register} index={idx} total={tot} modal={modalLetter} />;
-                case "birds": return <Birds key={name} register={register} index={idx} total={tot} />;
-                case "postcards": return <Postcards key={name} register={register} index={idx} total={tot} modal={modalPostcards} />;
-                case "photos": return <Photos key={name} register={register} index={idx} total={tot} modal={modalPhotos} />;
+                case "flower": return <Flower key={name} register={register} index={idx} total={tot} onNext={goNext} />;
+                case "letter": return <Letter key={name} register={register} index={idx} total={tot} modal={modalLetter} onNext={goNext} />;
+                case "birds": return <Birds key={name} register={register} index={idx} total={tot} onNext={goNext} />;
+                case "postcards": return <Postcards key={name} register={register} index={idx} total={tot} modal={modalPostcards} onNext={goNext} />;
+                case "photos": return <Photos key={name} register={register} index={idx} total={tot} modal={modalPhotos} onNext={goNext} />;
                 case "ending": return <Ending key={name} register={register} index={idx} total={tot} />;
               }
             })}

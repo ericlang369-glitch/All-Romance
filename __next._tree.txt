@@ -1,5 +1,6 @@
-:HL["/All-Romance/_next/static/css/e8d877bd51de5b58.css","style"]
-:HL["/All-Romance/fonts/Montserrat[wght].ttf","font",{"crossOrigin":"","type":"font/ttf"}]
-:HL["/All-Romance/fonts/SourceSerif4-Italic[opsz,wght].ttf","font",{"crossOrigin":"","type":"font/ttf"}]
+:HL["/All-Romance/_next/static/css/a36732656247af5f.css","style"]
+:HL["/All-Romance/fonts/NotoSerifSC-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/All-Romance/fonts/NotoSansSC-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/All-Romance/fonts/Montserrat-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 1:[["children",{"s":"__PAGE__","h":160}]]
-0:{"b":"mD1YC_PmvDlPlTwZBA2SJ","t":{"t":{"s":"","h":80,"c":"$Q1"}}}
+0:{"b":"JoW2dy9R2nHedJWG1mIxV","t":{"t":{"s":"","h":80,"c":"$Q1"}}}

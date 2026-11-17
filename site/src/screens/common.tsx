@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { BASE_PATH } from "@/config";
 
 export type ScreenCtl = { enter: () => void; setActive?: (on: boolean) => void };
-export type ScreenProps = { register: (ctl: ScreenCtl) => void; index?: number; total?: number };
+export type ScreenProps = { register: (ctl: ScreenCtl) => void; index?: number; total?: number; onNext?: () => void };
 
 export function Hud({ index, total, tone = "light", className = "" }: { index: number; total: number; tone?: "light" | "dark"; className?: string }) {
   const pad = (n: number) => String(n).padStart(2, "0");

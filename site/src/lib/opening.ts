@@ -51,8 +51,32 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
   type Group = { d: HTMLDivElement; imgs: Record<string, HTMLImageElement>; anchor: number[]; name: string; th: number; v: number; osc: number; x0: number; y0: number };
   const groups: Record<string, Group> = {};
   const windImgs: HTMLImageElement[] = [];
+  const windReady = new Map<HTMLImageElement, boolean>();
+  const windWaiters = new Map<HTMLImageElement, ((ok: boolean) => void)[]>();
   let windP: Promise<unknown> | null = null;
-  const loadWind = () => (windP ||= Promise.all(windImgs.map((i) => { i.src = i.dataset.src!; return i.decode().catch(() => undefined); })));
+  const onWindReady = (im: HTMLImageElement, fn: (ok: boolean) => void) => {
+    if (windReady.has(im)) fn(windReady.get(im)!);
+    else {
+      const q = windWaiters.get(im) || [];
+      q.push(fn);
+      windWaiters.set(im, q);
+    }
+  };
+  const loadWind = () =>
+    (windP ||= Promise.all(
+      windImgs.map((im) => {
+        im.src = im.dataset.src!;
+        return im.decode().then(
+          () => true,
+          () => im.complete && im.naturalWidth > 0,
+        ).then((ok) => {
+          const good = ok && im.naturalWidth > 0;
+          windReady.set(im, good);
+          windWaiters.get(im)?.forEach((fn) => fn(good));
+          windWaiters.delete(im);
+        });
+      }),
+    ));
   const byGroup: Record<string, Layer[]> = {};
   TL.layers.forEach((l) => (byGroup[l.group] = byGroup[l.group] || []).push(l));
   function makeGroup(name: string, ls: Layer[], anchor: number[]): Group {
@@ -258,9 +282,20 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
       const D = detach[n], g = groups[n], p = GPS[n];
       if (!D.swapped && e >= p.delay + SWAP_AT) {
         D.swapped = true;
-        g.imgs["flowers-full"].style.display = "none";
-        g.imgs["flowers-wind"].style.opacity = "1";
-        D.c.style.display = "block";
+        const fImg = g.imgs["flowers-full"], wImg = g.imgs["flowers-wind"];
+        if (windReady.get(wImg)) {
+          fImg.style.display = "none";
+          wImg.style.opacity = "1";
+          D.c.style.display = "block";
+        } else {
+          onWindReady(wImg, (ok) => {
+            if (RM || !ok) { D.c.remove(); return; }
+            if (D.i < D.queue.length) D.c.style.display = "block";
+            else D.c.remove();
+            tween({ dur: 240, ease: E.out, on: (k) => op(wImg, k) });
+            tween({ dur: 240, delay: 120, ease: E.out, on: (k) => op(fImg, 1 - k), done: () => (fImg.style.display = "none") });
+          });
+        }
       }
       while (D.i < D.queue.length && D.queue[D.i].t <= e) {
         const { c } = D.queue[D.i++];
@@ -578,10 +613,15 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     rs = 20261209;
     gustT0 = now();
     lastGT = gustT0;
-    const fd = groups.fardots;
-    fd.imgs["flowers-wind"].style.opacity = "0";
-    tween({ dur: 300, delay: 900, ease: E.out, on: (k) => op(fd.imgs["flowers-wind"], k) });
-    tween({ dur: 1600, delay: 1200, ease: smooth, on: (k) => op(fd.imgs["flowers-full"], 1 - k), done: () => (fd.imgs["flowers-full"].style.display = "none") });
+    const fd = groups.fardots, fdFull = fd.imgs["flowers-full"], fdWind = fd.imgs["flowers-wind"];
+    fdWind.style.opacity = "0";
+    after(900, () =>
+      onWindReady(fdWind, (ok) => {
+        if (RM || !ok) return;
+        tween({ dur: 300, ease: E.out, on: (k) => op(fdWind, k) });
+        tween({ dur: 1600, delay: 300, ease: smooth, on: (k) => op(fdFull, 1 - k), done: () => (fdFull.style.display = "none") });
+      }),
+    );
     driftOn = false;
     after(3800, () => { treeSet = "wind"; if (!stopEmit) driftOn = true; nextRetarget = 0; });
     tween({ dur: 800, ease: E.out, on: (k) => (calmOn = 1 - k), done: () => { rippleMode = "title"; placeCalm(); } }); // 淡出期间换到进门后的位置
@@ -608,6 +648,7 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
   if (!RM) {
     prepDetach();
     for (let i = 0; i < 5; i++) spawnDrifter(0, true);
+    after(400, () => { if (!RM) loadWind(); });
   }
   onLayout(() => { sizeCanvas(); placeCalm(); });
 
@@ -752,13 +793,14 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
       after(600, unlock);
       return;
     }
+    loadWind();
     slots.forEach((x) => tween({ dur: T.xs, ease: E.out, on: (k) => op(x.u, lerp(0.4, 0.7, k)) }));
     slots.forEach((x, i) => tween({ dur: 360, delay: 180 + i * 40, ease: E.in, on: (k) => { op(x.s, 1 - k); x.s.style.transform = `translateY(${(-6 * k).toFixed(2)}px)`; } }));
     el.passLines.forEach((l, i) => tween({ dur: 360, delay: 180 + i * 60, ease: E.in, on: (k) => { op(l, 1 - k); l.style.transform = `translateX(${(10 * k).toFixed(2)}px)`; } }));
     after(560, () => { titleIn(); zoneMode = "title"; });
-    after(760, () => { const w = loadWind(); w.then(() => { if (!RM) gust(); }); });
-    hintIn(5400);
-    after(6000, unlock);
+    after(720, () => { if (!RM) gust(); });
+    hintIn(1050);
+    after(1200, unlock);
   }
   el.input.addEventListener("input", () => {
     const v = el.input.value.replace(/\D/g, "").slice(0, 4);
