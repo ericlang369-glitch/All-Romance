@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
-import { Y, YB, loadImgs } from "@/lib/kit";
+import { loadImgs } from "@/lib/kit";
 import { Photo, Screen, type ScreenProps } from "./common";
 
 const SK_PATH =
@@ -61,6 +61,7 @@ export function Letter({
       id="letter"
       index={index}
       total={total}
+      scaledStage
       overlay={
         zoomOpen ? (
           <div
@@ -312,7 +313,7 @@ export function Letter({
           className="ep-ang"
           style={{
             left: "50%",
-            top: Y(668, -0.5),
+            top: 666,
             transform: "translateX(-50%) rotate(-5deg)",
             zIndex: 15,
             textAlign: "center",
@@ -343,9 +344,9 @@ export function Letter({
             }
           }}
           style={{
-            top: YB(764, -1, 36),
+            top: 786,
             zIndex: 20,
-            padding: "8px 16px",
+            padding: "6px 14px",
             cursor: "pointer",
             opacity: entered ? 1 : 0,
             transition: "opacity 0.8s ease 0.35s",

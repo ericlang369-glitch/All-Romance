@@ -2,14 +2,26 @@
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, TEXT } from "@/config";
 import { createButterfly } from "@/lib/butterfly";
-import { $, $$, XT, YB, YT, after, env, loadImgs, slideLines } from "@/lib/kit";
+import { $, $$, E, after, env, loadImgs, slideLines, tween } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const A = `${BASE_PATH}/assets/`;
 /** 对齐 02-C 校准构图：相框上沿落在 y=182（较初版下移 42px），蝴蝶停落中心 (261, 435) */
 const FRAME_T = {
-  transformOrigin: "195.05px 182px",
-  transform: "translateY(calc(42px + var(--o) - var(--t))) scale(var(--fs))",
+  transform: "translateY(42px)",
+} as const;
+
+const MASK_WRAP_STYLE = {
+  position: "absolute",
+  left: 0,
+  top: 0,
+  width: 390,
+  height: 844,
+  pointerEvents: "none",
+  zIndex: 2,
+  opacity: 0,
+  WebkitMaskImage: "radial-gradient(circle at 261px 435px, transparent 0px, transparent 1px)",
+  maskImage: "radial-gradient(circle at 261px 435px, transparent 0px, transparent 1px)",
 } as const;
 
 type Ripple = { id: number; x: number; y: number };
@@ -17,11 +29,10 @@ type Mote = { id: number; x: number; y: number; size: number; mx: string; my: st
 
 /** 02 那束花：02-C 实拍校准彩墨点染扩散 + 青凤蝶停落微澜交互 */
 export default function Flower({ register, index, total, onNext }: ScreenProps) {
-  const art = useRef<HTMLDivElement>(null);
+  const maskWrapRef = useRef<HTMLDivElement>(null);
   const bfRef = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const enteredRef = useRef(false);
-  const [inkPct, setInkPct] = useState(0);
   const [settled, setSettled] = useState(false);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [motes, setMotes] = useState<Mote[]>([]);
@@ -29,31 +40,70 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
   const nextId = useRef(1);
 
   useEffect(() => {
+    let dead = false;
+    let stopDiff: (() => void) | undefined;
     const r = root.current!, bfg = bfRef.current!;
     const b = createButterfly($(bfg, ".bf"), $$(bfg, ".bf .w"), $(bfg, ".trail"));
+
+    const applyMask = (rad: number, mistOp: number) => {
+      const el = maskWrapRef.current;
+      if (!el) return;
+      const grad =
+        rad <= 0.1
+          ? "radial-gradient(circle at 261px 435px, transparent 0px, transparent 1px)"
+          : `radial-gradient(circle at 261px 435px, #000 0px, #000 ${(rad * 0.56).toFixed(1)}px, rgba(0,0,0,0.45) ${(rad * 0.8).toFixed(1)}px, transparent ${rad.toFixed(1)}px)`;
+      el.style.webkitMaskImage = grad;
+      el.style.maskImage = grad;
+      el.style.opacity = mistOp.toFixed(3);
+    };
+
     register({
       enter: () => {
         if (enteredRef.current) return;
         enteredRef.current = true;
         slideLines($$(r, ".grp .l"));
-        loadImgs(art.current!);
-        loadImgs(bfg);
-        b.ready().then(() =>
+        Promise.all([loadImgs(r), b.ready()]).then(() => {
+          if (dead) return;
           after(200, () => {
+            if (dead) return;
             b.fly();
             if (env.rm) {
-              setInkPct(130);
+              applyMask(540, 1);
               setSettled(true);
             } else {
               after(2150, () => {
-                setInkPct(130);
-                setSettled(true);
+                if (dead) return;
+                let settledSet = false;
+                stopDiff = tween({
+                  dur: 3800,
+                  delay: 350,
+                  ease: E.inout,
+                  on: (k, p) => {
+                    if (dead) return;
+                    const rad = 540 * k;
+                    const mistOp = Math.min(1, (p * 3800) / 900);
+                    applyMask(rad, mistOp);
+                    if (!settledSet && p * 3800 >= 450) {
+                      settledSet = true;
+                      setSettled(true);
+                    }
+                  },
+                  done: () => {
+                    if (dead) return;
+                    applyMask(540, 1);
+                    if (!settledSet) setSettled(true);
+                  },
+                });
               });
             }
-          }),
-        );
+          });
+        });
       },
     });
+    return () => {
+      dead = true;
+      stopDiff?.();
+    };
   }, [register]);
 
   const spawnInteractive = () => {
@@ -81,41 +131,38 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
   const t = TEXT.flower;
 
   return (
-    <Screen
-      id="s-flower"
-      index={index}
-      total={total}
-      art={
-        <div ref={art} className="full" style={FRAME_T}>
-          {/* 暗夜群青白线相框底 */}
+    <Screen id="s-flower" index={index} total={total} scaledStage>
+      <div ref={root} className="full">
+        {/* 暗夜群青白线相框底（首帧立即可见，绝不依赖懒加载） */}
+        <div style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 1, ...FRAME_T }}>
           <img
-            data-src={`${A}framed-bg@3x.webp`}
+            src={`${A}framed-bg@3x.webp`}
             alt=""
+            decoding="sync"
+            draggable={false}
             style={{ position: "absolute", left: -20, top: 140, width: 430.1, height: 573.4 }}
           />
-          {/* 02-C 晨雾暖香槟晕染遮罩 + 1:1 实拍水彩校准层 */}
+        </div>
+
+        {/* 外层 3.8s 羽化水彩扩散径向遮罩 + 内层 02-C 晨雾水彩轮廓遮罩 */}
+        <div ref={maskWrapRef} style={MASK_WRAP_STYLE}>
           <div
             style={{
               position: "absolute",
-              left: 0,
-              top: -42,
-              width: 390,
-              height: 844,
-              pointerEvents: "none",
-              clipPath: `circle(${inkPct}% at 261px 435px)`,
+              inset: 0,
               WebkitMaskImage: `url(${A}flower-mask-02c.webp)`,
               maskImage: `url(${A}flower-mask-02c.webp)`,
               WebkitMaskSize: "390px 844px",
               maskSize: "390px 844px",
               WebkitMaskRepeat: "no-repeat",
               maskRepeat: "no-repeat",
-              transition: "clip-path 1.65s cubic-bezier(0.22, 0.61, 0.36, 1)",
             }}
           >
             {/* 可见晨雾暖香槟光晕衬底 */}
             <img
               data-src={`${A}flower-mask-02c.webp`}
               alt=""
+              draggable={false}
               style={{ position: "absolute", left: 0, top: 0, width: 390, height: 844 }}
             />
             <div
@@ -128,11 +175,13 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
             <img
               data-src={`${A}framed-colored-real@3x.webp`}
               alt=""
+              draggable={false}
               style={{ position: "absolute", left: -20, top: 182, width: 430.1, height: 573.4 }}
             />
             <img
               data-src={`${A}butterfly-colored-real@3x.webp`}
               alt=""
+              draggable={false}
               style={{
                 position: "absolute",
                 left: 102,
@@ -144,9 +193,9 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
             />
           </div>
         </div>
-      }
-      artPlain={
-        <div ref={bfRef} className="full" style={FRAME_T}>
+
+        {/* 白描蝴蝶飞入、光点拖尾与轻触水波微澜层 */}
+        <div ref={bfRef} className="full" style={{ pointerEvents: "none", zIndex: 4, ...FRAME_T }}>
           <div className="trail" style={{ opacity: settled ? 0.25 : 1, transition: "opacity 0.8s ease" }} />
           {/* 用外层 wrapper 隐藏停稳后的白描蝴蝶，避开 butterfly.ts finish() 强制重写 .bf opacity=1 */}
           <div style={{ position: "absolute", inset: 0, opacity: settled ? 0 : 1, transition: "opacity 0.65s ease", pointerEvents: "none" }}>
@@ -186,11 +235,9 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
             );
           })}
         </div>
-      }
-    >
-      <div ref={root} className="full">
+
         {/* 单行标题撞色 + 两行副标题 (-7deg) */}
-        <div className="grp" style={{ left: XT(26), top: YT(54, 18) }}>
+        <div className="grp" style={{ left: 26, top: 54, zIndex: 15 }}>
           <span className="l pre" style={{ lineHeight: "38px", whiteSpace: "nowrap" }}>
             <span
               style={{
@@ -257,7 +304,7 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
         />
 
         <p
-          className="tilt-center-tight"
+          className="tilt-center-tight ep-note"
           role="button"
           tabIndex={0}
           aria-label="继续前往下一页"
@@ -273,16 +320,11 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
             }
           }}
           style={{
-            top: YB(764, -1, 36),
+            top: 800,
             zIndex: 20,
-            padding: "8px 16px",
+            padding: "4px 10px",
             cursor: "pointer",
-            fontFamily: "var(--sans)",
-            fontWeight: 500,
-            fontSize: 12,
-            lineHeight: "20px",
-            letterSpacing: "0.18em",
-            color: "rgba(255,255,255,0.72)",
+            color: "rgba(255,255,255,0.82)",
             opacity: settled ? 1 : 0.78,
             transition: "opacity 0.6s ease",
           }}

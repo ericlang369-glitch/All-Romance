@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
-import { YB, loadImgs } from "@/lib/kit";
+import { loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const P = `${BASE_PATH}/photos/`;
@@ -103,6 +103,16 @@ export function Photos({
       id="photos"
       index={index}
       total={total}
+      scaledStage
+      bg={
+        <div
+          className="full-bleed-bg"
+          style={{
+            background:
+              "radial-gradient(ellipse 100% 44% at 50% 98%, rgba(255,227,191,0.36) 0%, rgba(245,217,230,0.16) 46%, rgba(20,48,196,0) 80%)",
+          }}
+        />
+      }
       overlay={
         <>
           {easterOpen && (
@@ -144,7 +154,7 @@ export function Photos({
                     setZoomSrc({ src: `${P}${PHOTOS.catFull}`, caption: t.eggCatCaption, aspect: 737 / 1024 });
                   }
                 }}
-                style={{ left: 16, top: 262, transform: "rotate(-2.2deg)" }}
+                style={{ left: "calc(50% - 179px)", top: "calc(50% - 160px)", transform: "rotate(-2.2deg)" }}
               >
                 <div className="washi" style={{ left: 14, top: -6, width: 40, backgroundColor: "rgba(255,214,228,0.74)", transform: "rotate(-12deg)" }} />
                 <img
@@ -174,7 +184,7 @@ export function Photos({
                     setZoomSrc({ src: `${P}${PHOTOS.gdFull}`, caption: t.eggGdCaption, aspect: 767 / 1024 });
                   }
                 }}
-                style={{ left: 202, top: 278, transform: "rotate(2.2deg)" }}
+                style={{ left: "calc(50% + 7px)", top: "calc(50% - 144px)", transform: "rotate(2.2deg)" }}
               >
                 <div className="washi" style={{ right: 14, top: -6, width: 40, backgroundColor: "rgba(246,222,194,0.76)", transform: "rotate(12deg)" }} />
                 <img
@@ -241,18 +251,6 @@ export function Photos({
       }
     >
       <div ref={root} style={{ position: "relative", width: 390, height: 844, overflow: "hidden" }}>
-        {/* 05-B Warm Champagne Dawn Prelude Ambient Glow (Zero Left Axis) */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(ellipse 100% 44% at 50% 98%, rgba(255,227,191,0.36) 0%, rgba(245,217,230,0.16) 46%, rgba(20,48,196,0) 80%)",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
-
         {/* Scattered Depth-of-Field Sakura Blossoms, Single Petals & Micro Glow Dots */}
         <svg viewBox="0 0 390 844" style={{ position: "absolute", inset: 0, width: 390, height: 844, pointerEvents: "none", zIndex: 4 }}>
           {SAKURA_BLOOMS.map((s, idx) =>
@@ -466,8 +464,8 @@ export function Photos({
             }
           }}
           style={{
-            left: 42,
-            top: YB(682, -0.45, 72),
+            left: 48,
+            top: 696,
             padding: "6px 6px",
             transform: "rotate(-4.5deg)",
             zIndex: 20,

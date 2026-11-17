@@ -77,6 +77,16 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
         });
       }),
     ));
+  const preview = document.createElement("img");
+  preview.src = `${BASE_PATH}/assets/tree-calm-preview.webp`;
+  preview.alt = "";
+  preview.decoding = "sync";
+  preview.setAttribute("fetchpriority", "high");
+  preview.style.cssText = "position:absolute;left:0;top:0;width:390px;height:844px;pointer-events:none;z-index:0;transition:opacity 220ms ease";
+  el.tree.appendChild(preview);
+  const calmDecodes: Promise<void>[] = [];
+  const calmGroups: HTMLDivElement[] = [];
+
   const byGroup: Record<string, Layer[]> = {};
   TL.layers.forEach((l) => (byGroup[l.group] = byGroup[l.group] || []).push(l));
   function makeGroup(name: string, ls: Layer[], anchor: number[]): Group {
@@ -85,13 +95,18 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     const d = document.createElement("div");
     d.className = "g";
     d.dataset.g = name;
-    d.style.cssText += `left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px;transform-origin:${anchor[0] - x0}px ${anchor[1] - y0}px`;
+    d.style.cssText += `left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px;transform-origin:${anchor[0] - x0}px ${anchor[1] - y0}px;opacity:0;transition:opacity 220ms ease`;
+    calmGroups.push(d);
     const imgs: Record<string, HTMLImageElement> = {};
     ls.sort((a, b) => a.z - b.z).forEach((l) => {
       const im = new Image();
+      const src = TREE_BASE + l.src.replace(/\.png$/i, ".webp");
       // G6：风吹后那套（只有风里和风后用）先不加载，第一次碰屏幕 / 按键时再取；减少动态效果档根本用不到
-      if (l.set === "wind") { im.dataset.src = TREE_BASE + l.src; windImgs.push(im); }
-      else im.src = TREE_BASE + l.src;
+      if (l.set === "wind") { im.dataset.src = src; windImgs.push(im); }
+      else {
+        im.src = src;
+        calmDecodes.push(im.decode().catch(() => undefined));
+      }
       im.alt = "";
       im.decoding = "async";
       im.style.cssText = `left:${l.x - x0}px;top:${l.y - y0}px;width:${l.w}px;height:${l.h}px`;
@@ -111,6 +126,15 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
       p.turbPh = rnd() * 6.28;
       p.turbPh2 = rnd() * 6.28;
     }
+  });
+  Promise.all(calmDecodes).then(() => {
+    const reveal = () => {
+      calmGroups.forEach((d) => { d.style.opacity = "1"; });
+      preview.style.opacity = "0";
+      window.setTimeout(() => preview.remove(), 260);
+    };
+    if (RM) reveal();
+    else requestAnimationFrame(reveal);
   });
   const force = (p: GP, e: number) => {
     const t = e - p.delay;
@@ -333,7 +357,7 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
   el.calm.appendChild(cflower);
   let rippleMode: "pass" | "title" = "pass";
   function placeCalm() {
-    const cy = 610 + (rippleMode === "pass" ? -0.35 : -0.65) * L.D + L.o, k = clamp(1 - L.D / 250, 0.5, 1);
+    const cy = (rippleMode === "pass" ? 610 - 0.35 * L.D : 610 - 0.65 * L.D) + L.o, k = clamp(1 - L.D / 210, 0.46, 1);
     rings.forEach(({ e, r }) => (e.style.cssText += `left:${206 - r * k}px;top:${cy - r * k}px;width:${2 * r * k}px;height:${2 * r * k}px`));
     cflower.style.cssText += `left:${206 - 9}px;top:${cy - 9}px`;
   }

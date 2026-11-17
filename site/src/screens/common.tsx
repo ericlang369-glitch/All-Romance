@@ -24,31 +24,41 @@ export function Screen({
   id,
   children,
   overlay,
+  bg,
   art,
   artPlain,
   index,
   total,
   showHud = true,
   hudTone = "light",
+  scaledStage = false,
 }: {
   id: string;
   children: ReactNode;
   overlay?: ReactNode;
+  bg?: ReactNode;
   art?: ReactNode;
   artPlain?: ReactNode;
   index?: number;
   total?: number;
   showHud?: boolean;
   hudTone?: "light" | "dark";
+  scaledStage?: boolean;
 }) {
+  const stageContent = (
+    <>
+      {index && total && showHud && <Hud index={index} total={total} tone={hudTone} />}
+      {children}
+    </>
+  );
   return (
     <section className="screen" id={id}>
       <div className="shift">
+        {bg}
         {art && <div className="col feather"><div className="cs">{art}</div></div>}
         {artPlain && <div className="col"><div className="cs">{artPlain}</div></div>}
         <div className="stage">
-          {index && total && showHud && <Hud index={index} total={total} tone={hudTone} />}
-          {children}
+          {scaledStage ? <div className="design-canvas">{stageContent}</div> : stageContent}
         </div>
         {overlay}
       </div>

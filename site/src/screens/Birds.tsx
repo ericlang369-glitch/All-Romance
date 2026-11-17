@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, TEXT } from "@/config";
-import { YB, loadImgs } from "@/lib/kit";
+import { loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const B = `${BASE_PATH}/assets/birds/`;
@@ -38,7 +38,7 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
   const t = TEXT.birds;
 
   return (
-    <Screen id="birds" index={index} total={total}>
+    <Screen id="birds" index={index} total={total} scaledStage>
       <div
         ref={root}
         onPointerDown={spawnRipple}
@@ -148,9 +148,9 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
             }
           }}
           style={{
-            top: YB(764, -1, 36),
+            top: 786,
             zIndex: 20,
-            padding: "8px 16px",
+            padding: "6px 14px",
             cursor: "pointer",
             opacity: entered ? 1 : 0,
             transition: "opacity 0.8s ease 0.35s",

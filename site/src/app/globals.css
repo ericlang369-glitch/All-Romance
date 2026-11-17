@@ -19,7 +19,7 @@
   --s1:4px;--s2:8px;--s3:16px;--s4:24px;--s5:40px;--s6:64px;--s7:96px;
   --gutter:32px; --content:326px; --r-photo:0; --r-card:2px;
   /* 视口适配（spec §6）：由 JS 在首次加载和旋转时写入（lib/kit.ts computeLayout） */
-  --W:100vw; --H:100svh; --Wc:min(100vw,430px); --colL:0px; --dx:0px; --bx:0px; --D:0; --o:0px; --t:0px; --fs:1;
+  --W:100vw; --H:100svh; --Wc:min(100vw,430px); --colL:0px; --dx:0px; --bx:0px; --D:0; --o:0px; --t:0px; --fs:1; --ss:1;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--blue);height:100%;overflow:hidden;overscroll-behavior:none}
@@ -83,6 +83,8 @@ html[data-rec] #scroller{scroll-snap-type:none}
 /* 390 宽设计坐标，放在列中间：x' = colL + x + dx（§6.1 第 4 条），不缩放 */
 .stage{position:absolute;left:calc(var(--bx) + var(--dx));top:0;width:390px;height:100%}
 .stage img,.cs img{max-width:none}
+.design-canvas{position:absolute;left:50%;top:50%;width:390px;height:844px;transform:translate(-50%,-50%) scale(var(--ss,1));transform-origin:50% 50%}
+.full-bleed-bg{position:absolute;left:calc(-1 * var(--colL) - var(--bx) - 24px);right:calc(-1 * var(--colL) - var(--bx) - 24px);top:-24px;bottom:-24px;pointer-events:none}
 /* 列容器：树、02 相框放这里。宽屏时裁在列里，列边 48px 羽化（§6.3）；手机上列边就是屏幕边，不加遮罩 */
 .col{position:absolute;left:var(--bx);top:0;width:var(--Wc);height:100%;pointer-events:none}
 .col>.cs{position:absolute;left:var(--dx);top:0;width:390px;height:100%}

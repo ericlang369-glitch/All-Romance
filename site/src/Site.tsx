@@ -1,7 +1,7 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { BASE_PATH, CAMERA_LEVEL, SHOW_LETTER } from "@/config";
-import { E, L, clamp, commitTier, computeLayout, env, frameStats, isVirtual, lerp, loadImgs, pokeMonitor, tween } from "@/lib/kit";
+import { E, L, clamp, commitTier, computeLayout, env, frameStats, isVirtual, lerp, loadImgs, onLayout, pokeMonitor, tween } from "@/lib/kit";
 import type { ScreenCtl } from "@/screens/common";
 import Opening from "@/screens/Opening";
 import Flower from "@/screens/Flower";
@@ -66,29 +66,32 @@ function EscortBirdsOverlay({
 
     const localShift04 = (BIRDS_IDX - p) * H;
     const localShift05 = (POSTCARDS_IDX - p) * H;
+    const ss = L.ss || 1;
+    const mapX = (x: number) => 195 + (x - 195) * ss;
+    const mapY = (y: number) => H * 0.5 + (y - 422) * ss;
 
     if (blueRef.current) {
-      const bx = 168 + (334 - 168) * eT + 26 * arc;
+      const bx = mapX(168 + (334 - 168) * eT + 26 * arc);
       const by =
         p <= BIRDS_IDX
-          ? 642 + localShift04
+          ? mapY(642) + localShift04
           : p >= POSTCARDS_IDX
-            ? 244 + localShift05
-            : lerp(642, 244, eT) - 38 * arc;
+            ? mapY(244) + localShift05
+            : mapY(lerp(642, 244, eT) - 38 * arc);
       const brot = -22 + 4 * eT - 10 * arc;
-      blueRef.current.style.transform = `translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0) rotate(${brot.toFixed(1)}deg)`;
+      blueRef.current.style.transform = `translate3d(${bx.toFixed(1)}px, ${by.toFixed(1)}px, 0) rotate(${brot.toFixed(1)}deg) scale(${ss.toFixed(3)})`;
     }
 
     if (amberRef.current) {
-      const ax = 88 + (58 - 88) * eT - 24 * arc;
+      const ax = mapX(88 + (58 - 88) * eT - 24 * arc);
       const ay =
         p <= BIRDS_IDX
-          ? 676 + localShift04
+          ? mapY(676) + localShift04
           : p >= POSTCARDS_IDX
-            ? 550 + localShift05
-            : lerp(676, 550, eT) + 20 * arc;
+            ? mapY(550) + localShift05
+            : mapY(lerp(676, 550, eT) + 20 * arc);
       const arot = -26 + 10 * eT - 8 * arc;
-      amberRef.current.style.transform = `translate3d(${ax.toFixed(1)}px, ${ay.toFixed(1)}px, 0) rotate(${arot.toFixed(1)}deg)`;
+      amberRef.current.style.transform = `translate3d(${ax.toFixed(1)}px, ${ay.toFixed(1)}px, 0) rotate(${arot.toFixed(1)}deg) scale(${ss.toFixed(3)})`;
     }
   }, [scrollerRef, modalOpen]);
 
@@ -96,10 +99,12 @@ function EscortBirdsOverlay({
     const sc = scrollerRef.current;
     if (!sc) return;
     syncPosition();
+    const offLayout = onLayout(syncPosition);
     sc.addEventListener("scroll", syncPosition, { passive: true });
     window.addEventListener("resize", syncPosition);
     window.addEventListener("xiyu-scroll", syncPosition);
     return () => {
+      offLayout();
       sc.removeEventListener("scroll", syncPosition);
       window.removeEventListener("resize", syncPosition);
       window.removeEventListener("xiyu-scroll", syncPosition);
@@ -111,16 +116,16 @@ function EscortBirdsOverlay({
       <div className="col" style={{ overflow: "visible" }}>
         <div className="cs" style={{ overflow: "visible" }}>
           <div ref={blueRef} className="escort-pair-unit" data-flapping={flapping ? "1" : "0"}>
-            <img src={`${B_DIR}wake-blue@3x.png`} alt="" draggable={false} style={{ position: "absolute", left: -42, top: 51, width: 100, height: 60 }} />
-            <img className="bird-f1" src={`${B_DIR}escort-blue-f1@3x.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
-            <img className="bird-f2" src={`${B_DIR}escort-blue-f2@3x.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
-            <img className="bird-f3" src={`${B_DIR}escort-blue-f3@3x.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
+            <img src={`${B_DIR}wake-blue@3x.webp`} alt="" draggable={false} style={{ position: "absolute", left: -42, top: 51, width: 100, height: 60 }} />
+            <img className="bird-f1" src={`${B_DIR}escort-blue-f1@3x.webp`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
+            <img className="bird-f2" src={`${B_DIR}escort-blue-f2@3x.webp`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
+            <img className="bird-f3" src={`${B_DIR}escort-blue-f3@3x.webp`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
           </div>
           <div ref={amberRef} className="escort-pair-unit" data-flapping={flapping ? "1" : "0"}>
-            <img src={`${B_DIR}wake-amber@3x.png`} alt="" draggable={false} style={{ position: "absolute", left: -42, top: 51, width: 100, height: 60 }} />
-            <img className="bird-f1" src={`${B_DIR}escort-amber-f1@3x.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
-            <img className="bird-f2" src={`${B_DIR}escort-amber-f2@3x.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
-            <img className="bird-f3" src={`${B_DIR}escort-amber-f3@3x.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
+            <img src={`${B_DIR}wake-amber@3x.webp`} alt="" draggable={false} style={{ position: "absolute", left: -42, top: 51, width: 100, height: 60 }} />
+            <img className="bird-f1" src={`${B_DIR}escort-amber-f1@3x.webp`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
+            <img className="bird-f2" src={`${B_DIR}escort-amber-f2@3x.webp`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
+            <img className="bird-f3" src={`${B_DIR}escort-amber-f3@3x.webp`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: 140, height: 140 }} />
           </div>
         </div>
       </div>
@@ -177,9 +182,9 @@ export default function Site() {
   const modalPostcards = useCallback((on: boolean) => makeModal("postcards")(on), [makeModal]);
   const modalPhotos = useCallback((on: boolean) => makeModal("photos")(on), [makeModal]);
 
-  const preload = useCallback((k: number) => {
-    const s = sections()[k];
-    if (s) loadImgs(s);
+  const preload = useCallback((k: number): Promise<void> => {
+    const s = scroller.current ? sections()[k] : undefined;
+    return s ? loadImgs(s) : Promise.resolve();
   }, []);
 
   /* 屏间镜头（plan §3）：原生滚动 + scroll-snap，不接管手势；每帧按滚动进度 s 写横移和镜头的 rotate/scale */
@@ -297,14 +302,33 @@ export default function Site() {
       h.dataset.ready = "";
       update();
     });
+
+    // 密码页渐进式预加载（700ms 后依次加载 02..07，每屏间隔 250ms）
+    const wait = (ms: number) => new Promise<void>((r) => window.setTimeout(r, ms));
+    const preloadTimer = window.setTimeout(() => {
+      let chain: Promise<void> = Promise.resolve();
+      for (let k = 1; k < SCREENS.length; k++) {
+        chain = chain
+          .then(() => {
+            if (dead) return;
+            return preload(k);
+          })
+          .then(() => {
+            if (dead || k >= SCREENS.length - 1) return;
+            return wait(250);
+          });
+      }
+    }, 700);
+
     return () => {
       dead = true;
+      clearTimeout(preloadTimer);
       removeEventListener("resize", onResize); removeEventListener("orientationchange", onOrient);
       removeEventListener("keydown", onKey, true); sc.removeEventListener("scroll", onScroll);
       sc.removeEventListener("touchmove", onTouchMove); sc.removeEventListener("wheel", onWheel);
       probe.remove();
     };
-  }, [lock, update, applyInert]);
+  }, [lock, update, applyInert, preload]);
 
   const onUnlock = useCallback(() => {
     const st = state.current;

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
-import { YB, loadImgs } from "@/lib/kit";
+import { loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const B = `${BASE_PATH}/assets/birds/`;
@@ -51,6 +51,7 @@ export function Postcards({
       id="postcards"
       index={index}
       total={total}
+      scaledStage
       overlay={
         lightboxIdx !== null ? (
           <div
@@ -271,9 +272,9 @@ export function Postcards({
             }
           }}
           style={{
-            top: YB(764, -1, 36),
+            top: 786,
             zIndex: 20,
-            padding: "8px 16px",
+            padding: "6px 14px",
             cursor: "pointer",
             opacity: entered ? 1 : 0,
             transition: "opacity 0.8s ease 0.35s",

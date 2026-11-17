@@ -5,8 +5,8 @@ import { $, $$, Y, YB } from "@/lib/kit";
 import { TEXT } from "@/config";
 import { Screen, type ScreenProps } from "./common";
 
-/** 「轻触 · 向下」：top 718 − D（避让微信底部栏，§6.2），离底边 ≥ safe-bottom + 44 */
-const HINT_TOP = YB(718, -1, 36);
+/** 「轻触 · 向下」：top 718 − 0.58·D（避让微信底部栏，且与水波纹留足间距） */
+const HINT_TOP = YB(718, -0.58, 36);
 
 export default function Opening({
   register,
@@ -59,7 +59,7 @@ export default function Opening({
           <input id="passInput" inputMode="numeric" pattern="[0-9]*" maxLength={4} autoComplete="off" aria-label="我们开始的那一天（4 位数字）" />
         </div>
         <div id="title">
-          <div className="grp" style={{ left: 36, top: Y(366) }}>
+          <div className="grp" style={{ left: 66, top: Y(332, -0.34) }}>
             <span className="l" style={{ lineHeight: "26px" }}>
               <span className="ss-it" style={{ fontSize: 20, color: "#6CCBF7" }}>Dear</span>
               <span className="geo-caps" style={{ fontSize: 19, marginLeft: 7, color: "#F0C288" }}>{TEXT.opening.enName}</span>
