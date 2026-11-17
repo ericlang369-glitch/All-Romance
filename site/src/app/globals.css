@@ -1,0 +1,571 @@
+@import "tailwindcss";
+
+/* ===== 设计令牌：字体声明已迁入 layout.tsx（支持 GitHub Pages BASE_PATH） ===== */
+@font-face{font-family:"Noto Serif SC Local";src:local("Noto Serif SC"),local("NotoSerifSC-VF");font-weight:700;font-display:swap}
+@font-face{font-family:"Noto Sans SC Local";src:local("Noto Sans SC"),local("NotoSansSC-VF");font-weight:500;font-display:swap}
+
+:root{
+  --blue:#1430C4; --blue-deep:#0B1E8C;
+  --white:#FFFFFF; --white-70:rgba(255,255,255,.7); --white-40:rgba(255,255,255,.4);
+  --line:rgba(255,255,255,.35); --line-faint:rgba(255,255,255,.15);
+  --fill-ph:rgba(255,255,255,.08); --fill-ph-solid:#2741C9;
+  --mist:#CFD8FF; --branch:#061055; --branch-opacity:.8;
+  --shadow:0 8px 24px rgba(5,15,80,.35);
+  --serif:"Noto Serif SC","Noto Serif SC Local",serif;
+  --sans:"Montserrat","Noto Sans SC","Noto Sans SC Local",sans-serif;
+  --geo:"Montserrat",sans-serif;
+  --latin:"Source Serif 4",serif;
+  --tilt:-7deg; --tilt-note:-14deg;
+  --s1:4px;--s2:8px;--s3:16px;--s4:24px;--s5:40px;--s6:64px;--s7:96px;
+  --gutter:32px; --content:326px; --r-photo:0; --r-card:2px;
+  /* 视口适配（spec §6）：由 JS 在首次加载和旋转时写入（lib/kit.ts computeLayout） */
+  --W:100vw; --H:100svh; --Wc:min(100vw,430px); --colL:0px; --dx:0px; --bx:0px; --D:0; --o:0px; --t:0px; --fs:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--blue);height:100%;overflow:hidden;overscroll-behavior:none}
+body{font-feature-settings:"lnum" 1;-webkit-font-smoothing:antialiased;text-rendering:geometricPrecision;color:var(--white);
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+.display {font-family:var(--serif);font-weight:700;font-size:40px;line-height:40px;letter-spacing:.04em}
+.title   {font-family:var(--serif);font-weight:700;font-size:24px;line-height:28px;letter-spacing:.06em}
+.sub     {font-family:var(--sans);font-weight:500;font-size:13px;line-height:20px;letter-spacing:.3em}
+.body    {font-family:var(--sans);font-weight:500;font-size:14px;line-height:28px;letter-spacing:.08em}
+.caption {font-family:var(--sans);font-weight:500;font-size:12px;line-height:18px;letter-spacing:.16em;color:var(--white-70)}
+.note    {font-family:var(--sans);font-weight:500;font-size:13px;line-height:20px;letter-spacing:.3em;color:var(--white-70)}
+.note .d {font-family:var(--geo);font-weight:550;font-size:16px;letter-spacing:.08em}
+.number  {font-family:var(--geo);font-weight:650;font-size:34px;line-height:1;letter-spacing:.02em;font-feature-settings:"lnum" 1,"tnum" 1}
+.number-xl{font-family:var(--geo);font-weight:650;font-size:47px;line-height:1;letter-spacing:.02em}
+.caps    {font-family:var(--geo);font-weight:650;font-size:27px;letter-spacing:.03em;text-transform:uppercase}
+.it      {font-family:var(--latin);font-weight:725;font-style:italic;font-size:29px}
+.rm      {font-family:var(--latin);font-weight:725;font-style:normal;font-size:29px}
+.unit    {font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:0}
+.hint    {color:var(--white-40)}
+
+.grp{position:absolute;transform:rotate(var(--tilt));transform-origin:0 0;white-space:nowrap;font-family:var(--latin);font-weight:725}
+.grp>.l{display:block}
+/* M1：计时行里 .num 是 inline-block（换数字动画要 transform），行盒会比定稿的纯 inline 高 1px，把英文三行整体推下 1px；字形位置两边一致，只把这一行的行盒钉回定稿实测的 35px */
+.grp.endGrp>.l:first-child{height:35px}
+.tilt{position:absolute;left:0;width:390px;text-align:center;transform:rotate(var(--tilt-note));white-space:nowrap}
+.tilt.note{padding-left:.3em}
+.c{position:absolute;left:0;right:0;text-align:center}
+.c.title{padding-left:.06em}.c.caption{padding-left:.16em}.c.body{padding-left:.08em}
+
+.polaroid{position:absolute;background:var(--white);padding:8px 8px 0 8px;box-shadow:var(--shadow);border-radius:var(--r-photo)}
+.polaroid .ph{position:relative;background:var(--fill-ph-solid);border:1px dashed var(--white-40);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.ph span,.face span,.eg span{font-family:var(--sans);font-weight:500;font-size:11px;letter-spacing:.2em;color:var(--white-40);padding-left:.2em}
+.polaroid .cap{height:28px;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:550;font-size:12px;line-height:18px;letter-spacing:.02em;padding-left:.02em;white-space:nowrap;overflow:hidden;color:rgba(11,30,140,.8)}
+/* 换上真图：去掉虚线和文字，铺满 */
+.photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.has-photo{border:none !important}
+
+/* ===== 页面骨架（spec §6）===== */
+/* 高度固定为首次加载时的 100svh（--H），键盘弹出不跟着变（G3） */
+#frame{position:fixed;left:0;right:0;top:0;height:var(--H);overflow:hidden;background:var(--blue)}
+/* 列：宽 min(视口, 430)，水平居中 */
+#camera{position:absolute;top:0;bottom:0;left:50%;width:min(100%,430px);transform:translateX(-50%)}
+#camera>.rig{position:absolute;inset:0;transform-origin:50% 50%}
+/* 暗角跟镜头走、不跟屏走；铺满整个视口再加 64px 出血（plan §3b、spec §6.3），圆心在列中线，半径按列宽算 */
+.lens{position:absolute;top:-64px;bottom:-64px;left:calc(-1 * var(--colL) - 64px);right:calc(-1 * var(--colL) - 64px);pointer-events:none}
+.lens.soft{background:radial-gradient(ellipse calc(var(--Wc) * .8) calc(var(--H) * .7) at 50% 50%, rgba(11,30,140,0) 50%, rgba(11,30,140,.12) 100%),var(--blue)}
+.lens.main{background:radial-gradient(ellipse calc(var(--Wc) * .75) calc(var(--H) * .65) at 50% 50%, rgba(11,30,140,0) 40%, rgba(11,30,140,.35) 100%),var(--blue);opacity:0}
+/* 宽屏两侧压暗：列左边外 136px（.16）→ 列左边内 24px（0），右边对称（§6.3） */
+.lens.sides{display:none}
+html[data-wide] .lens.sides{display:block;background:linear-gradient(90deg,
+  rgba(11,30,140,.16) calc(var(--colL) + 64px - 136px), rgba(11,30,140,0) calc(var(--colL) + 64px + 24px),
+  rgba(11,30,140,0) calc(100% - var(--colL) - 64px - 24px), rgba(11,30,140,.16) calc(100% - var(--colL) - 64px + 136px))}
+/* 宽屏时滚动容器左右各多 64px（--bx），只给风里的落花飘出列外用 */
+#scroller{position:absolute;top:0;bottom:0;left:calc(-1 * var(--bx));right:calc(-1 * var(--bx));overflow-y:auto;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+#scroller::-webkit-scrollbar{display:none}
+html[data-scroll="locked"] #scroller{overflow-y:hidden;touch-action:none}
+html[data-rec] #scroller{scroll-snap-type:none}
+/* 每屏按屏裁切（G2）；横向出血由 .shift 内容自带 */
+.screen{position:relative;height:var(--H);scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
+.screen>.shift{position:absolute;inset:0}
+/* 390 宽设计坐标，放在列中间：x' = colL + x + dx（§6.1 第 4 条），不缩放 */
+.stage{position:absolute;left:calc(var(--bx) + var(--dx));top:0;width:390px;height:100%}
+.stage img,.cs img{max-width:none}
+/* 列容器：树、02 相框放这里。宽屏时裁在列里，列边 48px 羽化（§6.3）；手机上列边就是屏幕边，不加遮罩 */
+.col{position:absolute;left:var(--bx);top:0;width:var(--Wc);height:100%;pointer-events:none}
+.col>.cs{position:absolute;left:var(--dx);top:0;width:390px;height:100%}
+html[data-wide] .col{overflow:hidden}
+html[data-wide] .col.feather{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 48px,#000 calc(100% - 48px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 48px,#000 calc(100% - 48px),transparent 100%)}
+.screen .full{position:absolute;inset:0}
+
+/* 入场前隐藏：只在 JS 就绪后才加（plan §0）。JS 没跑起来时直接显示终态 */
+html.js .pre, html.js .fx{opacity:0}
+html:not(.js) #pass{display:none}
+
+/* 01 */
+#tree{position:absolute;inset:0;pointer-events:none}
+#calm{position:absolute;inset:0;pointer-events:none}
+#tree .g{position:absolute}
+#tree img{position:absolute;display:block}
+.ring{position:absolute;border:1px solid #fff;border-radius:50%}
+.cflower{position:absolute;width:18px;height:18px}
+.cp{position:absolute;left:0;top:0}
+.slot{position:absolute;top:calc(414px + var(--o));width:28px;height:41px}
+.slot .digit{position:absolute;left:0;right:0;top:0;height:32px;text-align:center;font-family:var(--geo);font-weight:550;font-size:28px;line-height:32px;letter-spacing:0;color:var(--white);font-feature-settings:"lnum" 1,"tnum" 1;opacity:0}
+.slot i{position:absolute;left:0;right:0;bottom:0;height:1px;background:#fff;opacity:.4}
+#row{position:absolute;left:0;top:0;width:390px;height:100%;pointer-events:none}
+#burst{position:absolute;left:0;top:var(--o);width:390px;height:844px;pointer-events:none}
+#gust{position:absolute;left:0;top:0;pointer-events:none}
+/* 宽屏：落花可以飘出列外最多 64px，在列边外 0→64px 内淡到 0（§6.3） */
+html[data-wide] #gust{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--bx),#000 calc(100% - var(--bx)),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 var(--bx),#000 calc(100% - var(--bx)),transparent 100%)}
+#passInput{position:absolute;left:96px;top:calc(384px + var(--o));width:198px;height:80px;opacity:0;font-size:16px;color:transparent;background:transparent;border:0;outline:0;caret-color:transparent;text-align:center}
+#again{opacity:0}
+html.js #title .l, html.js #hintTxt, html.js #hintLine{opacity:0}
+#hintLine{transform-origin:50% 0}
+.hintTap{position:absolute;left:115px;width:160px;height:96px;background:transparent;border:0;pointer-events:none}
+.hintTap:not(:disabled){pointer-events:auto;cursor:pointer}
+.hintTap:focus-visible{outline:1px solid var(--white-40);outline-offset:-8px}
+
+/* 02 */
+.bf{position:absolute;left:102px;top:242.5px;width:270px;height:262px;transform-origin:159.3px 150.9px}
+html.js .bf{opacity:0}
+.bf img{position:absolute;left:0;top:0;width:270px;height:262px;transform-origin:159.3px 150.9px}
+.pt{position:absolute;left:0;top:0;border-radius:50%;pointer-events:none}
+
+/* 04 */
+.dot4{position:absolute;width:5px;height:5px;margin:-2.5px 0 0 -2.5px;border-radius:50%;background:var(--mist)}
+.ring4{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;border:1px solid rgba(207,216,255,.35)}
+.ln4{position:absolute;height:1px;background:var(--line);transform-origin:0 50%}
+.card{position:absolute;width:248px;height:165.33px;cursor:pointer;-webkit-user-select:none;user-select:none}
+.card .flip{position:absolute;inset:0;transform-style:preserve-3d;-webkit-transform-style:preserve-3d}
+.card .face{position:absolute;inset:0;border:1px solid var(--white-40);border-radius:var(--r-card);background:var(--fill-ph-solid);box-shadow:var(--shadow);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.card .face.back{transform:rotateY(180deg)}
+html[data-rm] .card .face{backface-visibility:visible;-webkit-backface-visibility:visible}
+html[data-rm] .card .face.back{transform:none;opacity:0}
+
+/* 05 */
+.polaroid.p2{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+.egg{position:absolute;inset:0;display:none;z-index:5}
+button.close{background:transparent;border:0;cursor:pointer;color:var(--white-70)}
+/* 键盘焦点（M2）：只在键盘操作时出现，触屏不显示 */
+.card:focus{outline:none}.polaroid.p2:focus{outline:none}button.close:focus{outline:none}
+.card:focus-visible,.polaroid.p2:focus-visible{outline:1px solid var(--white-70);outline-offset:4px}
+button.close:focus-visible{text-decoration:underline;text-underline-offset:4px}
+.egg .dim{position:absolute;inset:0;background:rgba(11,30,140,.92);opacity:0}
+.eg{position:absolute;background:#1F3199;border:1px dashed var(--white-40);display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:0}
+
+/* 06 */
+.num{display:inline-block;position:relative;text-align:right}
+.num>span{display:inline-block}
+.nd{width:2.161em}
+.nh,.nm{width:1.441em}
+.num>.old{position:absolute;right:0;top:0}
+
+/* 100 天信件版排版与花束绽放样式 */
+.ep-sub{font-family:var(--sans);font-weight:500;font-size:13px;line-height:22px;letter-spacing:.14em;color:var(--white-70);white-space:normal}
+.lt-paper-body{font-family:var(--sans);font-weight:500;font-size:13px;line-height:28px;letter-spacing:.08em;color:var(--white)}
+.pc-back-note{padding:16px 20px;display:flex;flex-direction:column;justify-content:center;gap:6px;text-align:left;width:100%;height:100%;background:linear-gradient(155deg,#2741C9 0%,#1B33B4 100%)}
+.pc-back-note p{font-family:var(--sans);font-weight:500;font-size:12px;line-height:19px;letter-spacing:.06em;color:var(--white);white-space:normal}
+.pc-back-note .pc-en{font-family:var(--latin);font-weight:725;font-style:italic;font-size:12px;line-height:17px;letter-spacing:.01em;color:var(--white)}
+.pc-back-note .pc-sig{font-size:11px;line-height:16px;color:var(--white-70);text-align:right;margin-top:2px;letter-spacing:.08em}
+
+.bq-wrap{position:absolute;left:87.2px;width:215.7px;height:276px;cursor:pointer;-webkit-tap-highlight-color:transparent;outline:none;user-select:none}
+.bq-wrap:focus-visible{outline:1px solid var(--white-70);outline-offset:6px}
+.bq-wrap img{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.bq-breathe{animation:bqFloat 5.2s ease-in-out infinite}
+@keyframes bqFloat{0%,100%{transform:translateY(0px) scale(1)}50%{transform:translateY(-3px) scale(1.012)}}
+.bloom-glow-a{position:absolute;left:15px;width:360px;height:380px;border-radius:50%;background:radial-gradient(circle, rgba(255,182,205,.24) 0%, rgba(168,195,255,.14) 42%, rgba(20,48,196,0) 72%);pointer-events:none;opacity:0}
+.bloom-dawn-b{position:absolute;inset:-64px;background:radial-gradient(ellipse 80% 65% at 50% 34%, #FFFDF9 0%, #F6F0E4 62%, #EAE0CE 100%);pointer-events:none;opacity:0}
+.bloom-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+#s-ending .endGrp,#s-ending .endGrp .caps,#s-ending .since,#s-ending .end,#s-ending .bq-hint,#s-ending .today-line{transition:color .65s ease}
+#s-ending[data-bloom="a"] .endGrp .caps{color:#FFD6E4}
+#s-ending[data-bloom="a"] .today-line{color:#FFE5EE}
+#s-ending[data-bloom="b"] .endGrp,
+#s-ending[data-bloom="b"] .since,
+#s-ending[data-bloom="b"] .end,
+#s-ending[data-bloom="b"] .bq-hint,
+#s-ending[data-bloom="b"] .today-line{color:#10259E}
+#s-ending[data-bloom="b"] .endGrp .caps{color:#B84A62}
+#s-ending[data-bloom="b"] .bq-wrap:focus-visible{outline-color:rgba(16,37,158,.5)}
+
+@media (prefers-reduced-motion: reduce){ #scroller{scroll-behavior:auto} .bq-breathe{animation:none} }
+
+
+/* ============================================================================
+   V3 EDITORIAL DESIGN SYSTEM OVERRIDES (01-07 LOCKED MOCKUPS)
+   ============================================================================ */
+
+:root {
+  --serif: "Noto Serif SC VF", "NotoSerifSC", serif;
+  --sans: "Montserrat Full", "Montserrat", "Noto Sans SC VF", "NotoSansSC", sans-serif;
+  --geo: "Montserrat Full", "Montserrat", sans-serif;
+  --latin: "Source Serif 4", "SourceSerif4", serif;
+  --zhimang: "Zhi Mang Xing", cursive, serif;
+  --playfair: "Playfair Display", "Source Serif 4", serif;
+  --ice-blue: #6CCBF7;
+  --amber-gold: #F0C288;
+  --mist: #CFD8FF;
+  --champagne: #F6DEC2;
+  --rose: #B84A62;
+  --cobalt-ink: #10259E;
+}
+
+/* Ensure all existing Chinese & UI copy uses full-coverage TTF fonts */
+body {
+  font-family: var(--sans);
+  font-feature-settings: "lnum" 1;
+}
+#s-opening .t,
+#s-opening .k,
+#s-opening .again,
+.hintTap,
+.hintTap .ht {
+  font-family: var(--sans);
+}
+#s-opening .s1,
+#s-opening .s2,
+#s-opening .s3 {
+  font-family: var(--serif);
+}
+
+/* Shared Top HUD */
+.hud {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  opacity: 0.68;
+  pointer-events: none;
+  z-index: 22;
+  color: #FFFFFF;
+  transition: opacity 0.65s cubic-bezier(0.22, 0.61, 0.36, 1), color 0.8s ease;
+}
+.hud-date {
+  font-family: var(--geo);
+  font-weight: 600;
+  font-size: 10.2px;
+  letter-spacing: 0.14em;
+}
+.hud-idx {
+  font-family: var(--latin);
+  font-weight: 700;
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.05em;
+}
+.hud.hud-dark {
+  color: var(--cobalt-ink);
+  opacity: 0.58;
+}
+html:not([data-unlocked]) #s-opening .hud {
+  opacity: 0;
+}
+
+/* Shared Editorial Typography Primitives */
+.ep-ang {
+  position: absolute;
+  transform-origin: 0 0;
+  white-space: nowrap;
+  font-family: var(--latin);
+}
+.ep-ang .l {
+  display: block;
+}
+.ep-display {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 33px;
+  line-height: 36px;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+}
+.ss-it {
+  font-family: var(--latin);
+  font-weight: 725;
+  font-style: italic;
+}
+.geo-caps {
+  font-family: var(--geo);
+  font-weight: 750;
+  font-style: normal;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.ep-sub {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 10.8px;
+  line-height: 17.5px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+}
+.ep-note {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 18px;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.86);
+}
+.tilt-center-tight {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%) rotate(-14deg);
+  white-space: nowrap;
+  text-align: center;
+}
+
+/* Interactive Ripple Pulse */
+@keyframes epRippleExpand {
+  0% { transform: translate(-50%, -50%) scale(0.18); opacity: 0.92; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
+.ep-ripple {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: epRippleExpand 1.35s cubic-bezier(0.16, 0.84, 0.44, 1) forwards;
+}
+
+/* Screen 02 Interactive Butterfly Mote & Ink Mask */
+@keyframes bfMoteFloat {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+  22% { opacity: 0.95; }
+  100% { transform: translate(calc(-50% + var(--mx)), calc(-50% + var(--my))) scale(1.05); opacity: 0; }
+}
+.bf-mote {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, #DDF8F4 0%, #6CCBF7 65%, transparent 100%);
+  animation: bfMoteFloat 1.5s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+
+/* Screen 04 3-Frame Stop-Motion Embroidery Sprites */
+@keyframes flockStep0 {
+  0%, 33.32% { opacity: 1; }
+  33.33%, 100% { opacity: 0; }
+}
+@keyframes flockStep1 {
+  0%, 33.32% { opacity: 0; }
+  33.33%, 66.65% { opacity: 1; }
+  66.66%, 100% { opacity: 0; }
+}
+@keyframes flockStep2 {
+  0%, 66.65% { opacity: 0; }
+  66.66%, 100% { opacity: 1; }
+}
+.bird-sprite-f1 { animation: flockStep0 1.44s steps(1, end) infinite; }
+.bird-sprite-f2 { animation: flockStep1 1.44s steps(1, end) infinite; }
+.bird-sprite-f3 { animation: flockStep2 1.44s steps(1, end) infinite; }
+
+.escort-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 36;
+  overflow: visible;
+}
+.escort-pair-unit {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  margin-left: -70px;
+  margin-top: -70px;
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+.escort-pair-unit .bird-f2,
+.escort-pair-unit .bird-f3 {
+  opacity: 0;
+}
+.escort-pair-unit[data-flapping="1"] .bird-f1 {
+  animation: flockStep0 0.54s steps(1, end) infinite;
+}
+.escort-pair-unit[data-flapping="1"] .bird-f2 {
+  animation: flockStep1 0.54s steps(1, end) infinite;
+}
+.escort-pair-unit[data-flapping="1"] .bird-f3 {
+  animation: flockStep2 0.54s steps(1, end) infinite;
+}
+
+/* Matte Cotton Paper Polaroids & Torn Japanese Washi Tape (Screen 06) */
+.pol-card {
+  position: absolute;
+  background-color: #F8F1E6;
+  background-image: linear-gradient(166deg, #FDFBF6 0%, #F7EFE3 62%, #EFE3D2 100%);
+  border-radius: 1.5px;
+  box-shadow:
+    0 14px 28px -4px rgba(4, 10, 64, 0.45),
+    0 3px 8px rgba(4, 10, 64, 0.24),
+    inset 0 0 0 0.5px rgba(255, 252, 246, 0.72);
+  cursor: pointer;
+  user-select: none;
+  -webkit-touch-callout: none;
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1), box-shadow 0.35s ease;
+}
+.pol-photo {
+  display: block;
+  border-radius: 1px;
+  outline: 0.5px solid rgba(20, 36, 110, 0.10);
+  pointer-events: none;
+}
+.washi {
+  position: absolute;
+  height: 12px;
+  pointer-events: none;
+  background-image: linear-gradient(90deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.02) 28%,
+    rgba(255, 255, 255, 0.12) 66%,
+    rgba(255, 255, 255, 0.04) 100%);
+  clip-path: polygon(
+    0% 10%, 2.5% 0%, 5% 11%, 94.5% 3%, 97.5% 12%, 100% 2%,
+    98.5% 48%, 100% 90%, 96.5% 98%, 93.5% 89%, 5.5% 97%, 2.2% 88%, 0% 96%, 1.4% 50%
+  );
+  filter: drop-shadow(0 1px 2px rgba(4, 10, 56, 0.24));
+}
+
+.micro-badge {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 4px 6px;
+}
+@keyframes microPulse {
+  0%, 100% { transform: scale(1); opacity: 0.75; }
+  50% { transform: scale(1.22); opacity: 1; }
+}
+.micro-ring {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  border: 1px solid rgba(246, 222, 194, 0.72);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px rgba(246, 222, 194, 0.20);
+  animation: microPulse 2.4s ease-in-out infinite;
+}
+.micro-dot {
+  width: 2.5px;
+  height: 2.5px;
+  border-radius: 50%;
+  background: #F6DEC2;
+  display: block;
+}
+.micro-label {
+  font-family: var(--sans);
+  font-weight: 500;
+  font-size: 10.5px;
+  line-height: 14px;
+  letter-spacing: 0.18em;
+  color: rgba(246, 222, 194, 0.86);
+}
+
+/* Lightboxes & Clean Frosted Easter Egg Overlay */
+.ep-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(7, 15, 62, 0.86);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: epFadeIn 0.28s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+}
+@keyframes epFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.ep-close-btn {
+  position: absolute;
+  right: 24px;
+  top: 48px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.34);
+  background: rgba(14, 24, 92, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 44;
+  color: rgba(255, 255, 255, 0.82);
+}
+.ee-card {
+  position: absolute;
+  width: 172px;
+  padding: 6px 6px 0;
+  background-color: #F8F1E6;
+  background-image: linear-gradient(166deg, #FDFBF6 0%, #F7EFE3 62%, #EFE3D2 100%);
+  border-radius: 2px;
+  box-shadow: 0 18px 44px rgba(2, 6, 34, 0.72), inset 0 0 0 0.5px rgba(255, 252, 246, 0.78);
+  z-index: 42;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.ee-cap {
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 11.2px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  color: var(--cobalt-ink);
+  white-space: nowrap;
+}
+
+/* Reduced motion guards */
+@media (prefers-reduced-motion: reduce) {
+  .bird-sprite-f1, .bird-sprite-f2, .bird-sprite-f3,
+  .escort-pair-unit[data-flapping="1"] .bird-f1,
+  .escort-pair-unit[data-flapping="1"] .bird-f2,
+  .escort-pair-unit[data-flapping="1"] .bird-f3 {
+    animation: none !important;
+  }
+  .bird-sprite-f2, .bird-sprite-f3,
+  .escort-pair-unit .bird-f2, .escort-pair-unit .bird-f3 {
+    opacity: 0 !important;
+  }
+  .bird-sprite-f1, .escort-pair-unit .bird-f1 {
+    opacity: 1 !important;
+  }
+  .micro-ring {
+    animation: none !important;
+  }
+}
+html.rm .bird-sprite-f1, html.rm .bird-sprite-f2, html.rm .bird-sprite-f3 {
+  animation: none !important;
+}
+html.rm .bird-sprite-f2, html.rm .bird-sprite-f3 { opacity: 0 !important; }
+html.rm .bird-sprite-f1 { opacity: 1 !important; }
+
+.ss-rm {
+  font-family: var(--latin);
+  font-weight: 725;
+  font-style: normal;
+}
+.bo-rm {
+  font-family: "Bodoni Moda", var(--latin);
+  font-weight: 900;
+  font-style: normal;
+  letter-spacing: -0.01em;
+}
+.pf-it {
+  font-family: var(--playfair);
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}

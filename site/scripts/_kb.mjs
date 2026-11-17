@@ -1,0 +1,38 @@
+import puppeteer from "puppeteer-core";
+const b = await puppeteer.launch({ executablePath: process.env.CHROME || "/usr/bin/google-chrome", args: ["--no-sandbox"] });
+const p = await b.newPage();
+await p.emulate({ viewport: { width: 390, height: 844, deviceScaleFactor: 2, isMobile: false, hasTouch: false }, userAgent: await b.userAgent() });
+const errs = []; p.on("pageerror", (e) => errs.push(e.message)); p.on("console", (m) => m.type() === "error" && errs.push(m.text())); p.on("response", (r) => r.status() >= 400 && errs.push(r.status() + " " + r.url()));
+await p.goto("http://localhost:3000/", { waitUntil: "networkidle0" });
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+const act = () => p.evaluate(() => { const a = document.activeElement; return (a.id ? "#" + a.id : "") + "." + [...a.classList].join(".") + (a.getAttribute("aria-label") ? ` [${a.getAttribute("aria-label")}]` : ""); });
+await wait(1200); await p.focus("#passInput"); await p.keyboard.type("0825"); await wait(7000);
+const tab = async (n = 1) => { for (let i = 0; i < n; i++) await p.keyboard.press("Tab"); await wait(150); return act(); };
+const seq = [];
+for (let i = 0; i < 8; i++) seq.push(await tab());
+console.log("解锁后 Tab 顺序：", seq.join(" → "));
+// 到第 4 屏
+const H = 844, k = (await p.evaluate(() => window.__screens)).indexOf("postcards");
+await p.evaluate((y) => { document.getElementById("scroller").scrollTop = y; }, k * H); await wait(3500);
+await p.focus("#s-postcards .c1"); console.log("聚焦", await act());
+const flip = () => p.evaluate(() => [...document.querySelectorAll("#s-postcards .card")].map((c) => c.getAttribute("aria-label") + " flip=" + getComputedStyle(c.querySelector(".flip")).transform.slice(0, 40)).join(" | "));
+await p.keyboard.press("Enter"); await wait(1000); console.log("Enter 后", await flip());
+await p.keyboard.press("Space"); await wait(1000); console.log("Space 后", await flip(), "scrollTop", await p.evaluate(() => document.getElementById("scroller").scrollTop));
+await p.keyboard.press("Tab"); await wait(100); console.log("Tab →", await act()); await p.keyboard.press("Enter"); await wait(1000); console.log("Enter 后", await flip());
+// 第 5 屏
+const k5 = k + 1; await p.evaluate((y) => { document.getElementById("scroller").scrollTop = y; }, k5 * H); await wait(3500);
+await p.focus("#s-photos .p2"); console.log("聚焦", await act());
+await p.keyboard.press("Enter"); await wait(1500);
+const eggSt = () => p.evaluate(() => { const e = document.querySelector("#s-photos .egg"); return { role: e.getAttribute("role"), hidden: e.getAttribute("aria-hidden"), op: getComputedStyle(e).opacity, inertOthers: [...document.querySelectorAll("section.screen")].filter((s) => s.inert).map((s) => s.id).join(","), rootInert: document.querySelector("#s-photos .full")?.inert }; });
+console.log("Enter 展开", JSON.stringify(await eggSt()), "焦点", await act());
+const trap = []; for (let i = 0; i < 4; i++) trap.push(await tab()); console.log("彩蛋里 Tab：", trap.join(" → "));
+await p.keyboard.down("Shift"); await p.keyboard.press("Tab"); await p.keyboard.up("Shift"); console.log("Shift+Tab", await act());
+await p.keyboard.press("Escape"); await wait(1200); console.log("Esc 收起", JSON.stringify(await eggSt()), "焦点", await act());
+await p.keyboard.press("Space"); await wait(1500); console.log("Space 展开", JSON.stringify(await eggSt()), "焦点", await act());
+await p.keyboard.press("Enter"); await wait(1200); console.log("关闭按钮 Enter", JSON.stringify(await eggSt()), "焦点", await act());
+const cap = await p.evaluate(() => [...document.querySelectorAll(".polaroid .cap")].map((e) => { const cs = getComputedStyle(e); const R = document.createRange(); R.selectNodeContents(e); return { t: e.textContent, fs: cs.fontSize, ls: cs.letterSpacing, sw: e.scrollWidth, cw: e.clientWidth, textW: +R.getBoundingClientRect().width.toFixed(2), lines: R.getClientRects().length }; }));
+console.log("拍立得底边字", JSON.stringify(cap));
+const fav = await p.evaluate(async () => { const links = [...document.querySelectorAll('link[rel~="icon"]')].map((l) => l.href); const st = await Promise.all(["/favicon.ico", ...links].map(async (u) => u + " " + (await fetch(u)).status)); return st; });
+console.log("favicon", fav);
+console.log("errors", errs);
+await b.close();
