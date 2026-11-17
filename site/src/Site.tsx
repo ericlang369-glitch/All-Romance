@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BASE_PATH, CAMERA_LEVEL, SHOW_LETTER } from "@/config";
+import { ASSET_BASE, CAMERA_LEVEL, SHOW_LETTER } from "@/config";
 import { E, L, clamp, commitTier, computeLayout, env, frameStats, lerp, loadImgs, onLayout, pokeMonitor, tween } from "@/lib/kit";
 import type { ScreenCtl } from "@/screens/common";
 import Opening from "@/screens/Opening";
@@ -16,7 +16,7 @@ const CAM = { 1: { rot: -1.2, zoom: 0.022 }, 2: { rot: -2.6, zoom: 0.04 } }; // 
 const SCREENS = ["opening", "flower", ...(SHOW_LETTER ? ["letter"] : []), "birds", "postcards", "photos", "ending"] as const;
 const BIRDS_IDX = SCREENS.indexOf("birds");
 const POSTCARDS_IDX = SCREENS.indexOf("postcards");
-const B_DIR = `${BASE_PATH}/assets/birds/`;
+const B_DIR = `${ASSET_BASE}/assets/birds/`;
 /** 天空视差：背景以内容 1/3 的速度移动 */
 const SKY_PARALLAX = 0.33;
 

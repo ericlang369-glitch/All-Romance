@@ -1,11 +1,11 @@
-﻿"use client";
+"use client";
 import { cubicBezier } from "motion";
 import { useEffect, useRef, useState } from "react";
-import { BASE_PATH, START_ISO, TEXT } from "@/config";
+import { ASSET_BASE, START_ISO, TEXT } from "@/config";
 import { E, after, clamp, env, isVirtual, loadImgs, now, tween } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
-const A = `${BASE_PATH}/assets/`;
+const A = `${ASSET_BASE}/assets/`;
 const START = Date.parse(START_ISO);
 const DAWN_EASE = cubicBezier(0.32, 0.02, 0.20, 1);
 

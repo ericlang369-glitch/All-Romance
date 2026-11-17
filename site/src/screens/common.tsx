@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { BASE_PATH } from "@/config";
+import { ASSET_BASE } from "@/config";
 
 export type ScreenCtl = { enter: () => void; setActive?: (on: boolean) => void };
 export type ScreenProps = { register: (ctl: ScreenCtl) => void; index?: number; total?: number; onNext?: () => void };
@@ -80,5 +80,5 @@ export function Screen({
 
 /** 占位框 / 真图：src 为 null 时显示虚线框和文字。真图按屏加载（data-src，G6） */
 export function Photo({ src, label }: { src: string | null; label: string }) {
-  return src ? <img className="photo" data-src={`${BASE_PATH}/photos/${src}`} alt="" draggable={false} /> : <span>{label}</span>;
+  return src ? <img className="photo" data-src={`${ASSET_BASE}/photos/${src}`} alt="" draggable={false} /> : <span>{label}</span>;
 }

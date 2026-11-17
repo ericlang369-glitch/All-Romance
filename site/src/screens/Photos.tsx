@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 import { useEffect, useRef, useState } from "react";
-import { BASE_PATH, PHOTOS, TEXT } from "@/config";
+import { ASSET_BASE, PHOTOS, TEXT } from "@/config";
 import { loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
-const P = `${BASE_PATH}/photos/`;
+const P = `${ASSET_BASE}/photos/`;
 
 const SK_PATH =
   "M0 -1.00 C 2.20 -2.40, 3.80 -4.20, 3.70 -6.60 C 3.60 -8.60, 2.20 -9.80, 0.90 -9.50 L 0 -8.30 L -0.90 -9.50 C -2.20 -9.80, -3.60 -8.60, -3.70 -6.60 C -3.80 -4.20, -2.20 -2.40, 0 -1.00 Z";

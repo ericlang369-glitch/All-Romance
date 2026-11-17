@@ -2,14 +2,14 @@
    逐行移植自 motion/prototypes/01-opening.html，参数、随机种子、曲线都不改。
    只动 transform / opacity；风和落花画在一张 Canvas 上（像素比上限 2），模糊全部预渲染成贴图。 */
 import TLraw from "@/data/tree-layout.json";
-import { BASE_PATH, PASSCODE, DAY100_CODE } from "@/config";
-import { E, L, T, after, clamp, commitTier, env, lerp, loop, now, onJudge, onLayout, onTier, op, smooth, tween } from "./kit";
+import { ASSET_BASE, PASSCODE, DAY100_CODE } from "@/config";
+import { E, L, T, after, clamp, commitTier, env, lerp, loop, now, onJudge, onLayout, onTier, op, setSrc, smooth, tween } from "./kit";
 
 type Pt = number[];
 type GroupData = { anchor: number[]; fullBox: number[]; counts: Record<string, number>; detach: Pt[]; drop: Pt[]; keep: Pt[] };
 type Layer = { id: string; z: number; group: string; kind: string; set: string; src: string; x: number; y: number; w: number; h: number };
 const TL = TLraw as unknown as { layers: Layer[]; groups: Record<string, GroupData> };
-const TREE_BASE = `${BASE_PATH}/assets/tree/`;
+const TREE_BASE = `${ASSET_BASE}/assets/tree/`;
 
 const SK = "M0 -1.00 C 2.20 -2.40, 3.80 -4.20, 3.70 -6.60 C 3.60 -8.60, 2.20 -9.80, 0.90 -9.50 L 0 -8.30 L -0.90 -9.50 C -2.20 -9.80, -3.60 -8.60, -3.70 -6.60 C -3.80 -4.20, -2.20 -2.40, 0 -1.00 Z";
 const SP = "M0 -1.60 C 3.52 -3.84, 6.08 -6.72, 5.92 -10.56 C 5.76 -13.76, 3.52 -15.68, 1.44 -15.20 L 0 -13.28 L -1.44 -15.20 C -3.52 -15.68, -5.76 -13.76, -5.92 -10.56 C -6.08 -6.72, -3.52 -3.84, 0 -1.60 Z";
@@ -65,7 +65,7 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
   const loadWind = () =>
     (windP ||= Promise.all(
       windImgs.map((im) => {
-        im.src = im.dataset.src!;
+        setSrc(im, im.dataset.src!);
         return im.decode().then(
           () => true,
           () => im.complete && im.naturalWidth > 0,
@@ -78,7 +78,7 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
       }),
     ));
   const preview = document.createElement("img");
-  preview.src = `${BASE_PATH}/assets/tree-calm-preview.webp`;
+  setSrc(preview, `${ASSET_BASE}/assets/tree-calm-preview.webp`);
   preview.alt = "";
   preview.decoding = "sync";
   preview.setAttribute("fetchpriority", "high");
@@ -104,7 +104,7 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
       // G6：风吹后那套（只有风里和风后用）先不加载，第一次碰屏幕 / 按键时再取；减少动态效果档根本用不到
       if (l.set === "wind") { im.dataset.src = src; windImgs.push(im); }
       else {
-        im.src = src;
+        setSrc(im, src);
         calmDecodes.push(im.decode().catch(() => undefined));
       }
       im.alt = "";

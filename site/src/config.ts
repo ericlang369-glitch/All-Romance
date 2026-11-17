@@ -1,5 +1,16 @@
 export const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
+/**
+ * 国内加速：图片 / 字体 / 照片走 jsDelivr（gcore 节点，按 git tag 固定版本）。
+ * CDN 不通或 2.5 秒内连不上时，自动退回 GitHub Pages 本地路径（见 layout.tsx 的探测脚本与 kit.setSrc）。
+ */
+export const ASSET_CDN = process.env.NEXT_PUBLIC_ASSET_CDN || "";
+export const ASSET_BASE = ASSET_CDN || BASE_PATH;
+/** CDN 地址 → 本地地址；不是 CDN 地址时返回 null */
+export function assetFallback(url: string): string | null {
+  return ASSET_CDN && url.startsWith(ASSET_CDN) ? BASE_PATH + url.slice(ASSET_CDN.length) : null;
+}
+
 export const SHOW_LETTER = true;
 
 export const PASSCODE = "0825";

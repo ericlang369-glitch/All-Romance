@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BASE_PATH, TEXT } from "@/config";
+import { ASSET_BASE, TEXT } from "@/config";
 import { createButterfly } from "@/lib/butterfly";
 import { $, $$, E, after, env, loadImgs, slideLines, tween } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
-const A = `${BASE_PATH}/assets/`;
+const A = `${ASSET_BASE}/assets/`;
 /** 对齐 02-C 校准构图：适配 708p 画布净上移 62px 并等比缩放 0.89，相框落在 y=120..630.3，蝴蝶停落中心 (253.7, 345.2) */
 const FRAME_T = {
   transform: "translateY(-20px) scale(0.89)",

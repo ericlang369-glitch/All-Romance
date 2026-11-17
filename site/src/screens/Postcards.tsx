@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BASE_PATH, PHOTOS, TEXT } from "@/config";
+import { ASSET_BASE, PHOTOS, TEXT } from "@/config";
 import { loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
-const B = `${BASE_PATH}/assets/birds/`;
-const P = `${BASE_PATH}/photos/`;
+const B = `${ASSET_BASE}/assets/birds/`;
+const P = `${ASSET_BASE}/photos/`;
 
 export function Postcards({
   register,

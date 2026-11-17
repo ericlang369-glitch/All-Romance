@@ -1,6 +1,6 @@
-﻿"use client";
+"use client";
 import { useEffect, useRef, useState } from "react";
-import { BASE_PATH, PHOTOS, TEXT } from "@/config";
+import { ASSET_BASE, PHOTOS, TEXT } from "@/config";
 import { loadImgs } from "@/lib/kit";
 import { Photo, Screen, type ScreenProps } from "./common";
 
@@ -110,7 +110,7 @@ export function Letter({
             >
               {PHOTOS.letter ? (
                 <img
-                  src={`${BASE_PATH}/photos/${PHOTOS.letter}`}
+                  src={`${ASSET_BASE}/photos/${PHOTOS.letter}`}
                   alt="你的手写信"
                   style={{ display: "block", width: "100%", height: "auto", borderRadius: 2 }}
                 />
@@ -195,7 +195,7 @@ export function Letter({
         >
           {/* Back Open Pocket */}
           <img
-            data-src={`${BASE_PATH}/assets/envelope-back@2x.webp`}
+            data-src={`${ASSET_BASE}/assets/envelope-back@2x.webp`}
             alt=""
             draggable={false}
             style={{
@@ -263,7 +263,7 @@ export function Letter({
 
           {/* Front Translucent V-Flap Cutout */}
           <img
-            data-src={`${BASE_PATH}/assets/envelope-front@2x.webp`}
+            data-src={`${ASSET_BASE}/assets/envelope-front@2x.webp`}
             alt=""
             draggable={false}
             style={{

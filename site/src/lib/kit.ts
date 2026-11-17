@@ -3,6 +3,7 @@
    - 正常：真实时间（页面隐藏时暂停，回来不跳）；
    - 录屏：?rec 时由 scripts/record.mjs 调 window.__step(ms) 逐帧推进，60 帧均匀、可复现。 */
 import { cubicBezier } from "motion";
+import { assetFallback } from "@/config";
 
 export const T = { xs: 160, s: 240, m: 400, l: 600, xl: 800, flip: 720, fly: 2400, settle: 1200, stagger: 80, staggerL: 120 };
 
@@ -237,10 +238,24 @@ export const YB = (y: number, a: number, h: number) => `min(${Y(y, a)}, calc(var
 export const XT = (x: number) => `calc(${x}px - var(--dx))`;
 
 /* ---------- 按屏加载图片（G6） ---------- */
+/** 设图片地址：CDN 已判定不通就直接用本地；CDN 加载失败时自动换回本地 */
+export function setSrc(im: HTMLImageElement, url: string) {
+  const fb = assetFallback(url);
+  const w = window as unknown as { __cdnDead?: number };
+  if (fb) {
+    const h = () => {
+      im.removeEventListener("error", h);
+      w.__cdnDead = 1;
+      if (im.getAttribute("src") !== fb) im.src = fb;
+    };
+    im.addEventListener("error", h);
+  }
+  im.src = fb && w.__cdnDead ? fb : url;
+}
 /** 把 root 里 img[data-src] 换成真实 src，返回全部解码完成的 Promise（失败也算完成） */
 export function loadImgs(root: ParentNode) {
   const imgs = [...root.querySelectorAll<HTMLImageElement>("img[data-src]")];
-  imgs.forEach((i) => { if (!i.getAttribute("src")) i.src = i.dataset.src!; });
+  imgs.forEach((i) => { if (!i.getAttribute("src")) setSrc(i, i.dataset.src!); });
   return Promise.all(imgs.map((i) => i.decode().catch(() => undefined))).then(() => undefined);
 }
 

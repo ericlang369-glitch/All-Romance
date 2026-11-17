@@ -1,42 +1,46 @@
 1:"$Sreact.fragment"
-3:I[9484,[],""]
-4:I[9850,[],""]
 :HL["/All-Romance/_next/static/css/02fb0f056144248d.css","style"]
-:HL["/All-Romance/fonts/NotoSerifSC-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-:HL["/All-Romance/fonts/NotoSansSC-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-:HL["/All-Romance/fonts/Montserrat-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
-2:T6fb,
-@font-face{font-family:"Noto Serif SC";src:url("/All-Romance/fonts/NotoSerifSC-v3.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Noto Serif SC VF";src:url("/All-Romance/fonts/NotoSerifSC-v3.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Noto Sans SC";src:url("/All-Romance/fonts/NotoSansSC-v3.woff2") format("woff2");font-weight:500 600;font-style:normal;font-display:swap}
-@font-face{font-family:"Noto Sans SC VF";src:url("/All-Romance/fonts/NotoSansSC-v3.woff2") format("woff2");font-weight:500 600;font-style:normal;font-display:swap}
-@font-face{font-family:"Montserrat";src:url("/All-Romance/fonts/Montserrat-v3.woff2") format("woff2");font-weight:500 800;font-style:normal;font-display:swap}
-@font-face{font-family:"Montserrat Full";src:url("/All-Romance/fonts/Montserrat-v3.woff2") format("woff2");font-weight:500 800;font-style:normal;font-display:swap}
-@font-face{font-family:"Source Serif 4";src:url("/All-Romance/fonts/SourceSerif4-v3.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Source Serif 4";src:url("/All-Romance/fonts/SourceSerif4-Italic-v3.woff2") format("woff2");font-weight:700;font-style:italic;font-display:swap}
-@font-face{font-family:"Zhi Mang Xing";src:url("/All-Romance/fonts/ZhiMangXing-v3.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Playfair Display";src:url("/All-Romance/fonts/PlayfairDisplay-Italic-v3.woff2") format("woff2");font-weight:700;font-style:italic;font-display:swap}
-@font-face{font-family:"Bodoni Moda";src:url("/All-Romance/fonts/BodoniModa-v3.woff2") format("woff2");font-weight:900;font-style:normal;font-display:swap}
-6:X
-7:[["children",{"s":"__PAGE__","h":160,"d":{"r":"$L8","p":"$@9","v":null,"s":"$6"}}]]
-0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/All-Romance/_next/static/css/02fb0f056144248d.css","precedence":"next"}]],["$","html",null,{"lang":"zh-CN","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"document.documentElement.classList.add('js')"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$2"}}],["$","link",null,{"rel":"preload","href":"/All-Romance/fonts/NotoSerifSC-v3.woff2","as":"font","type":"font/woff2","crossOrigin":""}],["$","link",null,{"rel":"preload","href":"/All-Romance/fonts/NotoSansSC-v3.woff2","as":"font","type":"font/woff2","crossOrigin":""}],["$","link",null,{"rel":"preload","href":"/All-Romance/fonts/Montserrat-v3.woff2","as":"font","type":"font/woff2","crossOrigin":""}]]}],["$","body",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","template":["$","$L4",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]}]]}]]}],"p":"$@5","v":null,"s":"$6"},"c":"$Q7"},"h":{"r":"$La","p":"$@b","v":null,"s":"$6"}},"a":"$@c","u":"$@d","b":"kHXpNyMxRVUsCN14GyVMn"}
-e:"static/chunks/897-8d3eef7cc8822023.js"
-f:"static/chunks/app/page-107b5c253f90cff6.js"
-10:I[7078,["897","$e","974","$f"],"default"]
-11:I[4681,[],"OutletBoundary"]
-12:"$Sreact.suspense"
-14:"ViewportBoundary"
-15:I[4681,[],"$14"]
-16:"MetadataBoundary"
-17:I[4681,[],"$16"]
-18:I[12,[],"IconMark"]
-8:["$","$1","c",{"children":[["$","$L10",null,{}],null,["$","$L11",null,{"children":["$","$12",null,{"name":"Next.MetadataOutlet","children":"$@13"}]}]]}]
-a:["$","$1","h",{"children":[null,["$","$L15",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#1430C4"}]]}],["$","$L17",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$12",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"陈玺羽 · 第 100 天"}],["$","meta","1",{"name":"robots","content":"noindex, nofollow"}],["$","link","2",{"rel":"icon","href":"/All-Romance/icon.png?16a466cc78c6c0ca","type":"image/png","sizes":"64x64"}],["$","$L18","3",{}]]}]}],null]}],null]}]
-6:300
-13:null
-d:true
-6:C
-c:0
-5:"$undefined"
+2:Tc69,
+@font-face{font-family:"Noto Serif SC";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSerifSC-v3.woff2") format("woff2"),url("/All-Romance/fonts/NotoSerifSC-v3.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Noto Serif SC VF";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSerifSC-v3.woff2") format("woff2"),url("/All-Romance/fonts/NotoSerifSC-v3.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Noto Sans SC";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSansSC-v3.woff2") format("woff2"),url("/All-Romance/fonts/NotoSansSC-v3.woff2") format("woff2");font-weight:500 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Noto Sans SC VF";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSansSC-v3.woff2") format("woff2"),url("/All-Romance/fonts/NotoSansSC-v3.woff2") format("woff2");font-weight:500 600;font-style:normal;font-display:swap}
+@font-face{font-family:"Montserrat";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/Montserrat-v3.woff2") format("woff2"),url("/All-Romance/fonts/Montserrat-v3.woff2") format("woff2");font-weight:500 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Montserrat Full";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/Montserrat-v3.woff2") format("woff2"),url("/All-Romance/fonts/Montserrat-v3.woff2") format("woff2");font-weight:500 800;font-style:normal;font-display:swap}
+@font-face{font-family:"Source Serif 4";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/SourceSerif4-v3.woff2") format("woff2"),url("/All-Romance/fonts/SourceSerif4-v3.woff2") format("woff2");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Source Serif 4";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/SourceSerif4-Italic-v3.woff2") format("woff2"),url("/All-Romance/fonts/SourceSerif4-Italic-v3.woff2") format("woff2");font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:"Zhi Mang Xing";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/ZhiMangXing-v3.woff2") format("woff2"),url("/All-Romance/fonts/ZhiMangXing-v3.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Playfair Display";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/PlayfairDisplay-Italic-v3.woff2") format("woff2"),url("/All-Romance/fonts/PlayfairDisplay-Italic-v3.woff2") format("woff2");font-weight:700;font-style:italic;font-display:swap}
+@font-face{font-family:"Bodoni Moda";src:url("https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/BodoniModa-v3.woff2") format("woff2"),url("/All-Romance/fonts/BodoniModa-v3.woff2") format("woff2");font-weight:900;font-style:normal;font-display:swap}
+8:X
+9:[["children",{"s":"__PAGE__","h":160,"d":{"r":"$La","p":"$@b","v":null,"s":"$8"}}]]
+0:{"t":{"t":{"s":"","h":80,"d":{"r":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/All-Romance/_next/static/css/02fb0f056144248d.css","precedence":"next"}]],["$","html",null,{"lang":"zh-CN","suppressHydrationWarning":true,"children":[["$","head",null,{"children":[["$","script",null,{"dangerouslySetInnerHTML":{"__html":"(function(){var C=\"https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn\",L=\"/All-Romance\",w=window;function d(){w.__cdnDead=1}addEventListener(\"error\",function(e){var t=e.target;if(!t||t.tagName!==\"IMG\")return;var s=t.getAttribute(\"src\")||\"\";if(s.indexOf(C)===0){d();t.setAttribute(\"src\",L+s.slice(C.length))}},true);try{var a=new AbortController(),m=setTimeout(function(){a.abort()},2500);fetch(C+\"/assets/tree/32-left4-flowers-wind.webp\",{mode:\"no-cors\",signal:a.signal}).then(function(){clearTimeout(m)},d)}catch(x){}})()"}}],["$","link",null,{"rel":"preconnect","href":"https://gcore.jsdelivr.net","crossOrigin":""}],["$","script",null,{"dangerouslySetInnerHTML":{"__html":"document.documentElement.classList.add('js')"}}],["$","style",null,{"dangerouslySetInnerHTML":{"__html":"$2"}}],"$L3","$L4","$L5"]}],"$L6"]}]]}],"p":"$@7","v":null,"s":"$8"},"c":"$Q9"},"h":{"r":"$Lc","p":"$@d","v":null,"s":"$8"}},"a":"$@e","u":"$@f","b":"GZM_QhvcTM4_zzFCY7jq4"}
+10:I[9484,[],""]
+11:I[9850,[],""]
+12:"static/chunks/897-8d3eef7cc8822023.js"
+13:"static/chunks/app/page-06fb927ddde097ca.js"
+14:I[7078,["897","$12","974","$13"],"default"]
+15:I[4681,[],"OutletBoundary"]
+16:"$Sreact.suspense"
+18:"ViewportBoundary"
+19:I[4681,[],"$18"]
+1a:"MetadataBoundary"
+1b:I[4681,[],"$1a"]
+1c:I[12,[],"IconMark"]
+:HL["https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSerifSC-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSansSC-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/Montserrat-v3.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+3:["$","link",null,{"rel":"preload","href":"https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSerifSC-v3.woff2","as":"font","type":"font/woff2","crossOrigin":""}]
+4:["$","link",null,{"rel":"preload","href":"https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/NotoSansSC-v3.woff2","as":"font","type":"font/woff2","crossOrigin":""}]
+5:["$","link",null,{"rel":"preload","href":"https://gcore.jsdelivr.net/gh/ericlang369-glitch/All-Romance@v20261117-cdn/fonts/Montserrat-v3.woff2","as":"font","type":"font/woff2","crossOrigin":""}]
+6:["$","body",null,{"children":["$","$L10",null,{"parallelRouterKey":"children","template":["$","$L11",null,{}],"notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]]}]}]
+a:["$","$1","c",{"children":[["$","$L14",null,{}],null,["$","$L15",null,{"children":["$","$16",null,{"name":"Next.MetadataOutlet","children":"$@17"}]}]]}]
+c:["$","$1","h",{"children":[null,["$","$L19",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1, viewport-fit=cover"}],["$","meta","2",{"name":"theme-color","content":"#1430C4"}]]}],["$","$L1b",null,{"children":[["$","div",null,{"hidden":true,"children":["$","$16",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"陈玺羽 · 第 100 天"}],["$","meta","1",{"name":"robots","content":"noindex, nofollow"}],["$","link","2",{"rel":"icon","href":"/All-Romance/icon.png?16a466cc78c6c0ca","type":"image/png","sizes":"64x64"}],["$","$L1c","3",{}]]}]}],null]}],null]}]
+17:null
+f:true
+8:300
+8:C
+e:0
+d:"$undefined"
 b:"$undefined"
-9:"$undefined"
+7:"$undefined"

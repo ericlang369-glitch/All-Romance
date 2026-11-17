@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { BASE_PATH, TEXT } from "@/config";
+import { ASSET_BASE, TEXT } from "@/config";
 import { loadImgs } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
-const B = `${BASE_PATH}/assets/birds/`;
+const B = `${ASSET_BASE}/assets/birds/`;
 
 type Ripple = { id: number; x: number; y: number };
 
