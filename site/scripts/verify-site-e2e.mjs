@@ -1,8 +1,9 @@
-// End-to-end headless Chrome CDP verification:
-// Primary WeChat iPhone 393x704 @3x pass (11-frame wechat-704p-01-to-07-verified.png)
-// + Reference 390x844 @2x pass (live-site-01-to-07-verified.png) + 390x664 short-viewport check.
+// End-to-end headless Chrome CDP verification for GPU Touch-Swipe Deck:
+// 1) WeChat Pro Max 430x792 @3x -> wechat-promax-430x792-verified.png
+// 2) WeChat Pro     393x704 @3x -> wechat-704p-01-to-07-verified.png
+// 3) Mobile Ref     390x844 @2x -> live-site-01-to-07-verified.png (+ 390x664 short-viewport check)
 import { spawn } from "node:child_process";
-import { copyFileSync, existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { copyFileSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +12,7 @@ const WT = join(SITE, "..");
 const MOCKUP_OUT = join(WT, "preview/mockups");
 const ART_DIR = "C:/Users/QL/.gemini/antigravity/brain/dd673c6e-c2ea-402c-b2ec-41e863043976";
 mkdirSync(MOCKUP_OUT, { recursive: true });
+mkdirSync(ART_DIR, { recursive: true });
 
 const CHROME = process.env.CHROME || "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const BASE_URL = process.env.TEST_URL || "http://localhost:3000/All-Romance/?now=2026-12-03T00%3A00%3A00%2B08%3A00";
@@ -60,6 +62,49 @@ const tapAt = async (x, y) => {
   await cdp("Input.dispatchMouseEvent", { type: "mouseReleased", x, y, button: "left", clickCount: 1 });
 };
 
+const touchTapAt = async (x, y) => {
+  const rx = Math.round(x);
+  const ry = Math.round(y);
+  await cdp("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ x: rx, y: ry, id: 0 }],
+  });
+  await sleep(50);
+  await cdp("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+};
+
+const touchSwipe = async (x0, y0, x1, y1, steps = 8, durationMs = 180) => {
+  await cdp("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ x: Math.round(x0), y: Math.round(y0), id: 0 }],
+  });
+  const stepMs = Math.max(10, Math.round(durationMs / steps));
+  for (let i = 1; i <= steps; i++) {
+    await sleep(stepMs);
+    const t = i / steps;
+    const xi = Math.round(x0 + (x1 - x0) * t);
+    const yi = Math.round(y0 + (y1 - y0) * t);
+    await cdp("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: xi, y: yi, id: 0 }],
+    });
+  }
+  await sleep(16);
+  await cdp("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+};
+
+const swipeUp = (width, height) =>
+  touchSwipe(Math.round(width / 2), Math.round(height * 0.74), Math.round(width / 2), Math.round(height * 0.26));
+
+const swipeDown = (width, height) =>
+  touchSwipe(Math.round(width / 2), Math.round(height * 0.26), Math.round(width / 2), Math.round(height * 0.74));
+
 const holdAt = async (x, y, holdMs = 720) => {
   await cdp("Input.dispatchMouseEvent", { type: "mouseMoved", x, y });
   await cdp("Input.dispatchMouseEvent", { type: "mousePressed", x, y, button: "left", clickCount: 1 });
@@ -105,17 +150,25 @@ const holdElement = async (selector, holdMs = 720) => {
   return rect;
 };
 
-const waitForScreen = async (idx, timeoutMs = 3000) => {
-  const H = await ev("document.getElementById('scroller').clientHeight || window.innerHeight");
-  const target = idx * H;
+const waitForScreen = async (idx, timeoutMs = 3400) => {
   const t0 = Date.now();
   while (Date.now() - t0 < timeoutMs) {
-    const st = await ev("document.getElementById('scroller').scrollTop");
-    if (Math.abs(st - target) <= 2) return { scrollTop: st, H };
-    await sleep(60);
+    const state = await ev(`(() => ({
+      p: window.__getPageProgress?.() ?? -1,
+      page: Number(document.getElementById('scroller')?.dataset?.page ?? -1),
+      H: document.getElementById('scroller')?.clientHeight || window.innerHeight,
+    }))()`);
+    if (Math.abs(state.p - idx) < 0.015) {
+      return { progress: state.p, page: state.page, H: state.H };
+    }
+    await sleep(50);
   }
-  const finalTop = await ev("document.getElementById('scroller').scrollTop");
-  throw new Error(`Timed out waiting for screen ${idx} (target=${target}, got=${finalTop}, H=${H})`);
+  const finalState = await ev(`(() => ({
+    p: window.__getPageProgress?.(),
+    page: document.getElementById('scroller')?.dataset?.page,
+    H: document.getElementById('scroller')?.clientHeight || window.innerHeight,
+  }))()`);
+  throw new Error(`Timed out waiting for screen ${idx}: got=${JSON.stringify(finalState)}`);
 };
 
 async function runFullPass({ width, height, dpr, label, outFileName }) {
@@ -127,17 +180,40 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   await sleep(1600);
   await ev("document.fonts.ready");
 
-  // 1) Passcode Gate + 01 Opening Checks
-  await pressKey("ArrowDown");
-  await wheelAt(Math.round(width / 2), Math.round(height / 2), 400);
-  await sleep(250);
-  const lockedCheck = await ev(`(() => {
-    const sc = document.getElementById('scroller');
-    return { scrollTop: sc.scrollTop, overflowY: sc.style.overflowY, touchAction: sc.style.touchAction };
-  })()`);
-  if (lockedCheck.scrollTop !== 0) throw new Error(`[${label}] Gate failed: scrolled while locked: ` + JSON.stringify(lockedCheck));
+  // 0) Zero Top HUD assertion
+  const hudCountInitial = await ev("document.querySelectorAll('.hud').length");
+  if (hudCountInitial !== 0) {
+    throw new Error(`[${label}] Expected 0 .hud elements, found ${hudCountInitial}`);
+  }
 
-  await ev(`(() => { document.getElementById('passInput').focus(); })()`);
+  // 1) Passcode Gate + 01 Opening Checks (while locked: swipeUp, wheelAt, ArrowDown must keep progress === 0)
+  await swipeUp(width, height);
+  await wheelAt(Math.round(width / 2), Math.round(height / 2), 400);
+  await pressKey("ArrowDown");
+  await sleep(250);
+  const lockedCheck = await ev(`(() => ({
+    progress: window.__getPageProgress?.(),
+    scrollAttr: document.documentElement.dataset.scroll || "",
+    scrollTop: document.getElementById('scroller')?.scrollTop ?? -1,
+  }))()`);
+  if (lockedCheck.progress !== 0 || lockedCheck.scrollAttr !== "locked") {
+    throw new Error(`[${label}] Gate failed while locked: ` + JSON.stringify(lockedCheck));
+  }
+
+  // Verify tapping section#s-opening via real touch tap still focuses #passInput (never blocked by touchstart preventDefault)
+  await ev("document.activeElement?.blur?.()");
+  const openRect = await ev(`(() => {
+    const r = document.querySelector('section#s-opening')?.getBoundingClientRect();
+    return r ? { x: r.left + r.width * 0.5, y: r.top + r.height * 0.45 } : null;
+  })()`);
+  if (!openRect) throw new Error(`[${label}] Missing section#s-opening`);
+  await touchTapAt(openRect.x, openRect.y);
+  await sleep(140);
+  const focusedIdAfterTouch = await ev("document.activeElement?.id || ''");
+  if (focusedIdAfterTouch !== "passInput") {
+    throw new Error(`[${label}] Touch tap on section#s-opening did not focus #passInput (focused=${focusedIdAfterTouch})`);
+  }
+
   for (const ch of "1203") await cdp("Input.insertText", { text: ch }), await sleep(50);
   await sleep(500);
   const day100Hint = await ev("document.getElementById('again')?.textContent?.trim()");
@@ -164,7 +240,6 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   await sleep(1100);
   const openingAudit = await ev(`(() => {
     const h = document.documentElement;
-    const sc = document.getElementById('scroller');
     const cv = document.getElementById('gust');
     const ctx = cv.getContext('2d');
     const data = ctx.getImageData(0, 0, cv.width, cv.height).data;
@@ -198,7 +273,7 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
       hasDataRm: h.hasAttribute('data-rm'),
       tier: Number(h.dataset.tier),
       ss: getComputedStyle(h).getPropertyValue('--ss').trim(),
-      scrollerOverflowY: sc.style.overflowY,
+      scrollAttr: h.dataset.scroll || "",
       gustWidth: cv.width,
       gustHeight: cv.height,
       nonEmptyPixels,
@@ -234,16 +309,14 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     throw new Error(`[${label}] Screen 01 #hintLine clipped below ${height}px: ` + JSON.stringify(openingAudit));
   }
 
-  const hud01 = await ev("document.querySelector('#s-opening .hud')?.innerText");
   const shot01 = await shotPng();
 
-  // 2) Screen 02 Flower (wait 4.5s+ for 3.8s slow watercolor spread; also ensure mask reaches >= 500px)
-  const tapTurns = [];
+  // 2) Screen 02 Flower (tap .hintTap 01->02, wait 4.5s+ for 3.8s slow watercolor spread)
+  const navTurns = [];
   await tapElement("#s-opening .hintTap");
   await waitForScreen(1);
-  tapTurns.push("01->02");
+  navTurns.push("01->02:hintTap");
   await sleep(4500);
-  // Wait up to 2.5s more if the 3.8s diffusion (after 2150ms butterfly flight) is still blooming
   for (let i = 0; i < 12; i++) {
     const radDone = await ev(`(() => {
       return [...document.querySelectorAll('#s-flower div')].some(d => /540(\\.0)?px/.test(d.style.webkitMaskImage || d.style.maskImage || ''));
@@ -257,19 +330,26 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     const col = imgs.find(i => i.src.includes('framed-colored-real@3x.webp'));
     const frameRect = bg?.getBoundingClientRect();
     const noteRect = document.querySelector('#s-flower [aria-label="继续前往下一页"]')?.getBoundingClientRect();
+    const canvasRect = document.querySelector('#s-flower .design-canvas')?.getBoundingClientRect();
     return {
       bgNaturalWidth: bg?.naturalWidth || 0,
       colNaturalWidth: col?.naturalWidth || 0,
+      canvasWidth: canvasRect ? Math.round(canvasRect.width * 100) / 100 : -1,
+      canvasLeft: canvasRect ? Math.round(canvasRect.left * 100) / 100 : -1,
       frameBottom: frameRect ? Math.round(frameRect.bottom * 10) / 10 : -1,
       noteTop: noteRect ? Math.round(noteRect.top * 10) / 10 : -1,
+      noteBottom: noteRect ? Math.round(noteRect.bottom * 10) / 10 : -1,
       gapPx: frameRect && noteRect ? Math.round((noteRect.top - frameRect.bottom) * 10) / 10 : -999,
     };
   })()`);
   if (flowerAudit.bgNaturalWidth !== 860 || flowerAudit.colNaturalWidth !== 860) {
     throw new Error(`[${label}] Screen 02 frame images expected naturalWidth===860: ` + JSON.stringify(flowerAudit));
   }
-  if (!(flowerAudit.noteTop > flowerAudit.frameBottom + 4)) {
-    throw new Error(`[${label}] Screen 02 bottom note overlaps frame/mist: ` + JSON.stringify(flowerAudit));
+  if ((width === 430 || width === 393) && flowerAudit.canvasWidth < width - 6) {
+    throw new Error(`[${label}] Full-Width WeChat Fit failed: canvasWidth=${flowerAudit.canvasWidth} < ${width - 6}`);
+  }
+  if (!(flowerAudit.noteTop > flowerAudit.frameBottom + 4) || flowerAudit.noteBottom > height) {
+    throw new Error(`[${label}] Screen 02 bottom note overlap or clip: ` + JSON.stringify(flowerAudit));
   }
   await tapElement('#s-flower [aria-label="轻触青凤蝶泛起微澜"]');
   await sleep(320);
@@ -277,18 +357,20 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   if (flowerRipples < 1) throw new Error(`[${label}] Screen 02 butterfly tap did not trigger ripples`);
   const shot02 = await shotPng();
 
-  // 3) Screen 03 Letter
+  // 3) Screen 03 Letter (click onNext 02->03) + Zero Rectangular Halo Seam Check
   await tapElement('#s-flower [aria-label="继续前往下一页"]');
   await waitForScreen(2);
-  tapTurns.push("02->03");
+  navTurns.push("02->03:onNext");
   await sleep(1450);
   const letterAudit = await ev(`(() => {
     const envRect = document.querySelector('#letter [aria-label="轻触展开你的信"]')?.getBoundingClientRect();
     const coupEl = [...document.querySelectorAll('#letter .ep-ang')].find(el => el.textContent?.includes('谨付寸心'));
     const coupRect = coupEl?.getBoundingClientRect();
+    const noteRect = document.querySelector('#letter [aria-label="继续前往下一页"]')?.getBoundingClientRect();
     return {
       envelopeBottom: envRect ? Math.round(envRect.bottom * 10) / 10 : -1,
       coupletTop: coupRect ? Math.round(coupRect.top * 10) / 10 : -1,
+      noteBottom: noteRect ? Math.round(noteRect.bottom * 10) / 10 : -1,
       gapPx: envRect && coupRect ? Math.round((coupRect.top - envRect.bottom) * 10) / 10 : -999,
     };
   })()`);
@@ -297,42 +379,104 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   }
   const shot03 = await shotPng();
 
-  // 4) Screen 04 Birds + 04->05 Escort Mid-Flight
-  await tapElement('#letter [aria-label="继续前往下一页"]');
+  const haloSeamAudit = await ev(`(async () => {
+    const img = new Image();
+    img.src = ${JSON.stringify(shot03)};
+    await img.decode();
+    const c = document.createElement('canvas');
+    c.width = img.naturalWidth;
+    c.height = img.naturalHeight;
+    const ctx = c.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    const sx = img.naturalWidth / ${width};
+    const sy = img.naturalHeight / ${height};
+    const scanRange = (cssY, x0, x1) => {
+      const py = Math.min(c.height - 1, Math.max(0, Math.round(cssY * sy)));
+      const pxStart = Math.max(0, Math.round(x0 * sx));
+      const pxEnd = Math.min(c.width - 1, Math.round(x1 * sx));
+      const row = ctx.getImageData(0, py, c.width, 1).data;
+      let maxStep = 0;
+      let maxPair = null;
+      for (let px = pxStart + 1; px <= pxEnd; px++) {
+        const i0 = (px - 1) * 4;
+        const i1 = px * 4;
+        const dr = Math.abs(row[i1] - row[i0]);
+        const dg = Math.abs(row[i1 + 1] - row[i0 + 1]);
+        const db = Math.abs(row[i1 + 2] - row[i0 + 2]);
+        const step = Math.max(dr, dg, db);
+        if (step > maxStep) {
+          maxStep = step;
+          maxPair = {
+            cssX: +(px / sx).toFixed(2),
+            prev: [row[i0], row[i0 + 1], row[i0 + 2]],
+            curr: [row[i1], row[i1 + 1], row[i1 + 2]],
+          };
+        }
+      }
+      return { cssY, x0, x1, maxStep, maxPair };
+    };
+    return {
+      y50_left: scanRange(Math.round(${height * 0.50}), 2, Math.round(${width * 0.135})),
+      y50_right: scanRange(Math.round(${height * 0.50}), Math.round(${width * 0.865}), ${width - 2}),
+      y32_left: scanRange(Math.round(${height * 0.32}), 2, Math.round(${width * 0.09})),
+      y25_wide: scanRange(Math.round(${height * 0.25}), 2, Math.round(${width * 0.25})),
+    };
+  })()`);
+  if (
+    haloSeamAudit.y50_left.maxStep > 8 ||
+    haloSeamAudit.y50_right.maxStep > 8 ||
+    haloSeamAudit.y32_left.maxStep > 8 ||
+    haloSeamAudit.y25_wide.maxStep > 8
+  ) {
+    throw new Error(`[${label}] Screen 03 rectangular halo seam or sharp step > 8 detected: ` + JSON.stringify(haloSeamAudit));
+  }
+
+  // 4) Screen 04 Birds (swipeUp 03->04) + Full-Bleed Ribbon + 04->05 Escort Mid-Flight
+  await swipeUp(width, height);
   const { H } = await waitForScreen(3);
-  tapTurns.push("03->04");
+  navTurns.push("03->04:swipeUp");
   await sleep(1100);
+
+  const ribbonAudit = await ev(`(() => {
+    const img = document.querySelector('#birds img[src*="s04-r1-ribbon-bg"]');
+    const r = img?.getBoundingClientRect();
+    return r ? {
+      left: Math.round(r.left * 100) / 100,
+      right: Math.round(r.right * 100) / 100,
+      width: Math.round(r.width * 100) / 100,
+      complete: img.complete,
+      naturalWidth: img.naturalWidth,
+    } : null;
+  })()`);
+  if (!ribbonAudit || ribbonAudit.left > 0.5 || ribbonAudit.right < width - 0.5) {
+    throw new Error(`[${label}] Screen 04 ribbon not full-bleed: ` + JSON.stringify(ribbonAudit));
+  }
   const shot04 = await shotPng();
 
-  await ev(`(() => {
-    const sc = document.getElementById('scroller');
-    sc.style.scrollSnapType = 'none';
-    sc.scrollTop = Math.round(3.48 * ${H});
-    sc.dispatchEvent(new Event('scroll'));
-    window.dispatchEvent(new Event('xiyu-scroll'));
-  })()`);
+  await ev(`(() => { window.__scrollTo(${3.48 * H}); })()`);
   await sleep(350);
   const shotMid = await shotPng();
   const midTransform = await ev(`(() => {
     const u = document.querySelectorAll('.escort-pair-unit');
-    return { count: u.length, flap0: u[0]?.dataset?.flapping, t0: u[0]?.style?.transform, vis: document.querySelector('.escort-layer')?.style?.visibility };
+    return {
+      progress: window.__getPageProgress?.(),
+      count: u.length,
+      flap0: u[0]?.dataset?.flapping,
+      flap1: u[1]?.dataset?.flapping,
+      t0: u[0]?.style?.transform,
+      vis: document.querySelector('.escort-layer')?.style?.visibility,
+    };
   })()`);
   if (midTransform.count !== 2 || midTransform.flap0 !== "1" || midTransform.vis !== "visible") {
     throw new Error(`[${label}] Escort mid-flight check failed: ` + JSON.stringify(midTransform));
   }
-  await ev(`(() => {
-    const sc = document.getElementById('scroller');
-    sc.scrollTop = ${3 * H};
-    sc.style.scrollSnapType = '';
-    sc.dispatchEvent(new Event('scroll'));
-    window.dispatchEvent(new Event('xiyu-scroll'));
-  })()`);
+  await ev(`(() => { window.__scrollTo(${3 * H}); })()`);
   await sleep(180);
 
-  // 5) Screen 05 Postcards + Escort Bird Ink-Bounds Overlap Check + Lightbox
+  // 5) Screen 05 Postcards (onNext click 04->05) + Escort Bird Ink-Bounds Overlap Check + Lightbox
   await tapElement('#birds [aria-label="继续前往下一页"]');
   await waitForScreen(4);
-  tapTurns.push("04->05");
+  navTurns.push("04->05:onNext");
   await sleep(1100);
   const escortAudit = await ev(`(async () => {
     const p1 = document.querySelector('#postcards [aria-label="放大查看北京南锣鼓巷明信片"]').getBoundingClientRect();
@@ -397,10 +541,10 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   await pressKey("Escape");
   await sleep(300);
 
-  // 6) Screen 06 Photos + Couplet Clearance + 700ms Long Press Easter Egg
-  await tapElement('#postcards [aria-label="继续前往下一页"]');
+  // 6) Screen 06 Photos (swipeUp 05->06) + Couplet Clearance + 700ms Long Press Easter Egg
+  await swipeUp(width, height);
   await waitForScreen(5);
-  tapTurns.push("05->06");
+  navTurns.push("05->06:swipeUp");
   await sleep(1100);
   const photosAudit = await ev(`(() => {
     const hasAxis = !!document.querySelector('#photos .axis, #photos .rail, #photos .timeline-line');
@@ -410,12 +554,16 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
       hasAxis,
       card3Bottom: c3 ? Math.round(c3.bottom * 10) / 10 : -1,
       coupletTop: coup ? Math.round(coup.top * 10) / 10 : -1,
+      coupletBottom: coup ? Math.round(coup.bottom * 10) / 10 : -1,
       gapPx: c3 && coup ? Math.round((coup.top - c3.bottom) * 10) / 10 : -999,
     };
   })()`);
   if (photosAudit.hasAxis) throw new Error(`[${label}] Screen 06 should not render a left rail axis`);
   if (!(photosAudit.coupletTop > photosAudit.card3Bottom + 4)) {
     throw new Error(`[${label}] Screen 06 couplet overlaps Card 3: ` + JSON.stringify(photosAudit));
+  }
+  if (!(photosAudit.coupletBottom > 0 && photosAudit.coupletBottom < height - 10)) {
+    throw new Error(`[${label}] Screen 06 couplet clipped or bottom >= ${height - 10}: ` + JSON.stringify(photosAudit));
   }
   const shot06 = await shotPng();
   await holdElement('#photos [aria-label="长按开启小嘴抹了蜜对照彩蛋"]', 720);
@@ -428,10 +576,10 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   await pressKey("Escape");
   await sleep(300);
 
-  // 7) Screen 07 Ending (Night -> Tap Bouquet dynamically -> Wait 4.8s -> Dawn + Zero Clipping + Zero Blue Borders)
+  // 7) Screen 07 Ending (onNext click 06->07 -> Night -> Tap Bouquet -> Wait 4.8s -> Dawn + Zero Ghost Text + Zero Clipping + Zero Side Borders)
   await tapElement('#photos [aria-label="继续前往下一页"]');
   await waitForScreen(6);
-  tapTurns.push("06->07");
+  navTurns.push("06->07:onNext");
   await sleep(1200);
   const nightDays = await ev("document.querySelector('#ending')?.innerText");
   const shot07Night = await shotPng();
@@ -443,28 +591,47 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     const ending = document.querySelector('#ending');
     const bo = document.querySelector('#ending .bo-rm');
     const iHold = [...document.querySelectorAll('#ending span')].find(s => s.textContent?.trim() === 'I HOLD');
+    const dawnYou = [...document.querySelectorAll('#ending span')].filter(s => s.textContent?.trim() === 'you.').at(-1);
     const dawnDate = [...document.querySelectorAll('#ending p')].filter(p => p.textContent?.includes('自 ')).at(-1);
+    const nightBase = document.querySelector('#ending img[alt="花束线稿"]')?.parentElement;
+    const nightCS = nightBase ? getComputedStyle(nightBase) : null;
     const iHoldRect = iHold?.getBoundingClientRect();
+    const dawnYouRect = dawnYou?.getBoundingClientRect();
     const dawnDateRect = dawnDate?.getBoundingClientRect();
     return {
       text: ending?.innerText || '',
       boText: bo?.textContent?.trim(),
       boFontFamily: bo ? getComputedStyle(bo).fontFamily : '',
+      nightOpacity: nightCS?.opacity ?? null,
+      nightVisibility: nightCS?.visibility ?? null,
       iHoldBottom: iHoldRect ? Math.round(iHoldRect.bottom * 10) / 10 : -1,
+      youBottom: dawnYouRect ? Math.round(dawnYouRect.bottom * 10) / 10 : -1,
+      dawnDateTop: dawnDateRect ? Math.round(dawnDateRect.top * 10) / 10 : -1,
       dawnDateBottom: dawnDateRect ? Math.round(dawnDateRect.bottom * 10) / 10 : -1,
+      youToDateGap: dawnYouRect && dawnDateRect ? Math.round((dawnDateRect.top - dawnYouRect.bottom) * 10) / 10 : -999,
       dawnDateText: dawnDate?.textContent?.trim() || '',
     };
   })()`);
   if (!dawnAudit.text.includes("寸心如故") || !dawnAudit.text.includes("ELEGANCE") || !dawnAudit.boFontFamily.includes("Bodoni Moda")) {
     throw new Error(`[${label}] Ending dawn transition missing expected copy/Bodoni Moda: ` + JSON.stringify(dawnAudit));
   }
-  if (height <= 710 && (dawnAudit.iHoldBottom > 700 || dawnAudit.dawnDateBottom > 700)) {
-    throw new Error(`[${label}] Ending dawn text clipped at ${height}px: ` + JSON.stringify(dawnAudit));
+  if (dawnAudit.nightOpacity !== "0" || dawnAudit.nightVisibility !== "hidden") {
+    throw new Error(`[${label}] Ending Night Base Layer did not hide cleanly (ghost text risk): ` + JSON.stringify(dawnAudit));
+  }
+  if (dawnAudit.dawnDateBottom < 0 || dawnAudit.dawnDateBottom >= height - 10) {
+    throw new Error(`[${label}] Ending dawnDate clipped at ${height}px: ` + JSON.stringify(dawnAudit));
+  }
+  if (dawnAudit.iHoldBottom < 0 || dawnAudit.iHoldBottom >= height - 20) {
+    throw new Error(`[${label}] Ending iHold clipped at ${height}px: ` + JSON.stringify(dawnAudit));
+  }
+  if (!(dawnAudit.dawnDateTop > dawnAudit.youBottom + 4)) {
+    throw new Error(`[${label}] Ending Dawn "you." overlaps "自 2026.08.25": ` + JSON.stringify(dawnAudit));
   }
 
   const shot07Dawn = await shotPng();
 
-  // Sample exact edge pixels (2, 350) & (width - 2, 350) from the captured screenshot to prove ZERO #1430C4 side borders
+  // Sample exact edge pixels (2, height/2) & (width - 2, height/2) from shot07Dawn to prove ZERO blue side borders
+  const sampleY = Math.round(height / 2);
   const sidePixels = await ev(`(async () => {
     const img = new Image();
     img.src = ${JSON.stringify(shot07Dawn)};
@@ -483,8 +650,8 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
       return { cssX: cx, cssY: cy, px, py, r: d[0], g: d[1], b: d[2] };
     };
     return {
-      leftEdge: sample(2, 350),
-      rightEdge: sample(${width - 2}, 350),
+      leftEdge: sample(2, ${sampleY}),
+      rightEdge: sample(${width - 2}, ${sampleY}),
       shotWidth: img.naturalWidth,
       shotHeight: img.naturalHeight,
     };
@@ -496,23 +663,52 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     throw new Error(`[${label}] Dawn full-bleed failed (blue side border detected!): ` + JSON.stringify(sidePixels));
   }
 
-  // 8) Native vertical scrolling check
-  const wheelBefore = await ev("document.getElementById('scroller').scrollTop");
-  await wheelAt(Math.round(width / 2), Math.round(height / 2), -450);
-  await sleep(900);
-  const wheelAfterUp = await ev("document.getElementById('scroller').scrollTop");
-  if (wheelAfterUp >= wheelBefore) {
-    throw new Error(`[${label}] Native vertical mouseWheel up failed: before=${wheelBefore}, afterUp=${wheelAfterUp}`);
+  // 8) Bidirectional Touch Swipe + Mouse Wheel Navigation checks on Screen 07 (idx === 6)
+  await swipeDown(width, height);
+  await waitForScreen(5);
+  await sleep(120);
+  await swipeDown(width, height);
+  await waitForScreen(4);
+  const progressAfter2SwipeDown = await ev("window.__getPageProgress()");
+  if (Math.abs(progressAfter2SwipeDown - 4) >= 0.02) {
+    throw new Error(`[${label}] swipeDown x2 (07->06->05) expected ~4, got ${progressAfter2SwipeDown}`);
   }
-  await wheelAt(Math.round(width / 2), Math.round(height / 2), 450);
-  await sleep(900);
-  const wheelAfterDown = await ev("document.getElementById('scroller').scrollTop");
-  if (wheelAfterDown <= wheelAfterUp) {
-    throw new Error(`[${label}] Native vertical mouseWheel down failed: afterUp=${wheelAfterUp}, afterDown=${wheelAfterDown}`);
-  }
-  const nativeWheelScroll = { before: wheelBefore, afterUp: wheelAfterUp, afterDown: wheelAfterDown };
 
-  // 9) Media + Fonts Audit
+  await sleep(120);
+  await swipeUp(width, height);
+  await waitForScreen(5);
+  await sleep(120);
+  await swipeUp(width, height);
+  await waitForScreen(6);
+  const progressAfter2SwipeUp = await ev("window.__getPageProgress()");
+  if (Math.abs(progressAfter2SwipeUp - 6) >= 0.02) {
+    throw new Error(`[${label}] swipeUp x2 (05->06->07) expected ~6, got ${progressAfter2SwipeUp}`);
+  }
+
+  await sleep(150);
+  await wheelAt(Math.round(width / 2), Math.round(height / 2), -450);
+  await waitForScreen(5);
+  const wheelProgressUp = await ev("window.__getPageProgress()");
+  await sleep(150);
+  await wheelAt(Math.round(width / 2), Math.round(height / 2), 450);
+  await waitForScreen(6);
+  const wheelProgressDown = await ev("window.__getPageProgress()");
+  if (Math.abs(wheelProgressUp - 5) >= 0.02 || Math.abs(wheelProgressDown - 6) >= 0.02) {
+    throw new Error(`[${label}] mouseWheel up/down check failed: up=${wheelProgressUp}, down=${wheelProgressDown}`);
+  }
+  const bidirectionalNav = {
+    swipeDown2Progress: progressAfter2SwipeDown,
+    swipeUp2Progress: progressAfter2SwipeUp,
+    wheelUpProgress: wheelProgressUp,
+    wheelDownProgress: wheelProgressDown,
+  };
+
+  // 9) Final HUD, Media & Fonts Audit
+  const hudCountFinal = await ev("document.querySelectorAll('.hud').length");
+  if (hudCountFinal !== 0) {
+    throw new Error(`[${label}] Expected 0 .hud elements at end, found ${hudCountFinal}`);
+  }
+
   const mediaAudit = await ev(`(() => {
     const imgs = [...document.images].filter(i => i.getAttribute('src') || i.getAttribute('data-src'));
     const loadedImgs = imgs.filter(i => i.src);
@@ -534,8 +730,8 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     ["Bodoni Moda"],
   ];
   const missingFonts = requiredFontGroups.filter((grp) => !grp.some((name) => mediaAudit.fonts.includes(name)));
-  if (missingFonts.length || mediaAudit.erroredFonts.length) {
-    throw new Error(`[${label}] Missing or errored fonts: ` + JSON.stringify({ missingFonts, erroredFonts: mediaAudit.erroredFonts, loaded: mediaAudit.fonts }));
+  if (missingFonts.length || mediaAudit.erroredFonts.length || mediaAudit.woff2Count < 8) {
+    throw new Error(`[${label}] Missing/errored fonts or woff2 < 8: ` + JSON.stringify({ missingFonts, erroredFonts: mediaAudit.erroredFonts, woff2Count: mediaAudit.woff2Count, loaded: mediaAudit.fonts }));
   }
 
   const horizontalOverflow = await ev(`document.documentElement.scrollWidth > ${width}`);
@@ -546,11 +742,7 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 720, deviceScaleFactor: 2, mobile: true, hasTouch: true });
     await sleep(160);
     await cdp("Emulation.setDeviceMetricsOverride", { width: 390, height: 664, deviceScaleFactor: 2, mobile: true, hasTouch: true });
-    await ev(`(() => {
-      const sc = document.getElementById('scroller');
-      sc.scrollTo({ top: ${5 * 664}, behavior: 'instant' });
-      window.dispatchEvent(new Event('xiyu-scroll'));
-    })()`);
+    await ev(`(() => { window.__scrollTo?.(${5 * 664}); })()`);
     await sleep(300);
     shortOverflow = await ev("document.documentElement.scrollWidth > 390");
   }
@@ -592,20 +784,21 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
   const sheetShot = await cdp("Page.captureScreenshot", { format: "png", fullPage: true });
   const outPng = join(MOCKUP_OUT, outFileName);
   writeFileSync(outPng, Buffer.from(sheetShot.data, "base64"));
-  if (existsSync(ART_DIR)) {
-    copyFileSync(outPng, join(ART_DIR, outFileName));
-  }
+  copyFileSync(outPng, join(ART_DIR, outFileName));
 
   return {
     viewport: `${width}x${height}@${dpr}x`,
-    hud01,
+    hudCount: hudCountFinal,
+    focusedIdAfterTouch,
     day100Hint,
     unlockMs,
     openingAudit,
     flowerAudit,
     flowerRipples,
     letterAudit,
-    tapTurns,
+    haloSeamAudit,
+    ribbonAudit,
+    navTurns,
     midTransform,
     escortAudit,
     lightboxOpen,
@@ -615,18 +808,24 @@ async function runFullPass({ width, height, dpr, label, outFileName }) {
     dawnAudit: {
       boText: dawnAudit.boText,
       boFontFamily: dawnAudit.boFontFamily,
+      nightOpacity: dawnAudit.nightOpacity,
+      nightVisibility: dawnAudit.nightVisibility,
       iHoldBottom: dawnAudit.iHoldBottom,
+      youBottom: dawnAudit.youBottom,
+      dawnDateTop: dawnAudit.dawnDateTop,
       dawnDateBottom: dawnAudit.dawnDateBottom,
+      youToDateGap: dawnAudit.youToDateGap,
       dawnDateText: dawnAudit.dawnDateText,
       sidePixels,
     },
-    nativeWheelScroll,
+    bidirectionalNav,
     horizontalOverflow,
     shortOverflow,
     mediaAudit,
     consoleErrors: [...consoleErrors],
     failedRequests: [...failedRequests],
     outPng,
+    artPng: join(ART_DIR, outFileName),
   };
 }
 
@@ -653,11 +852,19 @@ try {
   await cdp("Runtime.enable");
   await cdp("Network.enable");
 
+  const wechatProMax = await runFullPass({
+    width: 430,
+    height: 792,
+    dpr: 3,
+    label: "WeChat Pro Max 430x792",
+    outFileName: "wechat-promax-430x792-verified.png",
+  });
+
   const wechat704 = await runFullPass({
     width: 393,
     height: 704,
     dpr: 3,
-    label: "WeChat iPhone 704p",
+    label: "WeChat Pro 393x704",
     outFileName: "wechat-704p-01-to-07-verified.png",
   });
 
@@ -665,15 +872,16 @@ try {
     width: 390,
     height: 844,
     dpr: 2,
-    label: "iPhone 844p",
+    label: "Mobile Reference 390x844",
     outFileName: "live-site-01-to-07-verified.png",
   });
 
   const shortOverflow = iphone844.shortOverflow;
 
-  console.log(JSON.stringify({ url: BASE_URL, wechat704, iphone844, shortOverflow }, null, 2));
+  console.log(JSON.stringify({ url: BASE_URL, wechatProMax, wechat704, iphone844, shortOverflow }, null, 2));
 
   const bad =
+    wechatProMax.consoleErrors.length || wechatProMax.failedRequests.length || wechatProMax.mediaAudit.broken.length || wechatProMax.horizontalOverflow ||
     wechat704.consoleErrors.length || wechat704.failedRequests.length || wechat704.mediaAudit.broken.length || wechat704.horizontalOverflow ||
     iphone844.consoleErrors.length || iphone844.failedRequests.length || iphone844.mediaAudit.broken.length || iphone844.horizontalOverflow ||
     shortOverflow;

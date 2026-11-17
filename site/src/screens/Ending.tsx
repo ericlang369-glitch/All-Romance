@@ -37,10 +37,10 @@ const NIGHT_GLOW_STYLE = {
 
 const BOUQUET_BASE_STYLE = {
   position: "absolute",
-  left: 74,
-  top: 50,
-  width: 242,
-  height: 310,
+  left: 78,
+  top: 16,
+  width: 234,
+  height: 298,
   objectFit: "contain",
   pointerEvents: "none",
 } as const;
@@ -51,7 +51,7 @@ const WHISPER_NIGHT_STYLE = {
   position: "absolute",
   left: 0,
   width: 390,
-  top: 378,
+  top: 320,
   textAlign: "center",
   whiteSpace: "nowrap",
   transform: "rotate(-8deg)",
@@ -68,10 +68,9 @@ const DAWN_LAYER_STYLE = {
   inset: 0,
   background: "transparent",
   color: "#10259E",
-  overflow: "hidden",
   opacity: 0,
-  WebkitMaskImage: "radial-gradient(circle at 195px 204px, transparent 0px, transparent 1px)",
-  maskImage: "radial-gradient(circle at 195px 204px, transparent 0px, transparent 1px)",
+  WebkitMaskImage: "radial-gradient(circle at 195px 165px, transparent 0px, transparent 1px)",
+  maskImage: "radial-gradient(circle at 195px 165px, transparent 0px, transparent 1px)",
   pointerEvents: "none",
   zIndex: 8,
 } as const;
@@ -80,7 +79,7 @@ const DAWN_MSG_STYLE = {
   position: "absolute",
   left: 0,
   width: 390,
-  top: 378,
+  top: 320,
   textAlign: "center",
   whiteSpace: "nowrap",
   transform: "rotate(-8deg)",
@@ -91,13 +90,13 @@ const DAWN_MSG_STYLE = {
   opacity: 0,
 } as const;
 
-const DAWN_COUNT_STYLE = { left: 24, top: 448, transform: "rotate(-8deg)", color: "#10259E", opacity: 0 } as const;
-const DAWN_UPPER_STYLE = { left: 22, top: 510, transform: "rotate(-8deg)", color: "#10259E", opacity: 0 } as const;
-const DAWN_LOWER_STYLE = { left: 28, top: 616, transform: "rotate(4.5deg)", color: "#10259E", opacity: 0 } as const;
+const DAWN_COUNT_STYLE = { left: 22, top: 378, transform: "rotate(-8deg)", color: "#10259E", opacity: 0 } as const;
+const DAWN_UPPER_STYLE = { left: 20, top: 432, transform: "rotate(-8deg)", color: "#10259E", opacity: 0 } as const;
+const DAWN_LOWER_STYLE = { left: 26, top: 522, transform: "rotate(4.5deg)", color: "#10259E", opacity: 0 } as const;
 const DAWN_DATE_STYLE = {
   position: "absolute",
-  left: 212,
-  top: 756,
+  left: 218,
+  top: 666,
   color: "rgba(16,37,158,0.62)",
   transform: "rotate(-14deg)",
   transformOrigin: "0 0",
@@ -115,39 +114,39 @@ const SK_PATH =
 const SINGLE_PETAL = "M0,-5.5 C2.8,-3.5 3.6,1.5 0,5.5 C-3.6,1.5 -2.8,-3.5 0,-5.5 Z";
 
 const PRELUDE_FLOWERS = [
-  [68, 118, 16, -18, "#FFD6E4", 0.9],
-  [318, 110, 18, 22, "#B8E4FF", 0.9],
-  [48, 234, 15, 40, "#FFE6B8", 0.86],
-  [342, 218, 14, -35, "#E4C8FF", 0.86],
-  [82, 336, 14, 15, "#FFB8CF", 0.8],
-  [312, 318, 15, -48, "#B8E4FF", 0.84],
-  [124, 66, 13, 28, "#E4C8FF", 0.8],
-  [286, 72, 14, -14, "#FFE6B8", 0.82],
+  [68, 80, 16, -18, "#FFD6E4", 0.9],
+  [318, 72, 18, 22, "#B8E4FF", 0.9],
+  [48, 196, 15, 40, "#FFE6B8", 0.86],
+  [342, 180, 14, -35, "#E4C8FF", 0.86],
+  [82, 298, 14, 15, "#FFB8CF", 0.8],
+  [312, 280, 15, -48, "#B8E4FF", 0.84],
+  [124, 28, 13, 28, "#E4C8FF", 0.8],
+  [286, 34, 14, -14, "#FFE6B8", 0.82],
 ] as const;
 
 const PRELUDE_PETALS = [
-  [102, 366, 0.85, 32, "#FFD6E4", 0.72],
-  [292, 358, 0.8, -28, "#B8E4FF", 0.7],
-  [88, 280, 0.75, 52, "#FFE6B8", 0.75],
-  [300, 170, 0.75, -18, "#FFD6E4", 0.75],
+  [102, 328, 0.85, 32, "#FFD6E4", 0.72],
+  [292, 320, 0.8, -28, "#B8E4FF", 0.7],
+  [88, 242, 0.75, 52, "#FFE6B8", 0.75],
+  [300, 132, 0.75, -18, "#FFD6E4", 0.75],
 ] as const;
 
 const DAWN_FLOWERS = [
-  [66, 118, 16, -18, "#F29BB2", 0.84],
-  [320, 108, 18, 22, "#76ADE0", 0.82],
-  [48, 232, 15, 40, "#DFB468", 0.82],
-  [342, 218, 14, -35, "#B796D9", 0.8],
-  [82, 336, 14, 15, "#E8829D", 0.78],
-  [312, 318, 15, -48, "#76ADE0", 0.78],
-  [124, 66, 13, 28, "#B796D9", 0.76],
-  [286, 72, 14, -14, "#DFB468", 0.78],
+  [66, 80, 16, -18, "#F29BB2", 0.84],
+  [320, 70, 18, 22, "#76ADE0", 0.82],
+  [48, 194, 15, 40, "#DFB468", 0.82],
+  [342, 180, 14, -35, "#B796D9", 0.8],
+  [82, 298, 14, 15, "#E8829D", 0.78],
+  [312, 280, 15, -48, "#76ADE0", 0.78],
+  [124, 28, 13, 28, "#B796D9", 0.76],
+  [286, 34, 14, -14, "#DFB468", 0.78],
 ] as const;
 
 const DAWN_PETALS = [
-  [102, 366, 0.85, 32, "#F29BB2", 0.65],
-  [292, 358, 0.8, -28, "#76ADE0", 0.65],
-  [88, 280, 0.75, 52, "#DFB468", 0.65],
-  [300, 170, 0.75, -18, "#F29BB2", 0.65],
+  [102, 328, 0.85, 32, "#F29BB2", 0.65],
+  [292, 320, 0.8, -28, "#76ADE0", 0.65],
+  [88, 242, 0.75, 52, "#DFB468", 0.65],
+  [300, 132, 0.75, -18, "#F29BB2", 0.65],
 ] as const;
 
 export function since(ms: number) {
@@ -289,6 +288,7 @@ export function Ending({ register, index, total }: ScreenProps) {
   const bgPreludeRef = useRef<HTMLDivElement>(null);
   const bgDawnRef = useRef<HTMLDivElement>(null);
   // Night & Prelude canvas refs
+  const nightBaseRef = useRef<HTMLDivElement>(null);
   const nightGlowRef = useRef<HTMLDivElement>(null);
   const preludeGroupRef = useRef<SVGGElement>(null);
   const bouquetLinesRef = useRef<HTMLImageElement>(null);
@@ -387,11 +387,17 @@ export function Ending({ register, index, total }: ScreenProps) {
       const canvasGrad =
         p >= 1
           ? "none"
-          : `radial-gradient(circle at 195px 204px, #000 0px, #000 ${(rCanvas * 0.56).toFixed(1)}px, rgba(0,0,0,0.48) ${(rCanvas * 0.8).toFixed(1)}px, transparent ${rCanvas.toFixed(1)}px)`;
+          : `radial-gradient(circle at 195px 165px, #000 0px, #000 ${(rCanvas * 0.56).toFixed(1)}px, rgba(0,0,0,0.48) ${(rCanvas * 0.8).toFixed(1)}px, transparent ${rCanvas.toFixed(1)}px)`;
       dawnLayerRef.current.style.webkitMaskImage = canvasGrad;
       dawnLayerRef.current.style.maskImage = canvasGrad;
       dawnLayerRef.current.style.opacity = opLayer.toFixed(3);
       dawnLayerRef.current.style.pointerEvents = p >= 1 ? "auto" : "none";
+    }
+
+    if (nightBaseRef.current) {
+      const nightOp = 1 - clamp((p - 0.04) / 0.42, 0, 1);
+      nightBaseRef.current.style.opacity = nightOp <= 0.005 ? "0" : nightOp.toFixed(3);
+      nightBaseRef.current.style.visibility = nightOp <= 0.005 ? "hidden" : "visible";
     }
 
     if (dawnMsgRef.current) dawnMsgRef.current.style.opacity = clamp((p - 0.08) / 0.35, 0, 1).toFixed(3);
@@ -480,18 +486,18 @@ export function Ending({ register, index, total }: ScreenProps) {
         style={{
           position: "relative",
           width: 390,
-          height: 844,
-          overflow: "hidden",
+          height: 708,
           cursor: phase === "init" ? "pointer" : "default",
         }}
       >
         {/* ========== BASE LAYER: Night Init -> Beat 1 Prelude (Starry Bloom) ========== */}
         <div
+          ref={nightBaseRef}
+          aria-hidden={isDawn}
           style={{
             position: "absolute",
             inset: 0,
             color: "#FFFFFF",
-            overflow: "hidden",
           }}
         >
           {/* Subtle Center Glow before Beat 1 */}
@@ -499,14 +505,14 @@ export function Ending({ register, index, total }: ScreenProps) {
 
           {/* Orbit Rings & Prelude Sakura */}
           <svg
-            viewBox="0 0 390 480"
-            style={{ position: "absolute", left: 0, top: 0, width: 390, height: 480, pointerEvents: "none" }}
+            viewBox="0 0 390 400"
+            style={{ position: "absolute", left: 0, top: 0, width: 390, height: 400, pointerEvents: "none" }}
           >
-            <circle cx="195" cy="204" r="94" fill="none" stroke="rgba(255,255,255,0.20)" strokeWidth="1" />
-            <circle cx="195" cy="204" r="124" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="1" />
+            <circle cx="195" cy="165" r="94" fill="none" stroke="rgba(255,255,255,0.20)" strokeWidth="1" />
+            <circle cx="195" cy="165" r="124" fill="none" stroke="rgba(255,255,255,0.10)" strokeWidth="1" />
             <g ref={preludeGroupRef} style={{ opacity: 0 }}>
-              <circle cx="195" cy="204" r="118" fill="none" stroke="rgba(255,220,232,0.32)" strokeWidth="1" />
-              <circle cx="195" cy="204" r="158" fill="none" stroke="rgba(180,220,255,0.18)" strokeWidth="1" strokeDasharray="3 5" />
+              <circle cx="195" cy="165" r="118" fill="none" stroke="rgba(255,220,232,0.32)" strokeWidth="1" />
+              <circle cx="195" cy="165" r="158" fill="none" stroke="rgba(180,220,255,0.18)" strokeWidth="1" strokeDasharray="3 5" />
               {PRELUDE_FLOWERS.map(([x, y, s, r, c, o], idx) => (
                 <g key={idx} transform={`translate(${x},${y}) rotate(${r}) scale(${(s / 18).toFixed(3)})`} opacity={o} fill={c}>
                   {[0, 72, 144, 216, 288].map((deg) => (
@@ -523,7 +529,7 @@ export function Ending({ register, index, total }: ScreenProps) {
             </g>
           </svg>
 
-          {/* Top Bouquet (74, 50, 242x310): Line Art -> Starry Prelude Color A */}
+          {/* Top Bouquet (78, 16, 234x298): Line Art -> Starry Prelude Color A */}
           <img
             ref={bouquetLinesRef}
             data-src={`${A}bouquet-lines@3x.webp`}
@@ -544,8 +550,8 @@ export function Ending({ register, index, total }: ScreenProps) {
             {t.whisperNight}
           </p>
 
-          {/* Night Live Counter + Night Chanel Copy (exact left=24, top=448, -8deg) */}
-          <div className="ep-ang" style={{ left: 24, top: 448, transform: "rotate(-8deg)", color: "#FFFFFF" }}>
+          {/* Night Live Counter + Night Chanel Copy (left=22, top=378, -8deg) */}
+          <div className="ep-ang" style={{ left: 22, top: 378, transform: "rotate(-8deg)", color: "#FFFFFF" }}>
             <CountdownRow d={displayDays} h={clock.h} m={clock.m} dayColor="#FFFFFF" primary="#FFFFFF" />
             <div ref={nightCopyRef}>
               <span className="l" style={{ marginLeft: 18, lineHeight: "34px", marginTop: 8 }}>
@@ -567,8 +573,8 @@ export function Ending({ register, index, total }: ScreenProps) {
           <p
             style={{
               position: "absolute",
-              left: 212,
-              top: 756,
+              left: 218,
+              top: 666,
               color: "rgba(255,255,255,0.84)",
               transform: "rotate(-14deg)",
               transformOrigin: "0 0",
@@ -585,15 +591,15 @@ export function Ending({ register, index, total }: ScreenProps) {
           </p>
         </div>
 
-        {/* ========== DAWN LAYER B: Feathered Warm Champagne Reveal from Bouquet Center (195, 204) ========== */}
+        {/* ========== DAWN LAYER B: Feathered Warm Champagne Reveal from Bouquet Center (195, 165) ========== */}
         <div ref={dawnLayerRef} aria-hidden={!isDawn} style={DAWN_LAYER_STYLE}>
           {/* Orbit Rings & Original 06-scheme-B Multicolor Sakura + 4 Petals */}
           <svg
-            viewBox="0 0 390 480"
-            style={{ position: "absolute", left: 0, top: 0, width: 390, height: 480, pointerEvents: "none" }}
+            viewBox="0 0 390 400"
+            style={{ position: "absolute", left: 0, top: 0, width: 390, height: 400, pointerEvents: "none" }}
           >
-            <circle cx="195" cy="204" r="118" fill="none" stroke="rgba(184,74,98,0.20)" strokeWidth="1" />
-            <circle cx="195" cy="204" r="158" fill="none" stroke="rgba(16,37,158,0.10)" strokeWidth="1" strokeDasharray="3 5" />
+            <circle cx="195" cy="165" r="118" fill="none" stroke="rgba(184,74,98,0.20)" strokeWidth="1" />
+            <circle cx="195" cy="165" r="158" fill="none" stroke="rgba(16,37,158,0.10)" strokeWidth="1" strokeDasharray="3 5" />
             {DAWN_FLOWERS.map(([x, y, s, r, c, o], idx) => (
               <g key={idx} transform={`translate(${x},${y}) rotate(${r}) scale(${(s / 18).toFixed(3)})`} opacity={o} fill={c}>
                 {[0, 72, 144, 216, 288].map((deg) => (
@@ -616,21 +622,21 @@ export function Ending({ register, index, total }: ScreenProps) {
             draggable={false}
             style={{
               position: "absolute",
-              left: 74,
-              top: 50,
-              width: 242,
-              height: 310,
+              left: 78,
+              top: 16,
+              width: 234,
+              height: 298,
               objectFit: "contain",
               pointerEvents: "none",
             }}
           />
 
-          {/* Under-Flower Zhi Mang Xing Line (top: 378px, -8deg, #B84A62) */}
+          {/* Under-Flower Zhi Mang Xing Line (top: 320px, -8deg, #B84A62) */}
           <p ref={dawnMsgRef} style={DAWN_MSG_STYLE}>
             {t.endingMessage}
           </p>
 
-          {/* Live Chinese Counter (left: 24, top: 448, -8deg, 100 in #B84A62) */}
+          {/* Live Chinese Counter (left: 22, top: 378, -8deg, 100 in #B84A62) */}
           <div ref={dawnCountRef} className="ep-ang" style={DAWN_COUNT_STYLE}>
             <CountdownRow d={displayDays} h={clock.h} m={clock.m} dayColor="#B84A62" primary="#10259E" />
           </div>
@@ -677,9 +683,9 @@ export function Ending({ register, index, total }: ScreenProps) {
           style={{
             position: "absolute",
             left: 60,
-            top: 44,
+            top: 12,
             width: 270,
-            height: 330,
+            height: 312,
             background: "transparent",
             border: 0,
             cursor: phase === "init" ? "pointer" : "default",

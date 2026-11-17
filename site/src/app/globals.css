@@ -19,7 +19,7 @@
   --s1:4px;--s2:8px;--s3:16px;--s4:24px;--s5:40px;--s6:64px;--s7:96px;
   --gutter:32px; --content:326px; --r-photo:0; --r-card:2px;
   /* 视口适配（spec §6）：由 JS 在首次加载和旋转时写入（lib/kit.ts computeLayout） */
-  --W:100vw; --H:100svh; --Wc:min(100vw,430px); --colL:0px; --dx:0px; --bx:0px; --D:0; --o:0px; --t:0px; --fs:1; --ss:1;
+  --W:100vw; --H:100svh; --Wc:min(100vw,480px); --colL:0px; --dx:0px; --bx:0px; --D:0; --o:0px; --t:0px; --fs:1; --ss:1;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--blue);height:100%;overflow:hidden;overscroll-behavior:none}
@@ -61,8 +61,8 @@ body{font-feature-settings:"lnum" 1;-webkit-font-smoothing:antialiased;text-rend
 /* ===== 页面骨架（spec §6）===== */
 /* 高度固定为首次加载时的 100svh（--H），键盘弹出不跟着变（G3） */
 #frame{position:fixed;left:0;right:0;top:0;height:var(--H);overflow:hidden;background:var(--blue)}
-/* 列：宽 min(视口, 430)，水平居中 */
-#camera{position:absolute;top:0;bottom:0;left:50%;width:min(100%,430px);transform:translateX(-50%)}
+/* 列：宽 min(视口, 480)，水平居中 */
+#camera{position:absolute;top:0;bottom:0;left:50%;width:min(100%,480px);transform:translateX(-50%)}
 #camera>.rig{position:absolute;inset:0;transform-origin:50% 50%}
 /* 暗角跟镜头走、不跟屏走；铺满整个视口再加 64px 出血（plan §3b、spec §6.3），圆心在列中线，半径按列宽算 */
 .lens{position:absolute;top:-64px;bottom:-64px;left:calc(-1 * var(--colL) - 64px);right:calc(-1 * var(--colL) - 64px);pointer-events:none}
@@ -74,16 +74,15 @@ html[data-wide] .lens.sides{display:block;background:linear-gradient(90deg,
   rgba(11,30,140,.16) calc(var(--colL) + 64px - 136px), rgba(11,30,140,0) calc(var(--colL) + 64px + 24px),
   rgba(11,30,140,0) calc(100% - var(--colL) - 64px - 24px), rgba(11,30,140,.16) calc(100% - var(--colL) - 64px + 136px))}
 /* 宽屏时滚动容器左右各多 64px（--bx），只给风里的落花飘出列外用 */
-#scroller{position:absolute;top:0;bottom:0;left:calc(-1 * var(--bx));right:calc(-1 * var(--bx));overflow-y:scroll;overflow-x:hidden;scroll-snap-type:y mandatory;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;scrollbar-width:none}
-#scroller::-webkit-scrollbar{display:none}
-html[data-rec] #scroller{scroll-snap-type:none}
+#scroller{position:absolute;top:0;bottom:0;left:calc(-1 * var(--bx));right:calc(-1 * var(--bx));overflow:hidden;touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
+#deckTrack{position:absolute;left:0;right:0;top:0;will-change:transform;transform:translate3d(0,0,0)}
 /* 每屏按屏裁切（G2）；横向出血由 .shift 内容自带 */
-.screen{position:relative;height:var(--H);scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
+.screen{position:relative;height:var(--H);overflow:hidden}
 .screen>.shift{position:absolute;inset:0}
 /* 390 宽设计坐标，放在列中间：x' = colL + x + dx（§6.1 第 4 条），不缩放 */
 .stage{position:absolute;left:calc(var(--bx) + var(--dx));top:0;width:390px;height:100%}
 .stage img,.cs img{max-width:none}
-.design-canvas{position:absolute;left:50%;top:50%;width:390px;height:844px;transform:translate(-50%,-50%) scale(var(--ss,1));transform-origin:50% 50%}
+.design-canvas{position:absolute;left:50%;top:50%;width:390px;height:708px;transform:translate(-50%,-50%) scale(var(--ss,1));transform-origin:50% 50%}
 .full-bleed-bg{position:absolute;left:calc(-1 * var(--colL) - var(--bx) - 24px);right:calc(-1 * var(--colL) - var(--bx) - 24px);top:-24px;bottom:-24px;pointer-events:none}
 /* 列容器：树、02 相框放这里。宽屏时裁在列里，列边 48px 羽化（§6.3）；手机上列边就是屏幕边，不加遮罩 */
 .col{position:absolute;left:var(--bx);top:0;width:var(--Wc);height:100%;pointer-events:none}
@@ -112,7 +111,7 @@ html:not(.js) #pass{display:none}
 #gust{position:absolute;left:0;top:0;pointer-events:none}
 /* 宽屏：落花可以飘出列外最多 64px，在列边外 0→64px 内淡到 0（§6.3） */
 html[data-wide] #gust{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 var(--bx),#000 calc(100% - var(--bx)),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 var(--bx),#000 calc(100% - var(--bx)),transparent 100%)}
-#passInput{position:absolute;left:96px;top:calc(384px + var(--o));width:198px;height:80px;opacity:0;font-size:16px;color:transparent;background:transparent;border:0;outline:0;caret-color:transparent;text-align:center}
+#passInput{position:absolute;left:96px;top:calc(384px + var(--o));width:198px;height:80px;opacity:0;font-size:16px;color:transparent;background:transparent;border:0;outline:0;caret-color:transparent;text-align:center;-webkit-user-select:text;user-select:text}
 #passInput:disabled{display:none;pointer-events:none}
 #again{opacity:0}
 html.js #title .l, html.js #hintTxt, html.js #hintLine{opacity:0}
@@ -185,7 +184,9 @@ button.close:focus-visible{text-decoration:underline;text-underline-offset:4px}
 #s-ending[data-bloom="b"] .endGrp .caps{color:#B84A62}
 #s-ending[data-bloom="b"] .bq-wrap:focus-visible{outline-color:rgba(16,37,158,.5)}
 
-@media (prefers-reduced-motion: reduce){ #scroller{scroll-behavior:auto} .bq-breathe{animation:none} }
+[data-modal-scroll]{overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch}
+
+@media (prefers-reduced-motion: reduce){ .bq-breathe{animation:none} }
 
 
 /* ============================================================================

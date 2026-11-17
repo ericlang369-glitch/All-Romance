@@ -138,7 +138,7 @@ export function Postcards({
         ) : null
       }
     >
-      <div ref={root} style={{ position: "relative", width: 390, height: 844, overflow: "hidden" }}>
+      <div ref={root} style={{ position: "relative", width: 390, height: 708 }}>
         {/* Atmospheric mist-silver echo birds in open right margin (directly on pure #1430C4, zero blobs) */}
         <img
           data-src={`${B}s05-echo-birds@2x.webp`}
@@ -147,9 +147,9 @@ export function Postcards({
           style={{
             position: "absolute",
             left: 278,
-            top: 320,
-            width: 112,
-            height: 112,
+            top: 266,
+            width: 108,
+            height: 108,
             pointerEvents: "none",
             zIndex: 4,
             opacity: entered ? 0.92 : 0,
@@ -161,8 +161,8 @@ export function Postcards({
         <div
           className="ep-ang"
           style={{
-            left: 24,
-            top: 46,
+            left: 22,
+            top: 26,
             transform: "rotate(-7deg)",
             zIndex: 15,
             opacity: entered ? 1 : 0,
@@ -196,10 +196,10 @@ export function Postcards({
           }}
           style={{
             position: "absolute",
-            left: 24,
-            top: 202,
-            width: 248,
-            height: 165.3,
+            left: 20,
+            top: 158,
+            width: 252,
+            height: 168,
             borderRadius: 2,
             boxShadow: "0 14px 32px rgba(4, 10, 64, 0.56)",
             transform: entered ? "rotate(-2.2deg) translateY(0)" : "rotate(-2.2deg) translateY(16px)",
@@ -233,9 +233,9 @@ export function Postcards({
           style={{
             position: "absolute",
             left: 118,
-            top: 438,
-            width: 248,
-            height: 165.3,
+            top: 374,
+            width: 252,
+            height: 168,
             borderRadius: 2,
             boxShadow: "0 16px 34px rgba(4, 10, 64, 0.58)",
             transform: entered ? "rotate(2deg) translateY(0)" : "rotate(2deg) translateY(18px)",
@@ -272,7 +272,7 @@ export function Postcards({
             }
           }}
           style={{
-            top: 786,
+            top: 654,
             zIndex: 20,
             padding: "6px 14px",
             cursor: "pointer",

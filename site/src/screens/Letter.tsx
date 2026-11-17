@@ -9,18 +9,18 @@ const SK_PATH =
 
 const SAKURA_ITEMS = [
   // Outer cool moon-white blossoms
-  { x: 306, y: 186, size: 15, rot: -16, fill: "#FFFFFF", op: 0.56, blur: 0 },
-  { x: 46, y: 274, size: 14, rot: 22, fill: "#CFD8FF", op: 0.44, blur: 0.8 },
-  { x: 350, y: 298, size: 13, rot: 34, fill: "#FFFFFF", op: 0.52, blur: 0 },
-  { x: 32, y: 422, size: 17, rot: -26, fill: "#CFD8FF", op: 0.38, blur: 1.2 },
-  { x: 358, y: 446, size: 16, rot: 14, fill: "#FFFFFF", op: 0.40, blur: 1.1 },
+  { x: 306, y: 132, size: 15, rot: -16, fill: "#FFFFFF", op: 0.56, blur: 0 },
+  { x: 46, y: 220, size: 14, rot: 22, fill: "#CFD8FF", op: 0.44, blur: 0.8 },
+  { x: 350, y: 244, size: 13, rot: 34, fill: "#FFFFFF", op: 0.52, blur: 0 },
+  { x: 32, y: 368, size: 17, rot: -26, fill: "#CFD8FF", op: 0.38, blur: 1.2 },
+  { x: 358, y: 392, size: 16, rot: 14, fill: "#FFFFFF", op: 0.40, blur: 1.1 },
   // Inner warm candlelight blossoms (centripetal toward E1 halo)
-  { x: 76, y: 318, size: 11.5, rot: -12, fill: "#FFE6D2", op: 0.72, blur: 0 },
-  { x: 318, y: 340, size: 12, rot: 18, fill: "#FFD8E4", op: 0.74, blur: 0 },
-  { x: 64, y: 506, size: 11, rot: 28, fill: "#FFE6D2", op: 0.68, blur: 0 },
-  { x: 332, y: 522, size: 11.5, rot: -20, fill: "#FFD8E4", op: 0.72, blur: 0 },
-  { x: 96, y: 604, size: 10.5, rot: 12, fill: "#FFE6D2", op: 0.60, blur: 0 },
-  { x: 298, y: 608, size: 10.5, rot: -30, fill: "#FFFFFF", op: 0.56, blur: 0 },
+  { x: 76, y: 264, size: 11.5, rot: -12, fill: "#FFE6D2", op: 0.72, blur: 0 },
+  { x: 318, y: 286, size: 12, rot: 18, fill: "#FFD8E4", op: 0.74, blur: 0 },
+  { x: 64, y: 452, size: 11, rot: 28, fill: "#FFE6D2", op: 0.68, blur: 0 },
+  { x: 332, y: 468, size: 11.5, rot: -20, fill: "#FFD8E4", op: 0.72, blur: 0 },
+  { x: 96, y: 550, size: 10.5, rot: 12, fill: "#FFE6D2", op: 0.60, blur: 0 },
+  { x: 298, y: 554, size: 10.5, rot: -30, fill: "#FFFFFF", op: 0.56, blur: 0 },
 ];
 
 export function Letter({
@@ -62,6 +62,15 @@ export function Letter({
       index={index}
       total={total}
       scaledStage
+      bg={
+        <div
+          className="full-bleed-bg"
+          style={{
+            background:
+              "radial-gradient(circle closest-side at 50% 46%, rgba(255, 232, 198, 0.36) 0%, rgba(255, 224, 210, 0.20) 32%, rgba(255, 214, 228, 0.08) 56%, rgba(255, 214, 228, 0.02) 76%, rgba(255, 214, 228, 0) 95%)",
+          }}
+        />
+      }
       overlay={
         zoomOpen ? (
           <div
@@ -86,6 +95,7 @@ export function Letter({
             </button>
 
             <div
+              data-modal-scroll="1"
               onClick={(e) => e.stopPropagation()}
               style={{
                 width: 332,
@@ -142,25 +152,9 @@ export function Letter({
         ) : null
       }
     >
-      <div ref={root} style={{ position: "relative", width: 390, height: 844, overflow: "hidden" }}>
-        {/* Warm Champagne Candlelight Center Halo behind E1 */}
-        <div
-          style={{
-            position: "absolute",
-            left: "50%",
-            top: 452,
-            width: 440,
-            height: 440,
-            transform: "translate(-50%, -50%)",
-            background:
-              "radial-gradient(circle at 50% 48%, rgba(255, 232, 198, 0.40) 0%, rgba(255, 214, 228, 0.16) 40%, rgba(20, 48, 196, 0) 72%)",
-            pointerEvents: "none",
-            zIndex: 2,
-          }}
-        />
-
+      <div ref={root} style={{ position: "relative", width: 390, height: 708 }}>
         {/* Centripetal Screen-01 Depth-of-Field 5-Petal Sakura Blossoms (Zero Circle Bokeh) */}
-        <svg viewBox="0 0 390 844" style={{ position: "absolute", inset: 0, width: 390, height: 844, pointerEvents: "none", zIndex: 4 }}>
+        <svg viewBox="0 0 390 708" style={{ position: "absolute", inset: 0, width: 390, height: 708, pointerEvents: "none", zIndex: 4 }}>
           {SAKURA_ITEMS.map((s, idx) => (
             <g
               key={idx}
@@ -192,7 +186,7 @@ export function Letter({
           style={{
             position: "absolute",
             left: 55,
-            top: 264,
+            top: 202,
             width: 280,
             height: 332,
             cursor: "pointer",
@@ -229,7 +223,7 @@ export function Letter({
               boxShadow: "0 8px 22px rgba(8, 16, 70, 0.28), inset 0 0 0 0.5px rgba(255, 255, 255, 0.85)",
               overflow: "hidden",
               zIndex: 2,
-              transform: entered ? "translateY(-64px)" : "translateY(28px)",
+              transform: entered ? "translateY(-56px)" : "translateY(28px)",
               transition: "transform 1.15s cubic-bezier(0.22, 0.61, 0.36, 1) 0.15s",
             }}
           >
@@ -289,8 +283,8 @@ export function Letter({
         <div
           className="ep-ang"
           style={{
-            left: 24,
-            top: 52,
+            left: 22,
+            top: 26,
             transform: "rotate(-8deg)",
             zIndex: 15,
             opacity: entered ? 1 : 0,
@@ -313,7 +307,7 @@ export function Letter({
           className="ep-ang"
           style={{
             left: "50%",
-            top: 666,
+            top: 572,
             transform: "translateX(-50%) rotate(-5deg)",
             zIndex: 15,
             textAlign: "center",
@@ -344,7 +338,7 @@ export function Letter({
             }
           }}
           style={{
-            top: 786,
+            top: 654,
             zIndex: 20,
             padding: "6px 14px",
             cursor: "pointer",

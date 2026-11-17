@@ -9,6 +9,7 @@ const B = `${BASE_PATH}/assets/birds/`;
 type Ripple = { id: number; x: number; y: number };
 
 export function Birds({ register, index, total, onNext }: ScreenProps) {
+  const bgRef = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const [entered, setEntered] = useState(false);
   const [ripples, setRipples] = useState<Ripple[]>([]);
@@ -16,18 +17,23 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
 
   useEffect(() => {
     register({
-      enter: () => setEntered(true),
+      enter: () => {
+        setEntered(true);
+        if (bgRef.current) loadImgs(bgRef.current);
+        if (root.current) loadImgs(root.current);
+      },
     });
   }, [register]);
 
   useEffect(() => {
+    if (bgRef.current) loadImgs(bgRef.current);
     if (root.current) loadImgs(root.current);
   }, []);
 
   const spawnRipple = (e: React.PointerEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / (rect.width || 390)) * 390;
-    const y = ((e.clientY - rect.top) / (rect.height || 844)) * 844;
+    const y = ((e.clientY - rect.top) / (rect.height || 708)) * 708;
     const id = nextId.current++;
     setRipples((prev) => [...prev.slice(-4), { id, x, y }]);
     window.setTimeout(() => {
@@ -38,47 +44,66 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
   const t = TEXT.birds;
 
   return (
-    <Screen id="birds" index={index} total={total} scaledStage>
-      <div
-        ref={root}
-        onPointerDown={spawnRipple}
-        style={{ position: "relative", width: 390, height: 844, overflow: "hidden", cursor: "pointer" }}
-      >
-        {/* R1 Translucent Silk Organza Wind-Ribbon + Far Mist-Ink Birds */}
-        <img
-          data-src={`${B}s04-r1-ribbon-bg@2x.webp`}
-          alt=""
-          draggable={false}
+    <Screen
+      id="birds"
+      index={index}
+      total={total}
+      scaledStage
+      bg={
+        <div
+          ref={bgRef}
           style={{
             position: "absolute",
             inset: 0,
-            width: 390,
-            height: 844,
-            objectFit: "cover",
+            overflow: "hidden",
             pointerEvents: "none",
-            opacity: entered ? 1 : 0,
-            transition: "opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1)",
           }}
-        />
-
-        {/* 3-Frame GPU Stop-Motion Lesage Embroidery Wingbeat Flock */}
-        {[1, 2, 3].map((f) => (
+        >
+          {/* R1 Translucent Silk Organza Wind-Ribbon + Far Mist-Ink Birds */}
           <img
-            key={f}
-            className={`bird-sprite-f${f}`}
-            data-src={`${B}s04-r1-flock-f${f}@2x.webp`}
+            data-src={`${B}s04-r1-ribbon-bg@2x.webp`}
             alt=""
             draggable={false}
             style={{
               position: "absolute",
               inset: 0,
-              width: 390,
-              height: 844,
+              width: "100%",
+              height: "100%",
               objectFit: "cover",
+              objectPosition: "center",
               pointerEvents: "none",
+              opacity: entered ? 1 : 0,
+              transition: "opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1)",
             }}
           />
-        ))}
+
+          {/* 3-Frame GPU Stop-Motion Lesage Embroidery Wingbeat Flock */}
+          {[1, 2, 3].map((f) => (
+            <img
+              key={f}
+              className={`bird-sprite-f${f}`}
+              data-src={`${B}s04-r1-flock-f${f}@2x.webp`}
+              alt=""
+              draggable={false}
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                objectPosition: "center",
+                pointerEvents: "none",
+              }}
+            />
+          ))}
+        </div>
+      }
+    >
+      <div
+        ref={root}
+        onPointerDown={spawnRipple}
+        style={{ position: "relative", width: 390, height: 708, cursor: "pointer" }}
+      >
 
         {/* Interactive Pearl Wind-Ripples on Tap */}
         {ripples.map((r) => (
@@ -107,8 +132,8 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
         <div
           className="ep-ang"
           style={{
-            left: 24,
-            top: 46,
+            left: 22,
+            top: 26,
             transform: "rotate(-7deg)",
             zIndex: 15,
             opacity: entered ? 1 : 0,
@@ -148,7 +173,7 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
             }
           }}
           style={{
-            top: 786,
+            top: 656,
             zIndex: 20,
             padding: "6px 14px",
             cursor: "pointer",

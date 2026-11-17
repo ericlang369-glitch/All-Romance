@@ -12,23 +12,23 @@ const SINGLE_PETAL =
   "M0 0 C 1.8 -2.3, 2.6 -5.5, 2.1 -8.5 C 1.8 -10.1, 0.9 -10.7, 0.35 -10.2 L 0 -9.0 L -0.45 -10.3 C -1.05 -10.6, -1.9 -9.8, -2.0 -8.0 C -2.2 -5.0, -1.2 -2.2, 0 0 Z";
 
 const SAKURA_BLOOMS = [
-  { kind: "bloom" as const, x: 298, y: 174, size: 16, rot: -18, fill: "#FFE8F0", op: 0.38, blur: 1.3 },
-  { kind: "bloom" as const, x: 354, y: 386, size: 12, rot: 22, fill: "#FFFFFF", op: 0.56, blur: 0 },
-  { kind: "bloom" as const, x: 44, y: 476, size: 13, rot: -24, fill: "#FFE5CC", op: 0.58, blur: 0 },
-  { kind: "petal" as const, x: 76, y: 548, size: 11.5, rot: 48, fill: "#FFD6E4", op: 0.54, blur: 0 },
-  { kind: "bloom" as const, x: 28, y: 598, size: 17, rot: -12, fill: "#F6DEC2", op: 0.36, blur: 1.4 },
-  { kind: "bloom" as const, x: 356, y: 542, size: 11.5, rot: 16, fill: "#FFE8F0", op: 0.52, blur: 0 },
-  { kind: "petal" as const, x: 336, y: 646, size: 11.5, rot: -54, fill: "#FFE2C0", op: 0.54, blur: 0 },
-  { kind: "bloom" as const, x: 164, y: 654, size: 9.5, rot: 15, fill: "#FFFFFF", op: 0.52, blur: 0 },
-  { kind: "petal" as const, x: 362, y: 464, size: 10, rot: 62, fill: "#FFE5CC", op: 0.48, blur: 0 },
+  { kind: "bloom" as const, x: 298, y: 144, size: 16, rot: -18, fill: "#FFE8F0", op: 0.38, blur: 1.3 },
+  { kind: "bloom" as const, x: 354, y: 320, size: 12, rot: 22, fill: "#FFFFFF", op: 0.56, blur: 0 },
+  { kind: "bloom" as const, x: 44, y: 395, size: 13, rot: -24, fill: "#FFE5CC", op: 0.58, blur: 0 },
+  { kind: "petal" as const, x: 76, y: 455, size: 11.5, rot: 48, fill: "#FFD6E4", op: 0.54, blur: 0 },
+  { kind: "bloom" as const, x: 28, y: 496, size: 17, rot: -12, fill: "#F6DEC2", op: 0.36, blur: 1.4 },
+  { kind: "bloom" as const, x: 356, y: 450, size: 11.5, rot: 16, fill: "#FFE8F0", op: 0.52, blur: 0 },
+  { kind: "petal" as const, x: 336, y: 536, size: 11.5, rot: -54, fill: "#FFE2C0", op: 0.54, blur: 0 },
+  { kind: "bloom" as const, x: 164, y: 543, size: 9.5, rot: 15, fill: "#FFFFFF", op: 0.52, blur: 0 },
+  { kind: "petal" as const, x: 362, y: 385, size: 10, rot: 62, fill: "#FFE5CC", op: 0.48, blur: 0 },
 ];
 
 const GLOW_DOTS = [
-  { x: 258, y: 192, r: 0.95, fill: "#FFD6E4", op: 0.68 },
-  { x: 366, y: 414, r: 0.85, fill: "#F6DEC2", op: 0.64 },
-  { x: 54, y: 514, r: 1.05, fill: "#FFE5CC", op: 0.72 },
-  { x: 220, y: 636, r: 0.8, fill: "#FFD6E4", op: 0.62 },
-  { x: 344, y: 608, r: 0.9, fill: "#F6DEC2", op: 0.66 },
+  { x: 258, y: 159, r: 0.95, fill: "#FFD6E4", op: 0.68 },
+  { x: 366, y: 344, r: 0.85, fill: "#F6DEC2", op: 0.64 },
+  { x: 54, y: 427, r: 1.05, fill: "#FFE5CC", op: 0.72 },
+  { x: 220, y: 528, r: 0.8, fill: "#FFD6E4", op: 0.62 },
+  { x: 344, y: 505, r: 0.9, fill: "#F6DEC2", op: 0.66 },
 ];
 
 export function Photos({
@@ -250,9 +250,9 @@ export function Photos({
         </>
       }
     >
-      <div ref={root} style={{ position: "relative", width: 390, height: 844, overflow: "hidden" }}>
+      <div ref={root} style={{ position: "relative", width: 390, height: 708 }}>
         {/* Scattered Depth-of-Field Sakura Blossoms, Single Petals & Micro Glow Dots */}
-        <svg viewBox="0 0 390 844" style={{ position: "absolute", inset: 0, width: 390, height: 844, pointerEvents: "none", zIndex: 4 }}>
+        <svg viewBox="0 0 390 708" style={{ position: "absolute", inset: 0, width: 390, height: 708, pointerEvents: "none", zIndex: 4 }}>
           {SAKURA_BLOOMS.map((s, idx) =>
             s.kind === "bloom" ? (
               <g
@@ -290,8 +290,8 @@ export function Photos({
         <div
           className="ep-ang"
           style={{
-            left: 24,
-            top: 46,
+            left: 22,
+            top: 24,
             transform: "rotate(-7deg)",
             zIndex: 15,
             opacity: entered ? 1 : 0,
@@ -321,8 +321,8 @@ export function Photos({
             }
           }}
           style={{
-            left: 16,
-            top: 162,
+            left: 14,
+            top: 126,
             width: 184,
             padding: 6,
             transform: entered ? "rotate(-2.6deg)" : "rotate(-2.6deg) translateY(16px)",
@@ -337,11 +337,11 @@ export function Photos({
             data-src={`${P}${PHOTOS.pailepai}`}
             alt="PAILEPAI FLIGHTS 拍立得"
             draggable={false}
-            style={{ width: 172, height: 257, objectFit: "cover" }}
+            style={{ width: 172, height: 246, objectFit: "cover" }}
           />
         </div>
 
-        {/* Card 2: Cat Mouth-Cover bottom remake only + 20px pure blank ivory chin */}
+        {/* Card 2: Cat Mouth-Cover bottom remake only + pure blank ivory chin */}
         <div
           className="pol-card"
           role="button"
@@ -364,10 +364,10 @@ export function Photos({
             }
           }}
           style={{
-            left: 200,
-            top: 216,
+            left: 202,
+            top: 174,
             width: 174,
-            padding: "7px 7px 20px",
+            padding: "7px 7px 18px",
             transform: entered ? "rotate(3.2deg)" : "rotate(3.2deg) translateY(18px)",
             opacity: entered ? 1 : 0,
             transitionDelay: "0.18s",
@@ -384,7 +384,7 @@ export function Photos({
           />
         </div>
 
-        {/* Card 3: GD & T.O.P Pointing bottom remake only + 22px pure blank ivory chin */}
+        {/* Card 3: GD & T.O.P Pointing bottom remake only + pure blank ivory chin */}
         <div
           className="pol-card"
           role="button"
@@ -408,9 +408,9 @@ export function Photos({
           }}
           style={{
             left: 118,
-            top: 454,
+            top: 386,
             width: 214,
-            padding: "7px 7px 22px",
+            padding: "7px 7px 20px",
             transform: entered ? "rotate(-2.2deg)" : "rotate(-2.2deg) translateY(20px)",
             opacity: entered ? 1 : 0,
             transitionDelay: "0.26s",
@@ -434,8 +434,8 @@ export function Photos({
           aria-label="打开对照彩蛋"
           onClick={() => setEasterOpen(true)}
           style={{
-            left: 240,
-            top: 394,
+            left: 238,
+            top: 338,
             transform: "rotate(-3deg)",
             zIndex: 12,
             opacity: entered ? 1 : 0,
@@ -464,8 +464,8 @@ export function Photos({
             }
           }}
           style={{
-            left: 48,
-            top: 696,
+            left: 44,
+            top: 592,
             padding: "6px 6px",
             transform: "rotate(-4.5deg)",
             zIndex: 20,

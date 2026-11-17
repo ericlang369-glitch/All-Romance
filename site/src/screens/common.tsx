@@ -29,7 +29,7 @@ export function Screen({
   artPlain,
   index,
   total,
-  showHud = true,
+  showHud = false,
   hudTone = "light",
   scaledStage = false,
 }: {
@@ -45,12 +45,11 @@ export function Screen({
   hudTone?: "light" | "dark";
   scaledStage?: boolean;
 }) {
-  const stageContent = (
-    <>
-      {index && total && showHud && <Hud index={index} total={total} tone={hudTone} />}
-      {children}
-    </>
-  );
+  void index;
+  void total;
+  void showHud;
+  void hudTone;
+  const stageContent = children;
   return (
     <section className="screen" id={id}>
       <div className="shift">

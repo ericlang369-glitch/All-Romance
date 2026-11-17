@@ -213,18 +213,18 @@ export const L = { W: 390, H: 844, Wc: 390, colL: 0, dx: 0, bx: 0, D: 0, o: 0, t
 const layoutFns: (() => void)[] = [];
 export const onLayout = (fn: () => void) => { layoutFns.push(fn); return () => { const i = layoutFns.indexOf(fn); if (i >= 0) layoutFns.splice(i, 1); }; };
 export function computeLayout(W: number, H: number) {
-  const Wc = Math.min(W, 430), Hl = Math.max(H, 664); // H < 664 按 664 排，底部由屏幕裁掉
+  const Wc = Math.min(W, 480), Hl = Math.max(H, 664); // H < 664 按 664 排，底部由屏幕裁掉
   const D = Math.max(0, 844 - Hl), t = Math.min(14, 0.08 * D);
   const sMin = (Wc + 24) / 430.1;
   const fs = clamp((Hl - (140 - t) - 24) / 573.4, sMin, 1); // 02 相框缩放（§6.2）
-  const ss = clamp(Math.min(Wc / 390, (H - 6) / 844), 0.65, 1.08);
-  Object.assign(L, { W, H, Wc, colL: (W - Wc) / 2, dx: (Wc - 390) / 2, bx: W > 430 ? 64 : 0, D, o: Math.max(0, (H - 844) / 2), t, fs: Math.min(1, fs), ss });
+  const ss = clamp(Math.min(Wc / 390, H / 708), 0.72, 1.24);
+  Object.assign(L, { W, H, Wc, colL: (W - Wc) / 2, dx: (Wc - 390) / 2, bx: W > 480 ? 64 : 0, D, o: Math.max(0, (H - 844) / 2), t, fs: Math.min(1, fs), ss });
   const h = document.documentElement, set = (k: string, v: number) => h.style.setProperty(k, +v.toFixed(3) + "px");
   set("--W", W); set("--H", H); set("--Wc", Wc); set("--colL", L.colL); set("--dx", L.dx); set("--bx", L.bx); set("--o", L.o); set("--t", t);
   h.style.setProperty("--D", String(+D.toFixed(3))); // 系数写法 calc(a * var(--D) * 1px)
   h.style.setProperty("--fs", String(+L.fs.toFixed(5)));
   h.style.setProperty("--ss", String(+ss.toFixed(5)));
-  if (W > 430) h.dataset.wide = ""; else delete h.dataset.wide;
+  if (W > 480) h.dataset.wide = ""; else delete h.dataset.wide;
   layoutFns.forEach((f) => f());
 }
 /** 设计坐标 y 换成 CSS top：y' = y + a·D + o（§6.1 第 5、6 条） */

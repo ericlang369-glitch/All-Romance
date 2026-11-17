@@ -6,9 +6,10 @@ import { $, $$, E, after, env, loadImgs, slideLines, tween } from "@/lib/kit";
 import { Screen, type ScreenProps } from "./common";
 
 const A = `${BASE_PATH}/assets/`;
-/** 对齐 02-C 校准构图：相框上沿落在 y=182（较初版下移 42px），蝴蝶停落中心 (261, 435) */
+/** 对齐 02-C 校准构图：适配 708p 画布净上移 62px 并等比缩放 0.89，相框落在 y=120..630.3，蝴蝶停落中心 (253.7, 345.2) */
 const FRAME_T = {
-  transform: "translateY(42px)",
+  transform: "translateY(-20px) scale(0.89)",
+  transformOrigin: "195px 140px",
 } as const;
 
 const MASK_WRAP_STYLE = {
@@ -16,12 +17,12 @@ const MASK_WRAP_STYLE = {
   left: 0,
   top: 0,
   width: 390,
-  height: 844,
+  height: 708,
   pointerEvents: "none",
   zIndex: 2,
   opacity: 0,
-  WebkitMaskImage: "radial-gradient(circle at 261px 435px, transparent 0px, transparent 1px)",
-  maskImage: "radial-gradient(circle at 261px 435px, transparent 0px, transparent 1px)",
+  WebkitMaskImage: "radial-gradient(circle at 261px 373px, transparent 0px, transparent 1px)",
+  maskImage: "radial-gradient(circle at 261px 373px, transparent 0px, transparent 1px)",
 } as const;
 
 type Ripple = { id: number; x: number; y: number };
@@ -50,8 +51,8 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
       if (!el) return;
       const grad =
         rad <= 0.1
-          ? "radial-gradient(circle at 261px 435px, transparent 0px, transparent 1px)"
-          : `radial-gradient(circle at 261px 435px, #000 0px, #000 ${(rad * 0.56).toFixed(1)}px, rgba(0,0,0,0.45) ${(rad * 0.8).toFixed(1)}px, transparent ${rad.toFixed(1)}px)`;
+          ? "radial-gradient(circle at 261px 373px, transparent 0px, transparent 1px)"
+          : `radial-gradient(circle at 261px 373px, #000 0px, #000 ${(rad * 0.56).toFixed(1)}px, rgba(0,0,0,0.45) ${(rad * 0.8).toFixed(1)}px, transparent ${rad.toFixed(1)}px)`;
       el.style.webkitMaskImage = grad;
       el.style.maskImage = grad;
       el.style.opacity = mistOp.toFixed(3);
@@ -107,7 +108,7 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
   }, [register]);
 
   const spawnInteractive = () => {
-    // 凤蝶中心在 02-C 校准坐标系为 (261, 435)，在 FRAME_T(+42px) 内等价 (261, 393)
+    // 凤蝶中心在 02-C 校准坐标系为 (261, 373)，在 FRAME_T(-20px) 内等价 (261, 393)
     const cx = 261;
     const cy = 393;
     setTappedOnce(true);
@@ -144,53 +145,73 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
           />
         </div>
 
-        {/* 外层 3.8s 羽化水彩扩散径向遮罩 + 内层 02-C 晨雾水彩轮廓遮罩 */}
-        <div ref={maskWrapRef} style={MASK_WRAP_STYLE}>
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              WebkitMaskImage: `url(${A}flower-mask-02c.webp)`,
-              maskImage: `url(${A}flower-mask-02c.webp)`,
-              WebkitMaskSize: "390px 844px",
-              maskSize: "390px 844px",
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-            }}
-          >
-            {/* 可见晨雾暖香槟光晕衬底 */}
-            <img
-              data-src={`${A}flower-mask-02c.webp`}
-              alt=""
-              draggable={false}
-              style={{ position: "absolute", left: 0, top: 0, width: 390, height: 844 }}
-            />
+        {/* 外层 390x708 缩放(0.89)与左右边缘 18px 羽化 + 中层 3.8s 扩散径向遮罩 + 内层 02-C 晨雾水彩轮廓遮罩 */}
+        <div
+          style={{
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: 390,
+            height: 708,
+            transform: "scale(0.89)",
+            transformOrigin: "195px 120px",
+            pointerEvents: "none",
+            zIndex: 2,
+            WebkitMaskImage: "linear-gradient(90deg, transparent 0px, #000 18px, #000 372px, transparent 390px)",
+            maskImage: "linear-gradient(90deg, transparent 0px, #000 18px, #000 372px, transparent 390px)",
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+          }}
+        >
+          <div ref={maskWrapRef} style={MASK_WRAP_STYLE}>
             <div
               style={{
                 position: "absolute",
                 inset: 0,
-                background: "radial-gradient(circle 145px at 261px 435px, rgba(255,255,255,0.34) 0%, transparent 72%)",
+                WebkitMaskImage: `url(${A}flower-mask-02c.webp)`,
+                maskImage: `url(${A}flower-mask-02c.webp)`,
+                WebkitMaskPosition: "0px -62px",
+                maskPosition: "0px -62px",
+                WebkitMaskSize: "390px 844px",
+                maskSize: "390px 844px",
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
               }}
-            />
-            <img
-              data-src={`${A}framed-colored-real@3x.webp`}
-              alt=""
-              draggable={false}
-              style={{ position: "absolute", left: -20, top: 182, width: 430.1, height: 573.4 }}
-            />
-            <img
-              data-src={`${A}butterfly-colored-real@3x.webp`}
-              alt=""
-              draggable={false}
-              style={{
-                position: "absolute",
-                left: 102,
-                top: 284.5,
-                width: 270,
-                height: 262,
-                filter: "drop-shadow(0 6px 14px rgba(10,36,80,0.22))",
-              }}
-            />
+            >
+              {/* 可见晨雾暖香槟光晕衬底 */}
+              <img
+                data-src={`${A}flower-mask-02c.webp`}
+                alt=""
+                draggable={false}
+                style={{ position: "absolute", left: 0, top: -62, width: 390, height: 844 }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  background: "radial-gradient(circle 145px at 261px 373px, rgba(255,255,255,0.34) 0%, transparent 72%)",
+                }}
+              />
+              <img
+                data-src={`${A}framed-colored-real@3x.webp`}
+                alt=""
+                draggable={false}
+                style={{ position: "absolute", left: -20, top: 120, width: 430.1, height: 573.4 }}
+              />
+              <img
+                data-src={`${A}butterfly-colored-real@3x.webp`}
+                alt=""
+                draggable={false}
+                style={{
+                  position: "absolute",
+                  left: 102,
+                  top: 222.5,
+                  width: 270,
+                  height: 262,
+                  filter: "drop-shadow(0 6px 14px rgba(10,36,80,0.22))",
+                }}
+              />
+            </div>
           </div>
         </div>
 
@@ -237,7 +258,7 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
         </div>
 
         {/* 单行标题撞色 + 两行副标题 (-7deg) */}
-        <div className="grp" style={{ left: 26, top: 54, zIndex: 15 }}>
+        <div className="grp" style={{ left: 22, top: 26, zIndex: 15 }}>
           <span className="l pre" style={{ lineHeight: "38px", whiteSpace: "nowrap" }}>
             <span
               style={{
@@ -285,15 +306,15 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
           </span>
         </div>
 
-        {/* 青凤蝶停留位置交互热区 (中心 261, 435) */}
+        {/* 青凤蝶停留位置交互热区 (中心 253.7, 345.2) */}
         <button
           type="button"
           aria-label="轻触青凤蝶泛起微澜"
           onClick={spawnInteractive}
           style={{
             position: "absolute",
-            left: 190,
-            top: 360,
+            left: 183,
+            top: 270,
             width: 142,
             height: 150,
             background: "transparent",
@@ -320,7 +341,7 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
             }
           }}
           style={{
-            top: 800,
+            top: 660,
             zIndex: 20,
             padding: "4px 10px",
             cursor: "pointer",
