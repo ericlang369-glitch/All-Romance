@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
 import { loadImgs } from "@/lib/kit";
@@ -62,7 +62,7 @@ export function Letter({
       index={index}
       total={total}
       scaledStage
-      bg={
+      sky={
         <div
           className="full-bleed-bg"
           style={{
@@ -319,35 +319,6 @@ export function Letter({
             {t.couplet}
           </span>
         </div>
-
-        {/* Bottom Whisper */}
-        <p
-          className="tilt-center-tight ep-note"
-          role="button"
-          tabIndex={0}
-          aria-label="继续前往下一页"
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext?.();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              e.stopPropagation();
-              onNext?.();
-            }
-          }}
-          style={{
-            top: 654,
-            zIndex: 20,
-            padding: "6px 14px",
-            cursor: "pointer",
-            opacity: entered ? 1 : 0,
-            transition: "opacity 0.8s ease 0.35s",
-          }}
-        >
-          {t.hint}
-        </p>
       </div>
     </Screen>
   );

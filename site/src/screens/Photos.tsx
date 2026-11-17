@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, PHOTOS, TEXT } from "@/config";
 import { loadImgs } from "@/lib/kit";
@@ -104,7 +104,7 @@ export function Photos({
       index={index}
       total={total}
       scaledStage
-      bg={
+      sky={
         <div
           className="full-bleed-bg"
           style={{

@@ -76,6 +76,14 @@ html[data-wide] .lens.sides{display:block;background:linear-gradient(90deg,
 /* 宽屏时滚动容器左右各多 64px（--bx），只给风里的落花飘出列外用 */
 #scroller{position:absolute;top:0;bottom:0;left:calc(-1 * var(--bx));right:calc(-1 * var(--bx));overflow:hidden;touch-action:none;overscroll-behavior:none;-webkit-user-select:none;user-select:none}
 #deckTrack{position:absolute;left:0;right:0;top:0;will-change:transform;transform:translate3d(0,0,0)}
+/* 共享天空（屏间无缝衔接）：盒子同暗角一样铺满视口 + 64px 出血；每个槽位正好是视口大小，由 Site.update 写入透明度、视差和边缘羽化 */
+.sky{position:absolute;top:-64px;bottom:-64px;left:calc(-1 * var(--colL) - 64px);right:calc(-1 * var(--colL) - 64px);pointer-events:none;transform-origin:50% 50%}
+.sky-slot{position:absolute;inset:64px;visibility:hidden;will-change:transform,opacity}
+.sky-art{position:absolute;inset:0}
+.sky .full-bleed-bg{left:-24px;right:-24px;top:-24px;bottom:-24px}
+/* 按列排的天空插图（04 丝带）：手机上就是整屏；宽屏时列边羽化，不再有硬竖边 */
+.sky-col{position:absolute;top:0;bottom:0;left:50%;width:calc(var(--Wc) + 2 * var(--bx));transform:translateX(-50%)}
+html[data-wide] .sky-col{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 calc(var(--bx) + 48px),#000 calc(100% - var(--bx) - 48px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 calc(var(--bx) + 48px),#000 calc(100% - var(--bx) - 48px),transparent 100%)}
 /* 每屏按屏裁切（G2）；横向出血由 .shift 内容自带 */
 .screen{position:relative;height:var(--H);overflow:hidden}
 .screen>.shift{position:absolute;inset:0}

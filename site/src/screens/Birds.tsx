@@ -8,7 +8,8 @@ const B = `${BASE_PATH}/assets/birds/`;
 
 type Ripple = { id: number; x: number; y: number };
 
-export function Birds({ register, index, total, onNext }: ScreenProps) {
+export function Birds({ register, index, total }: ScreenProps) {
+  const skyRef = useRef<HTMLDivElement>(null);
   const bgRef = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLDivElement>(null);
   const [entered, setEntered] = useState(false);
@@ -19,6 +20,7 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
     register({
       enter: () => {
         setEntered(true);
+        if (skyRef.current) loadImgs(skyRef.current);
         if (bgRef.current) loadImgs(bgRef.current);
         if (root.current) loadImgs(root.current);
       },
@@ -26,6 +28,7 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
   }, [register]);
 
   useEffect(() => {
+    if (skyRef.current) loadImgs(skyRef.current);
     if (bgRef.current) loadImgs(bgRef.current);
     if (root.current) loadImgs(root.current);
   }, []);
@@ -49,17 +52,9 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
       index={index}
       total={total}
       scaledStage
-      bg={
-        <div
-          ref={bgRef}
-          style={{
-            position: "absolute",
-            inset: 0,
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-        >
-          {/* R1 Translucent Silk Organza Wind-Ribbon + Far Mist-Ink Birds */}
+      sky={
+        <div ref={skyRef} className="sky-col">
+          {/* R1 Translucent Silk Organza Wind-Ribbon + Far Mist-Ink Birds（进共享天空：视差 + 溶解） */}
           <img
             data-src={`${B}s04-r1-ribbon-bg@2x.webp`}
             alt=""
@@ -76,6 +71,18 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
               transition: "opacity 0.9s cubic-bezier(0.22, 0.61, 0.36, 1)",
             }}
           />
+        </div>
+      }
+      bg={
+        <div
+          ref={bgRef}
+          style={{
+            position: "absolute",
+            inset: 0,
+            overflow: "hidden",
+            pointerEvents: "none",
+          }}
+        >
 
           {/* 3-Frame GPU Stop-Motion Lesage Embroidery Wingbeat Flock */}
           {[1, 2, 3].map((f) => (
@@ -153,39 +160,6 @@ export function Birds({ register, index, total, onNext }: ScreenProps) {
             {t.sub3Prefix}<span style={{ color: "#F0C288", fontWeight: 600 }}>{t.sub3Gold}</span>{t.sub3End}
           </span>
         </div>
-
-        {/* Bottom Whisper */}
-        <p
-          className="tilt-center-tight ep-note"
-          role="button"
-          tabIndex={0}
-          aria-label="继续前往下一页"
-          onPointerDown={(e) => e.stopPropagation()}
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext?.();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              e.stopPropagation();
-              onNext?.();
-            }
-          }}
-          style={{
-            top: 656,
-            zIndex: 20,
-            padding: "6px 14px",
-            cursor: "pointer",
-            opacity: entered ? 1 : 0,
-            transition: "opacity 0.8s ease 0.35s",
-          }}
-        >
-          <span>{t.notePrefix}</span>
-          <span style={{ color: "#6CCBF7" }}>{t.noteIce}</span>
-          <span>{t.noteMid}</span>
-          <span style={{ color: "#F0C288" }}>{t.noteGold}</span>
-        </p>
       </div>
     </Screen>
   );

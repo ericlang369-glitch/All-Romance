@@ -323,35 +323,6 @@ export default function Flower({ register, index, total, onNext }: ScreenProps) 
             zIndex: 18,
           }}
         />
-
-        <p
-          className="tilt-center-tight ep-note"
-          role="button"
-          tabIndex={0}
-          aria-label="继续前往下一页"
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext?.();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              e.stopPropagation();
-              onNext?.();
-            }
-          }}
-          style={{
-            top: 660,
-            zIndex: 20,
-            padding: "4px 10px",
-            cursor: "pointer",
-            color: "rgba(255,255,255,0.82)",
-            opacity: settled ? 1 : 0.78,
-            transition: "opacity 0.6s ease",
-          }}
-        >
-          {tappedOnce ? "指尖轻触 · 凤蝶再泛青碧微澜" : `${t.notePrefix}${t.noteHighlight}`}
-        </p>
       </div>
     </Screen>
   );

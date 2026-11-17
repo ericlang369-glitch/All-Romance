@@ -17,6 +17,8 @@ const SCREENS = ["opening", "flower", ...(SHOW_LETTER ? ["letter"] : []), "birds
 const BIRDS_IDX = SCREENS.indexOf("birds");
 const POSTCARDS_IDX = SCREENS.indexOf("postcards");
 const B_DIR = `${BASE_PATH}/assets/birds/`;
+/** 天空视差：背景以内容 1/3 的速度移动 */
+const SKY_PARALLAX = 0.33;
 
 function EscortBirdsOverlay({
   progressRef,
@@ -138,6 +140,8 @@ export default function Site() {
   const trackRef = useRef<HTMLDivElement>(null);
   const rig = useRef<HTMLDivElement>(null);
   const lensMain = useRef<HTMLDivElement>(null);
+  const skyRef = useRef<HTMLDivElement>(null);
+  const skySlots = useRef<(HTMLDivElement | null)[]>(SCREENS.map(() => null));
   const progressRef = useRef(0);
   const stopSnapRef = useRef<(() => void) | null>(null);
   const state = useRef({ ready: false, unlocked: false, locked: true, modal: -1 });
@@ -182,7 +186,8 @@ export default function Site() {
 
   const preload = useCallback((k: number): Promise<void> => {
     const s = trackRef.current ? sections()[k] : undefined;
-    return s ? loadImgs(s) : Promise.resolve();
+    const sky = skySlots.current[k];
+    return Promise.all([s ? loadImgs(s) : Promise.resolve(), sky ? loadImgs(sky) : Promise.resolve()]).then(() => undefined);
   }, []);
 
   /* 60fps 虚拟 GPU Deck（translate3d）：每帧按连续进度 progressRef 写横移和镜头的 rotate/scale */
@@ -198,7 +203,37 @@ export default function Site() {
       sh.style.transform = lv && moving && Math.abs(d) < 1 ? `translateX(${(d * H * TAN7).toFixed(2)}px)` : "none";
     });
     const e = Math.sin(Math.PI * s) ** 2;
-    rig.current!.style.transform = lv && moving && e > 1e-6 ? `rotate(${(CAM[lv].rot * e).toFixed(4)}deg) scale(${(1 + CAM[lv].zoom * e).toFixed(5)})` : "none";
+    const camOn = lv && moving && e > 1e-6;
+    rig.current!.style.transform = camOn ? `rotate(${(CAM[lv].rot * e).toFixed(4)}deg) scale(${(1 + CAM[lv].zoom * e).toFixed(5)})` : "none";
+    // 天空反向抵消镜头：斜推和微转只作用在内容上
+    if (skyRef.current) {
+      skyRef.current.style.transform = camOn ? `scale(${(1 / (1 + CAM[lv].zoom * e)).toFixed(5)}) rotate(${(-CAM[lv].rot * e).toFixed(4)}deg)` : "none";
+    }
+    // 共享天空：相邻两屏的背景按进度溶解，并以 1/3 速度视差移动；移动中把正在露出的那条边羽化掉
+    skySlots.current.forEach((el, k) => {
+      if (!el) return;
+      const d = k - p, a = Math.abs(d);
+      if (a >= 0.999) {
+        if (el.style.visibility !== "hidden") el.style.visibility = "hidden";
+        return;
+      }
+      el.style.visibility = "visible";
+      if (a < 1e-4) {
+        el.style.opacity = "1";
+        el.style.transform = "none";
+        el.style.webkitMaskImage = el.style.maskImage = "";
+        return;
+      }
+      el.style.opacity = (0.5 + 0.5 * Math.cos(Math.PI * a)).toFixed(3);
+      const ty = env.rm ? 0 : d * H * SKY_PARALLAX;
+      el.style.transform = `translate3d(0, ${ty.toFixed(2)}px, 0)`;
+      const k0 = clamp(a / 0.08, 0, 1);
+      const edge = (1 - k0 * k0 * (3 - 2 * k0)).toFixed(3);
+      const g = d < 0
+        ? `linear-gradient(to bottom, #000 0%, #000 68%, rgba(0,0,0,${edge}) 100%)`
+        : `linear-gradient(to bottom, rgba(0,0,0,${edge}) 0%, #000 32%, #000 100%)`;
+      el.style.webkitMaskImage = el.style.maskImage = g;
+    });
     lensMain.current!.style.opacity = clamp(p, 0, 1).toFixed(3); // 第 1 屏用弱暗角，往后换成正常暗角
     ctls.current[0]?.setActive?.(p < 1 - 1e-3);
     if (!state.current.ready || !state.current.unlocked) return;
@@ -570,6 +605,14 @@ export default function Site() {
           <div className="lens soft" />
           <div className="lens main" ref={lensMain} />
           <div className="lens sides" />
+          {/* 共享天空：各屏背景在这里按进度视差 + 溶解；反向抵消镜头的 rotate/scale，天空始终水平 */}
+          <div className="sky" ref={skyRef} aria-hidden="true">
+            {SCREENS.map((name, i) => (
+              <div key={name} className="sky-slot" ref={(el) => { skySlots.current[i] = el; }}>
+                <div className="sky-art" id={`sky-${i + 1}`} />
+              </div>
+            ))}
+          </div>
           <div id="scroller" ref={scroller}>
             <div id="deckTrack" ref={trackRef}>
               {SCREENS.map((name, i) => {

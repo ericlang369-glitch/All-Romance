@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { cubicBezier } from "motion";
 import { useEffect, useRef, useState } from "react";
 import { BASE_PATH, START_ISO, TEXT } from "@/config";
@@ -462,7 +462,7 @@ export function Ending({ register, index, total }: ScreenProps) {
       total={total}
       scaledStage
       hudTone={hudDark ? "dark" : "light"}
-      bg={
+      sky={
         <div className="full-bleed-bg">
           {/* 全幅星夜群青底色 */}
           <div

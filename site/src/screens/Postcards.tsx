@@ -253,36 +253,6 @@ export function Postcards({
             style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           />
         </div>
-
-        {/* Bottom Whisper */}
-        <p
-          className="tilt-center-tight ep-note"
-          role="button"
-          tabIndex={0}
-          aria-label="继续前往下一页"
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext?.();
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              e.stopPropagation();
-              onNext?.();
-            }
-          }}
-          style={{
-            top: 654,
-            zIndex: 20,
-            padding: "6px 14px",
-            cursor: "pointer",
-            opacity: entered ? 1 : 0,
-            transition: "opacity 0.8s ease 0.35s",
-          }}
-        >
-          <span>{t.notePrefix}</span>
-          <span style={{ color: "#F0C288" }}>{t.noteHighlight}</span>
-        </p>
       </div>
     </Screen>
   );
