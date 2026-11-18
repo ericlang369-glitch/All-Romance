@@ -106,7 +106,7 @@ export const TEXT = {
   ending: {
     lineQuote: "I bought flowers thinking about you. I mean, I love you.",
     sinceDate: "自 2026.08.25",
-    whisperNight: "轻触花束 · 迎来破晓",
+    whisperNight: "轻触花束",
     endingMessage: "寸心如故，岁岁长相见。",
     endingPending: false,
     dayUnit: "DAYS TOGETHER",

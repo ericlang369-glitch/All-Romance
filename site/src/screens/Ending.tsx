@@ -64,20 +64,12 @@ const NIGHT_GLOW_STYLE = {
   opacity: 1,
 } as const;
 
-const WHISPER_NIGHT_STYLE = {
-  position: "absolute",
-  left: 0,
-  width: 390,
-  top: 320,
-  textAlign: "center",
-  whiteSpace: "nowrap",
-  transform: "rotate(-8deg)",
-  fontFamily: "var(--sans)",
-  fontWeight: 500,
-  fontSize: 12,
-  letterSpacing: "0.18em",
-  color: "rgba(255,255,255,0.68)",
+const WHISPER_BADGE_STYLE = {
+  left: 242,
+  top: 282,
+  transform: "rotate(-4deg)",
   pointerEvents: "none",
+  zIndex: 11,
 } as const;
 
 const NIGHT_GROUP_STYLE = {
@@ -214,7 +206,7 @@ const HITBOX_BTN_STYLE = {
   position: "absolute",
   left: 60,
   top: 12,
-  width: 270,
+  width: 290,
   height: 312,
   background: "transparent",
   border: 0,
@@ -562,7 +554,7 @@ export function Ending({ register, index, total }: ScreenProps) {
   // Night layer refs
   const nightBaseRef = useRef<HTMLDivElement>(null);
   const nightGlowRef = useRef<HTMLDivElement>(null);
-  const whisperNightRef = useRef<HTMLParagraphElement>(null);
+  const whisperNightRef = useRef<HTMLDivElement>(null);
 
   // Unified Living Bouquet Rig refs (all 3 bouquet layers pixel-locked in one stem-pivoted rig)
   const bouquetSpringRef = useRef<HTMLDivElement>(null);
@@ -686,11 +678,9 @@ export function Ending({ register, index, total }: ScreenProps) {
       }
     }
 
-    // 4. 650ms -> 1450ms: Night whisper & night copy fade-out + HUD tone flip at 1350ms
+    // 4. 0ms -> 520ms: Night whisper badge fade-out & 600ms -> 1700ms night copy fade-out + HUD tone flip at 1350ms
     if (whisperNightRef.current) {
-      const wEarly = 1 - 0.52 * E.out(clamp(ms / 650, 0, 1));
-      const wLate = 1 - smooth(clamp((ms - 520) / 600, 0, 1));
-      whisperNightRef.current.style.opacity = (wEarly * wLate).toFixed(3);
+      whisperNightRef.current.style.opacity = (1 - smooth(clamp(ms / 520, 0, 1))).toFixed(3);
     }
 
     if (nightBaseRef.current) {
@@ -1111,9 +1101,12 @@ export function Ending({ register, index, total }: ScreenProps) {
         <div ref={nightBaseRef} aria-hidden={phase !== "init"} style={NIGHT_BASE_STYLE}>
           <div ref={nightGlowRef} style={NIGHT_GLOW_STYLE} />
 
-          <p ref={whisperNightRef} style={WHISPER_NIGHT_STYLE}>
-            {t.whisperNight}
-          </p>
+          <div ref={whisperNightRef} className="micro-badge" style={WHISPER_BADGE_STYLE}>
+            <span className="micro-ring">
+              <span className="micro-dot" />
+            </span>
+            <span className="micro-label">{t.whisperNight}</span>
+          </div>
 
           <div className="ep-ang" style={NIGHT_GROUP_STYLE}>
             <CountdownRow d={displayDays} h={clock.h} m={clock.m} dayColor="#FFFFFF" primary="#FFFFFF" />
@@ -1209,7 +1202,7 @@ export function Ending({ register, index, total }: ScreenProps) {
         {/* ========== INTERACTIVE BOUQUET HITBOX (Initial Bloom + Dawn Re-tap) ========== */}
         <button
           type="button"
-          aria-label={isDawn ? "轻触花束轻摇落瓣" : "轻触花束迎来破晓"}
+          aria-label={isDawn ? "轻触花束轻摇落瓣" : "轻触花束"}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerReleaseCancel}
           onPointerCancel={handlePointerReleaseCancel}
