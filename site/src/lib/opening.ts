@@ -1,5 +1,4 @@
-/* 第 1 屏：树摆（§1c）、零星飘落（§1d）、水波纹（§1a）、密码门（§2）、一阵风 v4 + 逐簇扯落（§1b、§1c）。
-   逐行移植自 motion/prototypes/01-opening.html，参数、随机种子、曲线都不改。
+/* 第 1 屏：树摆（§1c）、零星飘落（§1d）、密码门（§2）、一阵风 v4 + 逐簇扯落（§1b、§1c）、底部流光垂线。
    只动 transform / opacity；风和落花画在一张 Canvas 上（像素比上限 2），模糊全部预渲染成贴图。 */
 import TLraw from "@/data/tree-layout.json";
 import { ASSET_BASE, PASSCODE, DAY100_CODE } from "@/config";
@@ -13,15 +12,11 @@ const TREE_BASE = `${ASSET_BASE}/assets/tree/`;
 
 const SK = "M0 -1.00 C 2.20 -2.40, 3.80 -4.20, 3.70 -6.60 C 3.60 -8.60, 2.20 -9.80, 0.90 -9.50 L 0 -8.30 L -0.90 -9.50 C -2.20 -9.80, -3.60 -8.60, -3.70 -6.60 C -3.80 -4.20, -2.20 -2.40, 0 -1.00 Z";
 const SP = "M0 -1.60 C 3.52 -3.84, 6.08 -6.72, 5.92 -10.56 C 5.76 -13.76, 3.52 -15.68, 1.44 -15.20 L 0 -13.28 L -1.44 -15.20 C -3.52 -15.68, -5.76 -13.76, -5.92 -10.56 C -6.08 -6.72, -3.52 -3.84, 0 -1.60 Z";
-/** 静止的白色五瓣樱花（水波纹圆心那朵，spec §7 01：18px、旋转 6°） */
-const sakuraSVG = (s: number, rot = 0) =>
-  `<svg width="${s}" height="${s}" viewBox="-10 -10 20 20" style="display:block;transform:rotate(${rot}deg)"><g fill="#fff">${[0, 72, 144, 216, 288]
-    .map((r) => `<path d="${SK}" transform="rotate(${r})"/>`)
-    .join("")}<circle r="2.2"/></g></svg>`;
 
 export type OpeningEls = {
-  root: HTMLElement; tree: HTMLElement; calm: HTMLElement; row: HTMLElement; burst: HTMLElement; again: HTMLElement;
-  input: HTMLInputElement; passLines: HTMLElement[]; titleLines: HTMLElement[]; hintTxt: HTMLElement; hintLine: HTMLElement; canvas: HTMLCanvasElement;
+  root: HTMLElement; tree: HTMLElement; row: HTMLElement; burst: HTMLElement; again: HTMLElement;
+  input: HTMLInputElement; passLines: HTMLElement[]; titleLines: HTMLElement[];
+  hintLine: HTMLElement; hintStreak: HTMLElement; canvas: HTMLCanvasElement;
 };
 export type OpeningCallbacks = { onUnlock: () => void };
 
@@ -341,36 +336,6 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     return [g.anchor[0] + dx * Math.cos(a) - dy * Math.sin(a), g.anchor[1] + dx * Math.sin(a) + dy * Math.cos(a)];
   }
 
-  /* ---------- 水波纹：每 6s 一次 + 圆心那朵 18px 静止花（plan v7 §1a，G5） ----------
-     位置按 spec §6.2：密码页圆心 y = 610 − 0.35·D，进门后 610 − 0.65·D；三圈半径同乘 s = clamp(1 − D/250, .5, 1)，线宽和花不缩 */
-  let calmOn = 1;
-  const rings = ([[26, 0.8], [52, 0.45], [84, 0.22]] as const).map(([r, o]) => {
-    const e = document.createElement("div");
-    e.className = "ring";
-    e.style.opacity = String(o);
-    el.calm.appendChild(e);
-    return { e, o, r };
-  });
-  const cflower = document.createElement("div");
-  cflower.className = "cflower";
-  cflower.innerHTML = sakuraSVG(18, 6);
-  el.calm.appendChild(cflower);
-  let rippleMode: "pass" | "title" = "pass";
-  function placeCalm() {
-    const cy = (rippleMode === "pass" ? 610 - 0.35 * L.D : 610 - 0.65 * L.D) + L.o, k = clamp(1 - L.D / 210, 0.46, 1);
-    rings.forEach(({ e, r }) => (e.style.cssText += `left:${206 - r * k}px;top:${cy - r * k}px;width:${2 * r * k}px;height:${2 * r * k}px`));
-    cflower.style.cssText += `left:${206 - 9}px;top:${cy - 9}px`;
-  }
-  function stepRings(t: number) {
-    const c = (t % 6000) / 6000;
-    rings.forEach((r, i) => {
-      const k = clamp((c - i * 0.06) / 0.55, 0, 1), e = E.out(k);
-      r.e.style.transform = `scale(${(0.6 + 0.4 * e).toFixed(4)})`;
-      op(r.e, r.o * Math.sin(Math.PI * k) * calmOn);
-    });
-    op(cflower, calmOn);
-  }
-
   /* ---------- Canvas：风里的花 + 零星飘落 ---------- */
   const cv = el.canvas, ctx = cv.getContext("2d")!;
   // Canvas 盖满整屏宽（宽屏含列外 64px），设计坐标原点在 OX；高 = 屏高
@@ -648,8 +613,41 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     );
     driftOn = false;
     after(3800, () => { treeSet = "wind"; if (!stopEmit) driftOn = true; nextRetarget = 0; });
-    tween({ dur: 800, ease: E.out, on: (k) => (calmOn = 1 - k), done: () => { rippleMode = "title"; placeCalm(); } }); // 淡出期间换到进门后的位置
-    tween({ dur: 1000, delay: 4400, ease: E.out, on: (k) => (calmOn = k) });
+  }
+
+  /* ---------- 底部流光垂线呼吸循环：2300ms 周期（1650ms 下滑 + 650ms 静息） ---------- */
+  const HINT_CYCLE = 2300, HINT_GLIDE = 1650;
+  let hintT0: number | null = null;
+  let hintStop: (() => void) | null = null;
+  let streakResting = false;
+  let unlocked = false;
+  op(el.hintLine, 0);
+  op(el.hintStreak, 0);
+  function stepHint(t: number) {
+    if (!unlocked || RM || hintT0 === null) return;
+    const phase = Math.max(0, t - hintT0) % HINT_CYCLE;
+    if (phase < HINT_GLIDE) {
+      streakResting = false;
+      const k = E.inout(phase / HINT_GLIDE);
+      const y = lerp(-18, 44, k);
+      el.hintStreak.style.transform = `translateY(${y.toFixed(2)}px)`;
+      op(el.hintStreak, Math.max(0, Math.sin(Math.PI * k)));
+    } else if (!streakResting) {
+      streakResting = true;
+      op(el.hintStreak, 0);
+      el.hintStreak.style.transform = "translateY(-18px)";
+    }
+  }
+  function syncHintLoop() {
+    const shouldRun = active && unlocked && !RM;
+    el.hintStreak.style.willChange = shouldRun ? "transform, opacity" : "auto";
+    if (shouldRun && !hintStop) {
+      streakResting = false;
+      hintStop = loop(stepHint);
+    } else if (!shouldRun && hintStop) {
+      hintStop();
+      hintStop = null;
+    }
   }
 
   /* ---------- 启停：第 1 屏可见时跑，滚走 / 页面隐藏时停（§1a、§10.4） ---------- */
@@ -661,22 +659,22 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     Object.values(groups).forEach((g) => (g.d.style.willChange = on ? "transform" : "auto"));
     if (on) {
       lastTreeT = null; lastDT = null;
-      stops = [loop(stepTree), loop(stepRings), loop(drawAll)];
+      stops = [loop(stepTree), loop(drawAll)];
     } else {
       stops.forEach((s) => s());
       stops = [];
     }
+    syncHintLoop();
   }
 
-  placeCalm();
   if (!RM) {
     prepDetach();
     for (let i = 0; i < 5; i++) spawnDrifter(0, true);
     after(400, () => { if (!RM) loadWind(); });
   }
-  onLayout(() => { sizeCanvas(); placeCalm(); });
+  onLayout(sizeCanvas);
 
-  /* 生效档变化（静止点落地）：档 1 只摆 4 组、关平静微摆；档 0 树、落花、水波纹全部静止，等于效果图 01 */
+  /* 生效档变化（静止点落地）：档 1 只摆 4 组、关平静微摆；档 0 树、落花、垂线流光全部静止 */
   onTier((t) => {
     if (t <= 1 && !LOW_END) {
       LOW_END = true;
@@ -689,13 +687,21 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     setActive(false);
     RM = true;
     active = wasActive;
+    syncHintLoop();
     Object.values(groups).forEach((g) => { g.d.style.transform = "none"; g.d.style.willChange = "auto"; });
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, cv.width, cv.height);
     parts = []; treeParts = []; drifters = [];
     for (const n in detach) { detach[n].c.remove(); }
-    rings.forEach((r) => { r.e.style.transform = "none"; op(r.e, r.o); });
-    op(cflower, 1);
+    op(el.hintStreak, 0);
+    el.hintStreak.style.transform = "none";
+    el.hintLine.style.willChange = "auto";
+    if (unlocked) {
+      op(el.hintLine, 1);
+      el.hintLine.style.transform = "none";
+    } else {
+      op(el.hintLine, 0);
+    }
   }
 
   /* ---------- 密码门（§2） ---------- */
@@ -708,7 +714,7 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     el.row.appendChild(s);
     return { s, d: s.firstChild as HTMLElement, u: s.lastChild as HTMLElement };
   });
-  let code = "", locked = false, unlocked = false;
+  let code = "", locked = false;
   function lineState() {
     slots.forEach((x, i) => {
       const target = i === code.length ? 0.7 : 0.4, from = +x.u.style.opacity || 0.4;
@@ -792,28 +798,62 @@ export function createOpening(el: OpeningEls, cb: OpeningCallbacks) {
     );
   }
   function hintIn(delay: number) {
-    tween({ dur: T.l, delay, ease: E.out, on: (k) => op(el.hintTxt, k) });
-    tween({ dur: 500, delay: delay + 100, ease: E.out, on: (k) => { op(el.hintLine, k); el.hintLine.style.transform = `scaleY(${k.toFixed(3)})`; } });
+    tween({
+      dur: 600,
+      delay,
+      ease: E.soft,
+      on: (k) => {
+        if (RM) return;
+        el.hintLine.style.willChange = k >= 1 ? "auto" : "transform, opacity";
+        op(el.hintLine, k);
+        el.hintLine.style.transform = k >= 1 ? "none" : `scaleY(${k.toFixed(4)})`;
+      },
+      done: () => {
+        el.hintLine.style.transform = "none";
+        el.hintLine.style.willChange = "auto";
+      },
+    });
   }
   function unlock() {
     if (unlocked) return;
     unlocked = true;
     el.input.disabled = true;
     cb.onUnlock();
+    if (RM) {
+      op(el.hintLine, 1);
+      el.hintLine.style.transform = "none";
+      el.hintLine.style.willChange = "auto";
+      op(el.hintStreak, 0);
+      el.hintStreak.style.transform = "none";
+      el.hintStreak.style.willChange = "auto";
+    } else {
+      if (hintT0 === null) hintT0 = now();
+      syncHintLoop();
+    }
   }
   function success() {
     after(160, () => el.input.blur());
     commitTier(); // 输对的那一刻是静止点：之前判定出的档在这里落地
     if (!RM && env.rm) toStatic();
     if (RM) {
-      // reduced-motion：整组交叉淡入淡出 300ms，不播风，600ms 放开下滑
-      tween({ dur: 300, ease: E.linear, on: (k) => { op(el.row, 1 - k); el.passLines.forEach((l) => op(l, 1 - k)); el.titleLines.forEach((l) => op(l, k)); op(el.hintTxt, k); op(el.hintLine, k); } });
+      // reduced-motion：整组交叉淡入淡出 300ms，不播风，流光束保持隐藏，600ms 放开下滑
+      op(el.hintStreak, 0);
+      el.hintStreak.style.transform = "none";
+      el.hintLine.style.transform = "none";
+      tween({
+        dur: 300,
+        ease: E.linear,
+        on: (k) => {
+          op(el.row, 1 - k);
+          el.passLines.forEach((l) => op(l, 1 - k));
+          el.titleLines.forEach((l) => op(l, k));
+          op(el.hintLine, k);
+        },
+        done: () => {
+          el.hintLine.style.transform = "none";
+        },
+      });
       zoneMode = "title";
-      // 水波纹换到进门后的位置（矮屏才会动）：随这 300ms 交叉淡化，先淡出 150 再淡入 150
-      tween({ dur: 150, ease: E.linear, on: (k) => { rings.forEach((r) => op(r.e, r.o * (1 - k))); op(cflower, 1 - k); }, done: () => {
-        rippleMode = "title"; placeCalm();
-        tween({ dur: 150, ease: E.linear, on: (k) => { rings.forEach((r) => op(r.e, r.o * k)); op(cflower, k); } });
-      } });
       after(600, unlock);
       return;
     }

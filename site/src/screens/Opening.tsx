@@ -5,7 +5,7 @@ import { $, $$, Y, YB } from "@/lib/kit";
 import { TEXT } from "@/config";
 import { Screen, type ScreenProps } from "./common";
 
-/** 「轻触 · 向下」：top 718 − 0.58·D（避让微信底部栏，且与水波纹留足间距） */
+/** 底部流光垂线锚点：top 718 − 0.58·D（避让微信底部栏与安全区） */
 const HINT_TOP = YB(718, -0.58, 36);
 
 export default function Opening({
@@ -22,9 +22,9 @@ export default function Opening({
     const tap = $<HTMLButtonElement>(r, ".hintTap");
     const o = createOpening(
       {
-        root: r, tree: art.current!, calm: $(r, "#calm"), row: $(r, "#row"), burst: $(r, "#burst"), again: $(r, "#again"),
+        root: r, tree: art.current!, row: $(r, "#row"), burst: $(r, "#burst"), again: $(r, "#again"),
         input: $<HTMLInputElement>(r, "#passInput"), passLines: $$(r, "#passGrp .l"), titleLines: $$(r, "#title .grp .l"),
-        hintTxt: $(r, "#hintTxt"), hintLine: $(r, "#hintLine"), canvas: $<HTMLCanvasElement>(r, "#gust"),
+        hintLine: $(r, "#hintLine"), hintStreak: $(r, "#hintStreak"), canvas: $<HTMLCanvasElement>(r, "#gust"),
       },
       {
         onUnlock: () => {
@@ -41,13 +41,16 @@ export default function Opening({
     const sec = r.closest("section")!;
     sec.addEventListener("click", focus);
     // 按钮的 disabled 由这里直接改 DOM，所以点击也用原生监听（React 的 onClick 会按初始 props 一直当它是 disabled）
-    tap.addEventListener("click", () => onNext());
-    return () => sec.removeEventListener("click", focus);
+    const handleNext = () => onNext();
+    tap.addEventListener("click", handleNext);
+    return () => {
+      sec.removeEventListener("click", focus);
+      tap.removeEventListener("click", handleNext);
+    };
   }, []);
   return (
     <Screen id="s-opening" index={index} total={total} art={<div id="tree" ref={art} />}>
       <div ref={root} className="full">
-        <div id="calm" />
         <div id="pass">
           <div className="grp" id="passGrp" style={{ left: 104, top: Y(340) }}>
             <span className="l sub">我们开始的</span>
@@ -78,9 +81,49 @@ export default function Opening({
               </span>
             ))}
           </div>
-          <p className="tilt note" id="hintTxt" style={{ top: HINT_TOP }}>{TEXT.opening.hint}</p>
-          <div id="hintLine" style={{ position: "absolute", left: 194.5, top: `calc(${HINT_TOP} + 34px)`, width: 1, height: 24, background: "var(--line)" }} />
-          <button className="hintTap" aria-label="向下" disabled tabIndex={-1} style={{ top: `calc(${HINT_TOP} - 24px)` }} />
+          <div
+            id="hintLine"
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: 194.5,
+              top: `calc(${HINT_TOP} + 4px)`,
+              width: 1,
+              height: 44,
+              overflow: "hidden",
+              pointerEvents: "none",
+              background:
+                "linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,0.24) 22%, rgba(255,255,255,0.24) 78%, rgba(255,255,255,0) 100%)",
+            }}
+          >
+            <div
+              id="hintStreak"
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                width: 1,
+                height: 18,
+                opacity: 0,
+                transform: "translateY(-18px)",
+                background:
+                  "linear-gradient(to bottom, rgba(246,222,194,0) 0%, rgba(255,255,255,0.95) 65%, rgba(246,222,194,0) 100%)",
+              }}
+            />
+          </div>
+          <button
+            type="button"
+            className="hintTap"
+            aria-label="向下翻页"
+            disabled
+            tabIndex={-1}
+            style={{
+              left: 115,
+              top: `calc(${HINT_TOP} - 16px)`,
+              width: 160,
+              height: 88,
+            }}
+          />
         </div>
         <canvas id="gust" />
       </div>
