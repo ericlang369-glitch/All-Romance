@@ -2890,21 +2890,6 @@
       100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(0.4); }
     }
 
-    .voucher-preview-toggle {
-      margin-top: 8px;
-      background: transparent;
-      border: none;
-      font-family: var(--font-geo);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      color: var(--ink-muted);
-      cursor: pointer;
-      text-decoration: underline;
-      opacity: 0.65;
-    }
-    .voucher-preview-toggle:hover { opacity: 1; color: var(--klein-blue); }
-
   </style>
 </head>
 <body class="locked">
@@ -3562,8 +3547,6 @@
                     <span>ADMIT ONE ♥</span>
                   </div>
                 </div>
-
-                <button class="voucher-preview-toggle" id="voucher-sim-btn" type="button">[预览测试：模拟到达第100天状态]</button>
               </div>
 
               <div class="dawn-footer">
@@ -4710,13 +4693,11 @@
       const voucherLockPill = document.getElementById('voucher-lock-pill');
       const voucherSub = document.getElementById('voucher-countdown-sub');
       const voucherSealBadge = document.getElementById('voucher-seal-badge');
-      const voucherSimBtn = document.getElementById('voucher-sim-btn');
 
-      let simulateDay100 = false;
       let currentDays = 0;
 
       function updateVoucherStatus() {
-        const unlocked = simulateDay100 || currentDays >= 100;
+        const unlocked = currentDays >= 100;
         voucherPack.classList.toggle('is-ready', unlocked);
         if (unlocked) {
           voucherSealBadge.textContent = '拆';
@@ -4733,7 +4714,7 @@
       function updateCounter() {
         const diff = Math.max(0, Date.now() - startTime);
         currentDays = Math.floor(diff / 86400000);
-        tDays.textContent = String(simulateDay100 ? Math.max(100, currentDays) : currentDays);
+        tDays.textContent = String(currentDays);
         tHours.textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
         tMins.textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
         tSecs.textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
@@ -4754,7 +4735,7 @@
       }
 
       function handleVoucherClick(e) {
-        const unlocked = simulateDay100 || currentDays >= 100;
+        const unlocked = currentDays >= 100;
         const rect = voucherPack.getBoundingClientRect();
         const cx = e && e.clientX ? e.clientX : rect.left + rect.width / 2;
         const cy = e && e.clientY ? e.clientY : rect.top + rect.height / 2;
@@ -4775,16 +4756,6 @@
       }
       voucherPack.addEventListener('click', handleVoucherClick);
       voucherPack.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleVoucherClick(e); } });
-
-      voucherSimBtn.addEventListener('click', () => {
-        simulateDay100 = !simulateDay100;
-        voucherSimBtn.textContent = simulateDay100 ? '[退出测试：恢复真实倒计时]' : '[预览测试：模拟到达第100天状态]';
-        if (!simulateDay100) {
-          voucherPack.style.display = 'flex';
-          voucherOpened.classList.remove('show');
-        }
-        updateCounter();
-      });
 
       
       /* 11. INTERACTIVE DADA STICKERS BOING */
