@@ -1890,6 +1890,36 @@
     .pill-btn.active, .pill-btn:hover { background: var(--klein-blue); color: var(--paper-linen); }
     .color-swatch { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
     .color-swatch.active { border-color: var(--ink-primary); transform: scale(1.18); }
+    .studio-range-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 30px;
+      font-family: var(--font-geo);
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      border: 1.5px solid var(--ink-primary);
+      padding: 0 8px;
+      background: var(--paper-linen);
+      color: var(--ink-primary);
+      user-select: none;
+    }
+    .studio-range-pill input[type="range"] {
+      width: 74px;
+      accent-color: var(--klein-blue);
+      cursor: pointer;
+      margin: 0;
+    }
+    .studio-range-val {
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+    .studio-angle-reset {
+      cursor: pointer;
+      transition: color 0.15s ease;
+    }
+    .studio-angle-reset:hover { color: var(--klein-blue); }
     .studio-canvas-wrap {
       position: relative;
       width: 100%;
@@ -3653,11 +3683,16 @@
             <button class="px-sticker-btn" data-px-sticker="bolt" type="button" title="像素闪电"></button>
             <button class="px-sticker-btn" data-px-sticker="bubble" type="button" title="像素爱心泡泡"></button>
           </div>
-          <label style="display:inline-flex; align-items:center; gap:6px; font-family:var(--font-geo); font-size:10.5px; font-weight:800; letter-spacing:0.08em; border:1.5px solid var(--ink-primary); padding:4px 8px; background:var(--paper-linen);">
+          <label class="studio-range-pill">
             <span>大小</span>
-            <input id="studio-size-slider" type="range" min="6" max="28" value="14" style="width:74px; accent-color:var(--klein-blue); cursor:pointer;" aria-label="调节贴纸大小" />
-            <span id="studio-size-val">14</span>
+            <input id="studio-size-slider" type="range" min="6" max="28" value="14" aria-label="调节贴纸大小" />
+            <span id="studio-size-val" class="studio-range-val" style="min-width:18px;">14</span>
           </label>
+          <div class="studio-range-pill" title="调节贴纸旋转角度（Q/E 或 Shift+滚轮微调 ±15°）">
+            <span id="studio-angle-label" class="studio-angle-reset" role="button" tabindex="0" title="点击归零">角度</span>
+            <input type="range" id="studio-angle" min="-180" max="180" step="1" value="0" aria-label="调节贴纸角度" />
+            <span id="studio-angle-val" class="studio-range-val studio-angle-reset" role="button" tabindex="0" title="点击归零" style="min-width:34px;">0°</span>
+          </div>
           <button class="pill-btn" id="studio-undo" type="button">撤销</button>
           <button class="pill-btn" id="studio-clear" type="button">清空</button>
           <button class="pill-btn" id="studio-save" type="button">保存纪念图</button>
@@ -4090,6 +4125,8 @@
 
       let currentPc = 'bj', drawMode = false, brushColor = '#1430c4', activePxSticker = null, isDrawing = false, activeStroke = null;
       let currentStickerFactor = 0.14;
+      let currentStickerAngle = 0;
+      let stickerGhostPos = null;
 
       /* High-Detail Multi-Color 8-Bit Pixel Art Sprite Maps */
       const pxPalette = {
@@ -4274,6 +4311,41 @@
       const studioPolaroidTitle = document.getElementById('studio-polaroid-title');
       const studioSizeSlider = document.getElementById('studio-size-slider');
       const studioSizeVal = document.getElementById('studio-size-val');
+      const studioAngleSlider = document.getElementById('studio-angle');
+      const studioAngleVal = document.getElementById('studio-angle-val');
+      const studioAngleLabel = document.getElementById('studio-angle-label');
+
+      function normalizeAngle(deg) {
+        let a = Math.round(Number(deg) || 0);
+        while (a > 180) a -= 360;
+        while (a < -180) a += 360;
+        return a;
+      }
+
+      function drawSingleSticker(ctx, w, h, st, alpha = 1) {
+        const sz = Math.max(36, w * (st.scale || 0.125));
+        const cx = st.x * w;
+        const cy = st.y * h;
+        const rad = ((st.angle || 0) * Math.PI) / 180;
+        ctx.save();
+        if (alpha < 1) ctx.globalAlpha = alpha;
+        ctx.translate(cx, cy);
+        if (rad !== 0) ctx.rotate(rad);
+        if (st.type === 'mascot') {
+          if (mascotStickerImg.complete && mascotStickerImg.naturalWidth > 0) {
+            const aspect = mascotStickerImg.naturalWidth / mascotStickerImg.naturalHeight;
+            const imgH = sz * 1.45;
+            const imgW = imgH * aspect;
+            ctx.shadowColor = 'rgba(20,20,19,0.28)';
+            ctx.shadowOffsetX = 4;
+            ctx.shadowOffsetY = 5;
+            ctx.drawImage(mascotStickerImg, -imgW / 2, -imgH / 2, imgW, imgH);
+          }
+        } else {
+          drawRichPixelSprite(ctx, st.type, 0, 0, sz, true);
+        }
+        ctx.restore();
+      }
 
       function renderArtworkToCanvas(canvas, key) {
         const ctx = canvas.getContext('2d');
@@ -4290,23 +4362,35 @@
           ctx.stroke();
         }
         for (const st of (stickersStore[key] || [])) {
-          const sz = Math.max(36, canvas.width * (st.scale || 0.125));
-          if (st.type === 'mascot') {
-            if (mascotStickerImg.complete && mascotStickerImg.naturalWidth > 0) {
-              const aspect = mascotStickerImg.naturalWidth / mascotStickerImg.naturalHeight;
-              const h = sz * 1.45;
-              const w = h * aspect;
-              ctx.save();
-              ctx.shadowColor = 'rgba(20,20,19,0.28)';
-              ctx.shadowOffsetX = 4;
-              ctx.shadowOffsetY = 5;
-              ctx.drawImage(mascotStickerImg, st.x * canvas.width - w / 2, st.y * canvas.height - h / 2, w, h);
-              ctx.restore();
-            }
-          } else {
-            drawRichPixelSprite(ctx, st.type, st.x * canvas.width, st.y * canvas.height, sz, true);
-          }
+          drawSingleSticker(ctx, canvas.width, canvas.height, st, 1);
         }
+      }
+
+      function renderDoodleCanvas() {
+        renderArtworkToCanvas(doodleCanvas, currentPc);
+        if (drawMode && activePxSticker && stickerGhostPos) {
+          drawSingleSticker(doodleCanvas.getContext('2d'), doodleCanvas.width, doodleCanvas.height, {
+            type: activePxSticker,
+            x: stickerGhostPos.x,
+            y: stickerGhostPos.y,
+            scale: currentStickerFactor,
+            angle: currentStickerAngle
+          }, 0.52);
+        }
+      }
+
+      function clearStickerGhost() {
+        if (stickerGhostPos !== null) {
+          stickerGhostPos = null;
+          renderArtworkToCanvas(doodleCanvas, currentPc);
+        }
+      }
+
+      function setStickerAngle(deg) {
+        currentStickerAngle = normalizeAngle(deg);
+        studioAngleSlider.value = String(currentStickerAngle);
+        studioAngleVal.textContent = `${currentStickerAngle}°`;
+        if (drawMode && activePxSticker && stickerGhostPos) renderDoodleCanvas();
       }
 
       function syncPolaroidPreview(key) {
@@ -4324,7 +4408,7 @@
         const rect = studioImg.getBoundingClientRect();
         doodleCanvas.width = Math.max(1, Math.floor(rect.width));
         doodleCanvas.height = Math.max(1, Math.floor(rect.height));
-        renderArtworkToCanvas(doodleCanvas, currentPc);
+        renderDoodleCanvas();
       }
 
       function setStudioMode(isDraw) {
@@ -4333,10 +4417,12 @@
         studioModeBtn.classList.toggle('active', drawMode);
         studioModeBtn.textContent = drawMode ? (activePxSticker ? '贴纸盖贴中' : '画笔涂鸦中') : '开启编辑';
         studioTools.style.opacity = drawMode ? '1' : '0.55';
+        if (!drawMode || !activePxSticker) clearStickerGhost();
       }
 
       function openStudio(pcKey, mode) {
         currentPc = pcKey;
+        stickerGhostPos = null;
         const isPol = pcKey.startsWith('pol-');
         document.querySelectorAll('[data-studio-pc]').forEach(b => {
           b.style.display = isPol ? 'none' : 'inline-block';
@@ -4366,6 +4452,19 @@
         const v = parseInt(studioSizeSlider.value, 10) || 14;
         currentStickerFactor = v / 100;
         studioSizeVal.textContent = String(v);
+        if (drawMode && activePxSticker && stickerGhostPos) renderDoodleCanvas();
+      });
+      studioAngleSlider.addEventListener('input', () => {
+        setStickerAngle(studioAngleSlider.value);
+      });
+      [studioAngleLabel, studioAngleVal].forEach(el => {
+        el.addEventListener('click', () => setStickerAngle(0));
+        el.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setStickerAngle(0);
+          }
+        });
       });
       document.querySelectorAll('.color-swatch').forEach(sw => sw.addEventListener('click', () => {
         brushColor = sw.dataset.color;
@@ -4387,10 +4486,11 @@
         const nx = (e.clientX - r.left) / r.width;
         const ny = (e.clientY - r.top) / r.height;
         if (activePxSticker) {
-          stickersStore[currentPc].push({ type: activePxSticker, x: nx, y: ny, scale: currentStickerFactor });
+          stickersStore[currentPc].push({ type: activePxSticker, x: nx, y: ny, scale: currentStickerFactor, angle: currentStickerAngle });
           historyStore[currentPc].push('sticker');
+          stickerGhostPos = { x: nx, y: ny };
           playChime(620, 0.14, 0.035);
-          renderArtworkToCanvas(doodleCanvas, currentPc);
+          renderDoodleCanvas();
           syncPolaroidPreview(currentPc);
           return;
         }
@@ -4400,10 +4500,38 @@
         historyStore[currentPc].push('stroke');
       });
       doodleCanvas.addEventListener('pointermove', (e) => {
-        if (!isDrawing || !activeStroke) return;
         const r = doodleCanvas.getBoundingClientRect();
-        activeStroke.pts.push({ x: (e.clientX - r.left) / r.width, y: (e.clientY - r.top) / r.height });
+        if (r.width <= 0 || r.height <= 0) return;
+        const nx = (e.clientX - r.left) / r.width;
+        const ny = (e.clientY - r.top) / r.height;
+        if (drawMode && activePxSticker && !isDrawing) {
+          stickerGhostPos = { x: nx, y: ny };
+          renderDoodleCanvas();
+          return;
+        }
+        if (!isDrawing || !activeStroke) return;
+        activeStroke.pts.push({ x: nx, y: ny });
         renderArtworkToCanvas(doodleCanvas, currentPc);
+      });
+      doodleCanvas.addEventListener('pointerleave', clearStickerGhost);
+      doodleCanvas.addEventListener('pointercancel', clearStickerGhost);
+      doodleCanvas.addEventListener('wheel', (e) => {
+        if (!studioModal.classList.contains('open') || !drawMode || !activePxSticker || !e.shiftKey) return;
+        e.preventDefault();
+        setStickerAngle(currentStickerAngle + (e.deltaY > 0 ? 15 : -15));
+      }, { passive: false });
+      window.addEventListener('keydown', (e) => {
+        if (!studioModal.classList.contains('open') || !drawMode || !activePxSticker) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        const tag = e.target && e.target.tagName;
+        if (tag === 'TEXTAREA' || (tag === 'INPUT' && e.target.type !== 'range')) return;
+        if (e.key === 'q' || e.key === 'Q') {
+          e.preventDefault();
+          setStickerAngle(currentStickerAngle - 15);
+        } else if (e.key === 'e' || e.key === 'E') {
+          e.preventDefault();
+          setStickerAngle(currentStickerAngle + 15);
+        }
       });
       window.addEventListener('pointerup', () => {
         if (isDrawing) { isDrawing = false; activeStroke = null; syncPolaroidPreview(currentPc); }
@@ -4413,12 +4541,12 @@
         const last = historyStore[currentPc].pop();
         if (last === 'sticker') stickersStore[currentPc].pop();
         else if (last === 'stroke') strokesStore[currentPc].pop();
-        renderArtworkToCanvas(doodleCanvas, currentPc);
+        renderDoodleCanvas();
         syncPolaroidPreview(currentPc);
       });
       document.getElementById('studio-clear').addEventListener('click', () => {
         strokesStore[currentPc] = []; stickersStore[currentPc] = []; historyStore[currentPc] = [];
-        renderArtworkToCanvas(doodleCanvas, currentPc);
+        renderDoodleCanvas();
         syncPolaroidPreview(currentPc);
       });
       document.getElementById('studio-save').addEventListener('click', () => {
@@ -4437,8 +4565,16 @@
         link.href = out.toDataURL('image/png');
         link.click();
       });
-      document.getElementById('close-studio-modal').addEventListener('click', () => studioModal.classList.remove('open'));
-      studioModal.addEventListener('click', (e) => { if (e.target === studioModal) studioModal.classList.remove('open'); });
+      document.getElementById('close-studio-modal').addEventListener('click', () => {
+        clearStickerGhost();
+        studioModal.classList.remove('open');
+      });
+      studioModal.addEventListener('click', (e) => {
+        if (e.target === studioModal) {
+          clearStickerGhost();
+          studioModal.classList.remove('open');
+        }
+      });
 
       /* 9. ACT 6: 9-PHOTO EDITABLE POLAROID CAROUSEL */
       const pcViewport = document.getElementById('pc-carousel-viewport');
