@@ -215,8 +215,8 @@
     .lock-sheet {
       position: relative;
       z-index: 3;
-      width: min(580px, 92vw);
-      padding: 52px 46px 44px;
+      width: min(650px, 94vw);
+      padding: 52px 44px 44px;
       background: var(--paper-linen);
       color: var(--ink-primary);
       border: 3px solid var(--ink-primary);
@@ -256,10 +256,11 @@
 
     .lock-title {
       font-family: var(--font-serif);
-      font-size: clamp(34px, 4.8vw, 48px);
+      font-size: clamp(26px, 3.6vw, 44px);
       line-height: 1.2;
       margin: 10px 0 12px;
       letter-spacing: 0.04em;
+      white-space: nowrap;
     }
     .lock-title .cut-bang {
       display: inline-block;
@@ -1626,29 +1627,94 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 24px;
+      gap: 20px;
+    }
+    .dawn-head-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
     }
     .dawn-hand {
       font-family: var(--font-hand);
-      font-size: clamp(34px, 4vw, 48px);
+      font-size: clamp(30px, 3.1vw, 44px);
+      line-height: 1.15;
       color: var(--wax-rose);
       transform: rotate(-1.5deg);
       display: inline-block;
     }
+    .dawn-hz-sticker {
+      position: relative !important;
+      top: auto !important;
+      right: auto !important;
+      width: 96px;
+      height: auto;
+      flex-shrink: 0;
+      transform: rotate(7deg);
+      margin-right: 4px;
+    }
     .dawn-timer-box {
       display: inline-flex;
       align-items: baseline;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 14px 24px;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      max-width: 100%;
+      gap: 8px;
+      padding: 12px 20px;
       background: var(--ink-primary);
       color: var(--paper-linen);
       transform: rotate(-1deg);
       box-shadow: 9px 9px 0 var(--klein-blue);
       width: fit-content;
     }
-    .dawn-timer-box .lbl { font-family: var(--font-serif); font-size: 16px; letter-spacing: 0.12em; opacity: 0.85; }
-    .dawn-timer-box .num { font-family: var(--font-bodoni); font-size: clamp(28px, 3.6vw, 44px); color: #ffd99a; min-width: 1.5ch; text-align: center; }
+    .dawn-timer-box .lbl {
+      font-family: var(--font-serif);
+      font-size: clamp(13px, 1.05vw, 15px);
+      letter-spacing: 0.08em;
+      opacity: 0.88;
+      flex-shrink: 0;
+    }
+    .dawn-timer-box .num {
+      font-family: var(--font-bodoni);
+      font-size: clamp(24px, 2.35vw, 36px);
+      line-height: 1.1;
+      color: #ffd99a;
+      font-variant-numeric: tabular-nums;
+      display: inline-flex;
+      align-items: baseline;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    /* 21st.dev Number Flow mechanical rolling digit reel */
+    .nf-group {
+      display: inline-flex;
+      align-items: baseline;
+      font-variant-numeric: tabular-nums;
+    }
+    .nf-slot {
+      display: inline-block;
+      height: 1.15em;
+      line-height: 1.15em;
+      overflow: hidden;
+      vertical-align: -0.06em;
+    }
+    .nf-reel {
+      display: flex;
+      flex-direction: column;
+      transform: translateY(calc(var(--digit, 0) * -1.15em));
+      transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: transform;
+    }
+    .nf-reel > span {
+      display: block;
+      height: 1.15em;
+      line-height: 1.15em;
+      text-align: center;
+      min-width: 0.62em;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .nf-reel { transition: none; }
+    }
     .dawn-statement {
       font-family: var(--font-latin);
       font-size: clamp(24px, 3vw, 38px);
@@ -1658,6 +1724,31 @@
     .dawn-statement .b { font-family: var(--font-bodoni); font-weight: 900; }
     .dawn-statement .blue { font-family: var(--font-playfair); color: var(--klein-blue); }
     .dawn-statement .rose { background: var(--wax-rose); color: var(--paper-linen); padding: 0 10px; display: inline-block; transform: rotate(-1.5deg); }
+    /* 21st.dev Magnetize Button & Text Cursor Proximity */
+    .mag-btn {
+      --mag-x: 0px;
+      --mag-y: 0px;
+      translate: var(--mag-x) var(--mag-y);
+      transition: translate 260ms cubic-bezier(0.22, 1, 0.36, 1), background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.45s ease;
+    }
+    .mag-btn.is-mag-active {
+      transition: translate 90ms ease-out, background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.45s ease;
+    }
+    .prox-word {
+      display: inline-block;
+    }
+    .prox-item {
+      --prox-y: 0px;
+      --prox-s: 1;
+      translate: 0px var(--prox-y);
+      scale: var(--prox-s);
+      transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1), scale 220ms cubic-bezier(0.22, 1, 0.36, 1);
+      will-change: translate, scale;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .mag-btn { translate: 0px 0px !important; }
+      .prox-item { translate: 0px 0px !important; scale: 1 !important; }
+    }
     .dawn-footer {
       display: flex;
       justify-content: space-between;
@@ -1890,46 +1981,138 @@
     .pill-btn.active, .pill-btn:hover { background: var(--klein-blue); color: var(--paper-linen); }
     .color-swatch { width: 24px; height: 24px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
     .color-swatch.active { border-color: var(--ink-primary); transform: scale(1.18); }
-    .studio-range-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      height: 30px;
-      font-family: var(--font-geo);
-      font-size: 10.5px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      border: 1.5px solid var(--ink-primary);
-      padding: 0 8px;
-      background: var(--paper-linen);
-      color: var(--ink-primary);
-      user-select: none;
-    }
-    .studio-range-pill input[type="range"] {
-      width: 74px;
-      accent-color: var(--klein-blue);
-      cursor: pointer;
-      margin: 0;
-    }
-    .studio-range-val {
-      font-variant-numeric: tabular-nums;
-      text-align: right;
-    }
-    .studio-angle-reset {
-      cursor: pointer;
-      transition: color 0.15s ease;
-    }
-    .studio-angle-reset:hover { color: var(--klein-blue); }
     .studio-canvas-wrap {
       position: relative;
       width: 100%;
       background: var(--paper-sand);
       border: 2px solid var(--ink-primary);
-      overflow: hidden;
+      overflow: visible;
     }
     .studio-canvas-wrap img { width: 100%; display: block; pointer-events: none; user-select: none; }
     #doodle-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+    .studio-canvas-wrap.select-mode #doodle-canvas { cursor: default; }
     .studio-canvas-wrap.read-only #doodle-canvas { pointer-events: none; cursor: default; }
+
+    /* Direct-Manipulation Sticker Transform Box (HTML overlay, never baked into PNG) */
+    .sticker-transform-box {
+      position: absolute;
+      z-index: 12;
+      border: 2px dashed var(--klein-blue);
+      box-shadow: 0 0 0 1px rgba(253, 251, 247, 0.9);
+      pointer-events: none;
+      box-sizing: border-box;
+      user-select: none;
+      touch-action: none;
+    }
+    .sticker-transform-box[hidden] { display: none !important; }
+    .st-move-area {
+      position: absolute;
+      inset: 0;
+      cursor: move;
+      pointer-events: auto;
+      touch-action: none;
+    }
+    .st-handle {
+      position: absolute;
+      pointer-events: auto;
+      touch-action: none;
+      box-sizing: border-box;
+      padding: 0;
+    }
+    .st-handle--corner {
+      width: 12px;
+      height: 12px;
+      background: var(--paper-linen);
+      border: 2.5px solid var(--klein-blue);
+      box-shadow: 1.5px 1.5px 0 var(--ink-primary);
+      z-index: 4;
+    }
+    .st-handle--nw { top: -6px; left: -6px; cursor: nwse-resize; }
+    .st-handle--ne { top: -6px; right: -6px; cursor: nesw-resize; }
+    .st-handle--sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+    .st-handle--se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+    .st-rotate-stem {
+      position: absolute;
+      left: 50%;
+      top: -22px;
+      width: 2px;
+      height: 20px;
+      background: var(--klein-blue);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .st-handle--rotate {
+      left: 50%;
+      top: -42px;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--paper-linen);
+      border: 2px solid var(--klein-blue);
+      color: var(--klein-blue);
+      box-shadow: 2px 2px 0 var(--ink-primary);
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: grab;
+      z-index: 5;
+      transition: background 0.14s ease, color 0.14s ease;
+    }
+    .st-handle--rotate:active,
+    .sticker-transform-box.is-rotating .st-handle--rotate {
+      cursor: grabbing;
+      background: var(--klein-blue);
+      color: var(--paper-linen);
+    }
+    .st-angle-badge {
+      position: absolute;
+      left: 50%;
+      top: -70px;
+      transform: translateX(-50%);
+      background: var(--ink-primary);
+      color: var(--paper-linen);
+      border: 1.5px solid var(--paper-linen);
+      box-shadow: 2px 2px 0 var(--klein-blue);
+      font-family: var(--font-geo);
+      font-size: 10.5px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      padding: 2px 7px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.14s ease;
+      font-variant-numeric: tabular-nums;
+      z-index: 6;
+    }
+    .sticker-transform-box.is-rotating .st-angle-badge { opacity: 1; }
+    .st-handle--delete {
+      top: -28px;
+      right: -26px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--wax-rose);
+      color: var(--paper-linen);
+      border: 2px solid var(--ink-primary);
+      box-shadow: 2px 2px 0 var(--ink-primary);
+      font-size: 14px;
+      font-weight: 900;
+      line-height: 1;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      z-index: 6;
+      transition: transform 0.14s ease, background 0.14s ease;
+    }
+    .st-handle--delete:hover {
+      background: var(--ink-primary);
+      color: var(--paper-linen);
+      transform: scale(1.12);
+    }
 
     @media (max-width: 960px) {
       .hero-grid, .specimen-grid, .route-head, .postcards-spread, .line-head, .dawn-revealed { grid-template-columns: 1fr; }
@@ -3535,20 +3718,22 @@
             </div>
 
             <div class="dawn-left-col">
-              <span class="dawn-hand">寸心如故，岁岁长相见。</span>
-              <img class="art-sticker dada-sticker" src="./stickers/stk-hangzhou.webp" alt="杭州西湖三潭印月贴纸" style="width: 112px; right: 24px; top: -18px; transform: rotate(8deg);" />
+              <div class="dawn-head-row">
+                <span class="dawn-hand">寸心如故，岁岁长相见。</span>
+                <img class="art-sticker dada-sticker dawn-hz-sticker" src="./stickers/stk-hangzhou.webp" alt="杭州西湖三潭印月贴纸" />
+              </div>
 
               <div class="dawn-timer-box" aria-live="polite">
                 <span class="lbl">在一起</span>
-                <span class="num" id="t-days">--</span><span class="lbl">天</span>
-                <span class="num" id="t-hours">--</span><span class="lbl">时</span>
-                <span class="num" id="t-mins">--</span><span class="lbl">分</span>
-                <span class="num" id="t-secs">--</span><span class="lbl">秒</span>
+                <span class="num" id="t-days" data-val="0" aria-label="0">0</span><span class="lbl">天</span>
+                <span class="num" id="t-hours" data-val="00" aria-label="00">00</span><span class="lbl">时</span>
+                <span class="num" id="t-mins" data-val="00" aria-label="00">00</span><span class="lbl">分</span>
+                <span class="num" id="t-secs" data-val="00" aria-label="00">00</span><span class="lbl">秒</span>
               </div>
 
               <p class="dawn-statement">
-                Timeless <span class="b">ELEGANCE</span>, <span class="blue">FOREVER Romance</span> —
-                endless as the <span class="rose">LOVE I HOLD</span> always, for you.
+                <span class="prox-word">Timeless</span> <span class="prox-word b">ELEGANCE</span>, <span class="prox-word blue">FOREVER</span> <span class="prox-word blue">Romance</span> <span class="prox-word">—</span>
+                <span class="prox-word">endless</span> <span class="prox-word">as</span> <span class="prox-word">the</span> <span class="prox-word rose">LOVE I HOLD</span> <span class="prox-word">always,</span> <span class="prox-word">for</span> <span class="prox-word">you.</span>
               </p>
 
               <!-- Mystery Day-100 Sealed Voucher -->
@@ -3671,7 +3856,7 @@
           <button class="color-swatch active" data-color="#1430c4" style="background:#1430c4;" type="button" aria-label="克莱因蓝"></button>
           <button class="color-swatch" data-color="#b83b4b" style="background:#b83b4b;" type="button" aria-label="朱红"></button>
           <button class="color-swatch" data-color="#141413" style="background:#141413;" type="button" aria-label="炭黑"></button>
-          <div class="sticker-palette" id="sticker-palette" title="点击选择贴纸，在图上单击盖贴">
+          <div class="sticker-palette" id="sticker-palette" title="点击添加一张贴纸，画布上直接拖拽、缩放与旋转">
             <button class="px-sticker-btn" data-px-sticker="mascot" type="button" title="专属形象贴纸"><img src="./assets/mascot-sticker.webp" alt="形象贴纸" style="width:24px;height:26px;object-fit:contain;display:block;" /></button>
             <button class="px-sticker-btn" data-px-sticker="nailong" type="button" title="抽象像素奶龙"></button>
             <button class="px-sticker-btn" data-px-sticker="heart" type="button" title="像素立体红心"></button>
@@ -3683,16 +3868,6 @@
             <button class="px-sticker-btn" data-px-sticker="bolt" type="button" title="像素闪电"></button>
             <button class="px-sticker-btn" data-px-sticker="bubble" type="button" title="像素爱心泡泡"></button>
           </div>
-          <label class="studio-range-pill">
-            <span>大小</span>
-            <input id="studio-size-slider" type="range" min="6" max="28" value="14" aria-label="调节贴纸大小" />
-            <span id="studio-size-val" class="studio-range-val" style="min-width:18px;">14</span>
-          </label>
-          <div class="studio-range-pill" title="调节贴纸旋转角度（Q/E 或 Shift+滚轮微调 ±15°）">
-            <span id="studio-angle-label" class="studio-angle-reset" role="button" tabindex="0" title="点击归零">角度</span>
-            <input type="range" id="studio-angle" min="-180" max="180" step="1" value="0" aria-label="调节贴纸角度" />
-            <span id="studio-angle-val" class="studio-range-val studio-angle-reset" role="button" tabindex="0" title="点击归零" style="min-width:34px;">0°</span>
-          </div>
           <button class="pill-btn" id="studio-undo" type="button">撤销</button>
           <button class="pill-btn" id="studio-clear" type="button">清空</button>
           <button class="pill-btn" id="studio-save" type="button">保存纪念图</button>
@@ -3702,6 +3877,17 @@
         <div id="studio-stage-inner" style="position:relative; display:inline-block; max-height:68vh;">
           <img id="studio-img" src="./photos/p1-beijing-restored.webp" alt="画室底图" style="max-height:68vh; width:auto; max-width:100%;" />
           <canvas id="doodle-canvas"></canvas>
+          <div id="sticker-transform-box" class="sticker-transform-box" hidden>
+            <div class="st-move-area" data-handle="move" title="拖拽移动贴纸"></div>
+            <div class="st-rotate-stem" aria-hidden="true"></div>
+            <button class="st-handle st-handle--rotate" data-handle="rotate" type="button" title="拖拽旋转（按住 Shift 15° 吸附）" aria-label="旋转贴纸">↻</button>
+            <span class="st-angle-badge" id="st-angle-badge" aria-hidden="true">0°</span>
+            <button class="st-handle st-handle--delete" data-handle="delete" type="button" title="删除贴纸" aria-label="删除贴纸">×</button>
+            <div class="st-handle st-handle--corner st-handle--nw" data-handle="nw" title="拖拽缩放"></div>
+            <div class="st-handle st-handle--corner st-handle--ne" data-handle="ne" title="拖拽缩放"></div>
+            <div class="st-handle st-handle--corner st-handle--sw" data-handle="sw" title="拖拽缩放"></div>
+            <div class="st-handle st-handle--corner st-handle--se" data-handle="se" title="拖拽缩放"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -4118,15 +4304,57 @@
       ];
       polaroidSlides.forEach(p => { pcSources[p.id] = p.src; });
 
+      const STUDIO_STORAGE_KEY = 'xiyu_dada_studio_v1';
+      const MAX_STUDIO_HISTORY = 30;
       const strokesStore = {};
       const stickersStore = {};
       const historyStore = {};
       Object.keys(pcSources).forEach(k => { strokesStore[k] = []; stickersStore[k] = []; historyStore[k] = []; });
 
-      let currentPc = 'bj', drawMode = false, brushColor = '#1430c4', activePxSticker = null, isDrawing = false, activeStroke = null;
-      let currentStickerFactor = 0.14;
-      let currentStickerAngle = 0;
-      let stickerGhostPos = null;
+      function loadStudioStorage() {
+        try {
+          const raw = localStorage.getItem(STUDIO_STORAGE_KEY);
+          if (!raw) return;
+          const parsed = JSON.parse(raw);
+          if (!parsed || typeof parsed !== 'object') return;
+          Object.keys(pcSources).forEach(k => {
+            if (parsed.strokesStore && Array.isArray(parsed.strokesStore[k])) {
+              strokesStore[k] = parsed.strokesStore[k];
+            }
+            if (parsed.stickersStore && Array.isArray(parsed.stickersStore[k])) {
+              stickersStore[k] = parsed.stickersStore[k];
+            }
+          });
+        } catch (_) {}
+      }
+
+      function saveStudioStorage() {
+        try {
+          localStorage.setItem(STUDIO_STORAGE_KEY, JSON.stringify({ strokesStore, stickersStore }));
+        } catch (_) {}
+      }
+
+      function cloneCardState(key) {
+        return {
+          strokes: JSON.parse(JSON.stringify(strokesStore[key] || [])),
+          stickers: JSON.parse(JSON.stringify(stickersStore[key] || []))
+        };
+      }
+
+      function pushHistory(key, preSnapshot) {
+        if (!historyStore[key]) historyStore[key] = [];
+        historyStore[key].push(preSnapshot || cloneCardState(key));
+        if (historyStore[key].length > MAX_STUDIO_HISTORY) {
+          historyStore[key].shift();
+        }
+      }
+
+      loadStudioStorage();
+
+      let currentPc = 'bj', drawMode = false, toolMode = 'brush', brushColor = '#1430c4';
+      let selectedStickerIdx = -1;
+      let isDrawing = false, activeStroke = null, strokePreSnap = null, strokeDownClient = null, strokeMoved = false;
+      let transformDrag = null;
 
       /* High-Detail Multi-Color 8-Bit Pixel Art Sprite Maps */
       const pxPalette = {
@@ -4309,11 +4537,12 @@
 
       const studioStageInner = document.getElementById('studio-stage-inner');
       const studioPolaroidTitle = document.getElementById('studio-polaroid-title');
-      const studioSizeSlider = document.getElementById('studio-size-slider');
-      const studioSizeVal = document.getElementById('studio-size-val');
-      const studioAngleSlider = document.getElementById('studio-angle');
-      const studioAngleVal = document.getElementById('studio-angle-val');
-      const studioAngleLabel = document.getElementById('studio-angle-label');
+      const transformBox = document.getElementById('sticker-transform-box');
+      const stAngleBadge = document.getElementById('st-angle-badge');
+
+      function clampVal(v, lo, hi) {
+        return Math.max(lo, Math.min(hi, v));
+      }
 
       function normalizeAngle(deg) {
         let a = Math.round(Number(deg) || 0);
@@ -4322,8 +4551,29 @@
         return a;
       }
 
+      function getStickerBoxMetrics(w, h, st) {
+        const sz = Math.max(36, w * (st.scale || 0.14));
+        if (st.type === 'mascot') {
+          const aspect = (mascotStickerImg.complete && mascotStickerImg.naturalWidth > 0)
+            ? (mascotStickerImg.naturalWidth / mascotStickerImg.naturalHeight)
+            : 0.85;
+          const imgH = sz * 1.45;
+          const imgW = imgH * aspect;
+          return { width: imgW, height: imgH };
+        }
+        const map = richPixelMaps[st.type];
+        if (!map) return { width: sz, height: sz };
+        const rows = map.length, cols = map[0].length;
+        const cell = sz / Math.max(rows, cols);
+        const pad = Math.max(2, cell * 0.55);
+        return {
+          width: cols * cell + pad * 2,
+          height: rows * cell + pad * 2
+        };
+      }
+
       function drawSingleSticker(ctx, w, h, st, alpha = 1) {
-        const sz = Math.max(36, w * (st.scale || 0.125));
+        const sz = Math.max(36, w * (st.scale || 0.14));
         const cx = st.x * w;
         const cy = st.y * h;
         const rad = ((st.angle || 0) * Math.PI) / 180;
@@ -4368,61 +4618,124 @@
 
       function renderDoodleCanvas() {
         renderArtworkToCanvas(doodleCanvas, currentPc);
-        if (drawMode && activePxSticker && stickerGhostPos) {
-          drawSingleSticker(doodleCanvas.getContext('2d'), doodleCanvas.width, doodleCanvas.height, {
-            type: activePxSticker,
-            x: stickerGhostPos.x,
-            y: stickerGhostPos.y,
-            scale: currentStickerFactor,
-            angle: currentStickerAngle
-          }, 0.52);
-        }
       }
 
-      function clearStickerGhost() {
-        if (stickerGhostPos !== null) {
-          stickerGhostPos = null;
-          renderArtworkToCanvas(doodleCanvas, currentPc);
+      function updateTransformBox() {
+        const list = stickersStore[currentPc] || [];
+        if (!drawMode || selectedStickerIdx < 0 || selectedStickerIdx >= list.length) {
+          transformBox.hidden = true;
+          transformBox.classList.remove('is-rotating');
+          return;
         }
+        const rect = doodleCanvas.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) {
+          transformBox.hidden = true;
+          return;
+        }
+        const st = list[selectedStickerIdx];
+        const { width, height } = getStickerBoxMetrics(rect.width, rect.height, st);
+        transformBox.hidden = false;
+        transformBox.style.left = `${st.x * rect.width}px`;
+        transformBox.style.top = `${st.y * rect.height}px`;
+        transformBox.style.width = `${width + 8}px`;
+        transformBox.style.height = `${height + 8}px`;
+        transformBox.style.transform = `translate(-50%, -50%) rotate(${st.angle || 0}deg)`;
+        stAngleBadge.textContent = `${normalizeAngle(st.angle || 0)}°`;
       }
 
-      function setStickerAngle(deg) {
-        currentStickerAngle = normalizeAngle(deg);
-        studioAngleSlider.value = String(currentStickerAngle);
-        studioAngleVal.textContent = `${currentStickerAngle}°`;
-        if (drawMode && activePxSticker && stickerGhostPos) renderDoodleCanvas();
+      function hitTestSticker(clientX, clientY) {
+        const list = stickersStore[currentPc] || [];
+        if (!list.length) return -1;
+        const rect = doodleCanvas.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return -1;
+        const px = clientX - rect.left;
+        const py = clientY - rect.top;
+        for (let i = list.length - 1; i >= 0; i--) {
+          const st = list[i];
+          const cx = st.x * rect.width;
+          const cy = st.y * rect.height;
+          const dx = px - cx;
+          const dy = py - cy;
+          const rad = -((st.angle || 0) * Math.PI) / 180;
+          const cos = Math.cos(rad);
+          const sin = Math.sin(rad);
+          const lx = dx * cos - dy * sin;
+          const ly = dx * sin + dy * cos;
+          const { width, height } = getStickerBoxMetrics(rect.width, rect.height, st);
+          if (Math.abs(lx) <= width * 0.5 + 6 && Math.abs(ly) <= height * 0.5 + 6) {
+            return i;
+          }
+        }
+        return -1;
       }
 
       function syncPolaroidPreview(key) {
         const ov = document.querySelector(`canvas[data-pol-overlay="${key}"]`);
         if (!ov) return;
-        const r = ov.getBoundingClientRect();
-        if (r.width > 0 && r.height > 0) {
-          ov.width = Math.floor(r.width * 2);
-          ov.height = Math.floor(r.height * 2);
+        const w = ov.offsetWidth || ov.getBoundingClientRect().width;
+        const h = ov.offsetHeight || ov.getBoundingClientRect().height;
+        if (w > 0 && h > 0) {
+          ov.width = Math.floor(w * 2);
+          ov.height = Math.floor(h * 2);
           renderArtworkToCanvas(ov, key);
         }
       }
+
+      function syncAllPolaroidPreviews() {
+        Object.keys(pcSources).forEach(k => syncPolaroidPreview(k));
+      }
+
+      mascotStickerImg.addEventListener('load', () => {
+        if (studioModal.classList.contains('open')) {
+          renderDoodleCanvas();
+          updateTransformBox();
+        }
+        syncAllPolaroidPreviews();
+      });
 
       function resizeDoodleCanvas() {
         const rect = studioImg.getBoundingClientRect();
         doodleCanvas.width = Math.max(1, Math.floor(rect.width));
         doodleCanvas.height = Math.max(1, Math.floor(rect.height));
         renderDoodleCanvas();
+        updateTransformBox();
+      }
+
+      function syncSwatchActiveUI() {
+        document.querySelectorAll('.color-swatch').forEach(s => {
+          s.classList.toggle('active', drawMode && toolMode === 'brush' && s.dataset.color === brushColor);
+        });
       }
 
       function setStudioMode(isDraw) {
         drawMode = isDraw;
+        if (!drawMode) {
+          selectedStickerIdx = -1;
+          transformDrag = null;
+        }
         studioWrap.classList.toggle('read-only', !drawMode);
+        studioWrap.classList.toggle('select-mode', drawMode && toolMode === 'select');
         studioModeBtn.classList.toggle('active', drawMode);
-        studioModeBtn.textContent = drawMode ? (activePxSticker ? '贴纸盖贴中' : '画笔涂鸦中') : '开启编辑';
+        studioModeBtn.textContent = drawMode ? (toolMode === 'brush' ? '画笔涂鸦中' : '贴纸调整中') : '开启编辑';
         studioTools.style.opacity = drawMode ? '1' : '0.55';
-        if (!drawMode || !activePxSticker) clearStickerGhost();
+        syncSwatchActiveUI();
+        updateTransformBox();
+      }
+
+      function closeStudioModal() {
+        selectedStickerIdx = -1;
+        transformDrag = null;
+        isDrawing = false;
+        activeStroke = null;
+        updateTransformBox();
+        studioModal.classList.remove('open');
       }
 
       function openStudio(pcKey, mode) {
         currentPc = pcKey;
-        stickerGhostPos = null;
+        selectedStickerIdx = -1;
+        transformDrag = null;
+        toolMode = 'brush';
         const isPol = pcKey.startsWith('pol-');
         document.querySelectorAll('[data-studio-pc]').forEach(b => {
           b.style.display = isPol ? 'none' : 'inline-block';
@@ -4437,117 +4750,280 @@
         setStudioMode(mode === 'draw');
         studioModal.classList.add('open');
         studioImg.onload = resizeDoodleCanvas;
+        if (studioImg.complete && studioImg.naturalWidth > 0) requestAnimationFrame(resizeDoodleCanvas);
         setTimeout(resizeDoodleCanvas, 70);
+      }
+
+      function deleteSelectedSticker() {
+        const list = stickersStore[currentPc] || [];
+        if (selectedStickerIdx < 0 || selectedStickerIdx >= list.length) return;
+        pushHistory(currentPc);
+        list.splice(selectedStickerIdx, 1);
+        selectedStickerIdx = -1;
+        transformDrag = null;
+        playChime(360, 0.12, 0.03);
+        renderDoodleCanvas();
+        updateTransformBox();
+        syncPolaroidPreview(currentPc);
+        saveStudioStorage();
+      }
+
+      function startStickerDrag(handle, idx, e) {
+        const list = stickersStore[currentPc] || [];
+        if (idx < 0 || idx >= list.length) return;
+        const st = list[idx];
+        const rect = doodleCanvas.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return;
+        const cx = rect.left + st.x * rect.width;
+        const cy = rect.top + st.y * rect.height;
+        const snapshot = cloneCardState(currentPc);
+        if (handle === 'move') {
+          transformDrag = {
+            mode: 'move',
+            idx,
+            startX: e.clientX,
+            startY: e.clientY,
+            origX: st.x,
+            origY: st.y,
+            rect,
+            snapshot,
+            moved: false
+          };
+        } else if (handle === 'rotate') {
+          const startPointerAngle = Math.atan2(e.clientY - cy, e.clientX - cx) * (180 / Math.PI);
+          transformDrag = {
+            mode: 'rotate',
+            idx,
+            cx,
+            cy,
+            startPointerAngle,
+            origAngle: st.angle || 0,
+            snapshot,
+            moved: false
+          };
+          transformBox.classList.add('is-rotating');
+          stAngleBadge.textContent = `${normalizeAngle(st.angle || 0)}°`;
+        } else if (handle === 'nw' || handle === 'ne' || handle === 'sw' || handle === 'se') {
+          const startDist = Math.max(12, Math.hypot(e.clientX - cx, e.clientY - cy));
+          transformDrag = {
+            mode: 'resize',
+            idx,
+            cx,
+            cy,
+            startDist,
+            origScale: st.scale || 0.14,
+            snapshot,
+            moved: false
+          };
+        }
       }
 
       document.querySelectorAll('[data-open-pc]').forEach(btn => btn.addEventListener('click', (e) => { e.stopPropagation(); openStudio(btn.dataset.openPc, btn.dataset.mode); }));
       document.querySelectorAll('.pc-card').forEach(card => card.addEventListener('click', () => openStudio(card.dataset.pc, 'read')));
       document.querySelectorAll('[data-studio-pc]').forEach(btn => btn.addEventListener('click', () => openStudio(btn.dataset.studioPc, drawMode ? 'draw' : 'read')));
       studioModeBtn.addEventListener('click', () => {
-        activePxSticker = null;
-        document.querySelectorAll('.px-sticker-btn').forEach(b => b.classList.remove('active'));
-        setStudioMode(!drawMode);
+        if (!drawMode) {
+          toolMode = 'brush';
+          selectedStickerIdx = -1;
+          setStudioMode(true);
+        } else {
+          setStudioMode(false);
+        }
       });
-      studioSizeSlider.addEventListener('input', () => {
-        const v = parseInt(studioSizeSlider.value, 10) || 14;
-        currentStickerFactor = v / 100;
-        studioSizeVal.textContent = String(v);
-        if (drawMode && activePxSticker && stickerGhostPos) renderDoodleCanvas();
-      });
-      studioAngleSlider.addEventListener('input', () => {
-        setStickerAngle(studioAngleSlider.value);
-      });
-      [studioAngleLabel, studioAngleVal].forEach(el => {
-        el.addEventListener('click', () => setStickerAngle(0));
-        el.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            setStickerAngle(0);
-          }
-        });
-      });
+
       document.querySelectorAll('.color-swatch').forEach(sw => sw.addEventListener('click', () => {
         brushColor = sw.dataset.color;
-        activePxSticker = null;
-        document.querySelectorAll('.px-sticker-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('active', s === sw));
+        toolMode = 'brush';
+        selectedStickerIdx = -1;
         setStudioMode(true);
       }));
+
+      /* One-Click-One-Sticker Rule: clicking any toolbar sticker adds EXACTLY ONE sticker near center and selects it */
+      const staggerOffsets = [[0, 0], [0.028, 0.024], [-0.028, 0.026], [0.032, -0.024], [-0.03, -0.026], [0.015, 0.038], [-0.018, -0.036]];
       document.querySelectorAll('.px-sticker-btn').forEach(btn => btn.addEventListener('click', () => {
         const type = btn.dataset.pxSticker;
-        activePxSticker = (activePxSticker === type) ? null : type;
-        document.querySelectorAll('.px-sticker-btn').forEach(b => b.classList.toggle('active', b.dataset.pxSticker === activePxSticker));
+        if (!type) return;
+        pushHistory(currentPc);
+        const list = stickersStore[currentPc];
+        const [dx, dy] = staggerOffsets[list.length % staggerOffsets.length];
+        list.push({
+          type,
+          x: clampVal(0.5 + dx, 0.1, 0.9),
+          y: clampVal(0.5 + dy, 0.1, 0.9),
+          scale: 0.14,
+          angle: 0
+        });
+        selectedStickerIdx = list.length - 1;
+        toolMode = 'select';
         setStudioMode(true);
+        playChime(620, 0.14, 0.035);
+        resizeDoodleCanvas();
+        syncPolaroidPreview(currentPc);
+        saveStudioStorage();
       }));
+
+      transformBox.addEventListener('pointerdown', (e) => {
+        if (!drawMode || selectedStickerIdx < 0) return;
+        const handleEl = e.target.closest('[data-handle]');
+        if (!handleEl) return;
+        const handle = handleEl.dataset.handle;
+        e.stopPropagation();
+        if (handle === 'delete') return;
+        e.preventDefault();
+        startStickerDrag(handle, selectedStickerIdx, e);
+      });
+      transformBox.querySelector('[data-handle="delete"]').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        deleteSelectedSticker();
+      });
 
       doodleCanvas.addEventListener('pointerdown', (e) => {
         if (!drawMode) return;
         const r = doodleCanvas.getBoundingClientRect();
-        const nx = (e.clientX - r.left) / r.width;
-        const ny = (e.clientY - r.top) / r.height;
-        if (activePxSticker) {
-          stickersStore[currentPc].push({ type: activePxSticker, x: nx, y: ny, scale: currentStickerFactor, angle: currentStickerAngle });
-          historyStore[currentPc].push('sticker');
-          stickerGhostPos = { x: nx, y: ny };
-          playChime(620, 0.14, 0.035);
-          renderDoodleCanvas();
-          syncPolaroidPreview(currentPc);
-          return;
-        }
-        isDrawing = true;
-        activeStroke = { color: brushColor, pts: [{ x: nx, y: ny }] };
-        strokesStore[currentPc].push(activeStroke);
-        historyStore[currentPc].push('stroke');
-      });
-      doodleCanvas.addEventListener('pointermove', (e) => {
-        const r = doodleCanvas.getBoundingClientRect();
         if (r.width <= 0 || r.height <= 0) return;
         const nx = (e.clientX - r.left) / r.width;
         const ny = (e.clientY - r.top) / r.height;
-        if (drawMode && activePxSticker && !isDrawing) {
-          stickerGhostPos = { x: nx, y: ny };
+        if (toolMode !== 'brush') {
+          const hitIdx = hitTestSticker(e.clientX, e.clientY);
+          if (hitIdx >= 0) {
+            selectedStickerIdx = hitIdx;
+            updateTransformBox();
+            e.preventDefault();
+            startStickerDrag('move', hitIdx, e);
+          } else {
+            selectedStickerIdx = -1;
+            updateTransformBox();
+          }
+          return;
+        }
+        strokePreSnap = cloneCardState(currentPc);
+        strokeDownClient = { x: e.clientX, y: e.clientY };
+        strokeMoved = false;
+        isDrawing = true;
+        activeStroke = { color: brushColor, pts: [{ x: nx, y: ny }] };
+        strokesStore[currentPc].push(activeStroke);
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (transformDrag) {
+          const list = stickersStore[currentPc] || [];
+          const st = list[transformDrag.idx];
+          if (!st) return;
+          if (transformDrag.mode === 'move') {
+            if (Math.hypot(e.clientX - transformDrag.startX, e.clientY - transformDrag.startY) > 1.5) {
+              transformDrag.moved = true;
+            }
+            const dx = (e.clientX - transformDrag.startX) / transformDrag.rect.width;
+            const dy = (e.clientY - transformDrag.startY) / transformDrag.rect.height;
+            st.x = clampVal(transformDrag.origX + dx, 0.04, 0.96);
+            st.y = clampVal(transformDrag.origY + dy, 0.04, 0.96);
+          } else if (transformDrag.mode === 'resize') {
+            const curDist = Math.max(8, Math.hypot(e.clientX - transformDrag.cx, e.clientY - transformDrag.cy));
+            st.scale = clampVal(transformDrag.origScale * (curDist / transformDrag.startDist), 0.055, 0.46);
+            transformDrag.moved = true;
+          } else if (transformDrag.mode === 'rotate') {
+            const curAngle = Math.atan2(e.clientY - transformDrag.cy, e.clientX - transformDrag.cx) * (180 / Math.PI);
+            let nextAngle = transformDrag.origAngle + (curAngle - transformDrag.startPointerAngle);
+            if (e.shiftKey) nextAngle = Math.round(nextAngle / 15) * 15;
+            st.angle = normalizeAngle(nextAngle);
+            transformDrag.moved = true;
+          }
           renderDoodleCanvas();
+          updateTransformBox();
           return;
         }
         if (!isDrawing || !activeStroke) return;
+        const r = doodleCanvas.getBoundingClientRect();
+        if (r.width <= 0 || r.height <= 0) return;
+        if (strokeDownClient && Math.hypot(e.clientX - strokeDownClient.x, e.clientY - strokeDownClient.y) > 3) {
+          strokeMoved = true;
+        }
+        const nx = clampVal((e.clientX - r.left) / r.width, 0, 1);
+        const ny = clampVal((e.clientY - r.top) / r.height, 0, 1);
         activeStroke.pts.push({ x: nx, y: ny });
-        renderArtworkToCanvas(doodleCanvas, currentPc);
+        renderDoodleCanvas();
       });
-      doodleCanvas.addEventListener('pointerleave', clearStickerGhost);
-      doodleCanvas.addEventListener('pointercancel', clearStickerGhost);
-      doodleCanvas.addEventListener('wheel', (e) => {
-        if (!studioModal.classList.contains('open') || !drawMode || !activePxSticker || !e.shiftKey) return;
-        e.preventDefault();
-        setStickerAngle(currentStickerAngle + (e.deltaY > 0 ? 15 : -15));
-      }, { passive: false });
+
+      function finishStudioPointer() {
+        if (transformDrag) {
+          transformBox.classList.remove('is-rotating');
+          if (transformDrag.moved) {
+            pushHistory(currentPc, transformDrag.snapshot);
+            syncPolaroidPreview(currentPc);
+            saveStudioStorage();
+          }
+          transformDrag = null;
+        }
+        if (isDrawing) {
+          const wasTap = !strokeMoved;
+          const tapPos = strokeDownClient;
+          const preSnap = strokePreSnap;
+          isDrawing = false;
+          activeStroke = null;
+          strokePreSnap = null;
+          strokeDownClient = null;
+          strokeMoved = false;
+          if (wasTap) {
+            strokesStore[currentPc].pop();
+            renderDoodleCanvas();
+            if (tapPos) {
+              const hitIdx = hitTestSticker(tapPos.x, tapPos.y);
+              if (hitIdx >= 0) {
+                toolMode = 'select';
+                selectedStickerIdx = hitIdx;
+                setStudioMode(true);
+              }
+            }
+          } else {
+            pushHistory(currentPc, preSnap);
+            syncPolaroidPreview(currentPc);
+            saveStudioStorage();
+          }
+        }
+      }
+      window.addEventListener('pointerup', finishStudioPointer);
+      window.addEventListener('pointercancel', finishStudioPointer);
+
       window.addEventListener('keydown', (e) => {
-        if (!studioModal.classList.contains('open') || !drawMode || !activePxSticker) return;
+        if (!studioModal.classList.contains('open') || !drawMode || selectedStickerIdx < 0) return;
         if (e.ctrlKey || e.metaKey || e.altKey) return;
         const tag = e.target && e.target.tagName;
-        if (tag === 'TEXTAREA' || (tag === 'INPUT' && e.target.type !== 'range')) return;
-        if (e.key === 'q' || e.key === 'Q') {
+        if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+        if (e.key === 'Delete' || e.key === 'Backspace') {
           e.preventDefault();
-          setStickerAngle(currentStickerAngle - 15);
-        } else if (e.key === 'e' || e.key === 'E') {
-          e.preventDefault();
-          setStickerAngle(currentStickerAngle + 15);
+          deleteSelectedSticker();
         }
       });
-      window.addEventListener('pointerup', () => {
-        if (isDrawing) { isDrawing = false; activeStroke = null; syncPolaroidPreview(currentPc); }
+
+      window.addEventListener('resize', () => {
+        if (studioModal.classList.contains('open')) resizeDoodleCanvas();
+        syncAllPolaroidPreviews();
       });
 
       document.getElementById('studio-undo').addEventListener('click', () => {
-        const last = historyStore[currentPc].pop();
-        if (last === 'sticker') stickersStore[currentPc].pop();
-        else if (last === 'stroke') strokesStore[currentPc].pop();
+        const snap = (historyStore[currentPc] || []).pop();
+        if (!snap) return;
+        strokesStore[currentPc] = snap.strokes;
+        stickersStore[currentPc] = snap.stickers;
+        selectedStickerIdx = -1;
+        transformDrag = null;
         renderDoodleCanvas();
+        updateTransformBox();
         syncPolaroidPreview(currentPc);
+        saveStudioStorage();
       });
       document.getElementById('studio-clear').addEventListener('click', () => {
-        strokesStore[currentPc] = []; stickersStore[currentPc] = []; historyStore[currentPc] = [];
+        if ((strokesStore[currentPc] || []).length === 0 && (stickersStore[currentPc] || []).length === 0) return;
+        pushHistory(currentPc);
+        strokesStore[currentPc] = [];
+        stickersStore[currentPc] = [];
+        selectedStickerIdx = -1;
+        transformDrag = null;
         renderDoodleCanvas();
+        updateTransformBox();
         syncPolaroidPreview(currentPc);
+        saveStudioStorage();
       });
       document.getElementById('studio-save').addEventListener('click', () => {
         const out = document.createElement('canvas');
@@ -4565,15 +5041,9 @@
         link.href = out.toDataURL('image/png');
         link.click();
       });
-      document.getElementById('close-studio-modal').addEventListener('click', () => {
-        clearStickerGhost();
-        studioModal.classList.remove('open');
-      });
+      document.getElementById('close-studio-modal').addEventListener('click', closeStudioModal);
       studioModal.addEventListener('click', (e) => {
-        if (e.target === studioModal) {
-          clearStickerGhost();
-          studioModal.classList.remove('open');
-        }
+        if (e.target === studioModal) closeStudioModal();
       });
 
       /* 9. ACT 6: 9-PHOTO EDITABLE POLAROID CAROUSEL */
@@ -4650,6 +5120,7 @@
         thumbEls.forEach((th, i) => th.classList.toggle('active', i === pcIdx));
         const cur = polaroidSlides[pcIdx];
         pcFlipBtn.style.display = cur.backSrc ? 'inline-block' : 'none';
+        syncPolaroidPreview(cur.id);
       }
 
       function restartPcTimer() {
@@ -4677,6 +5148,9 @@
         restartPcTimer();
       });
       updatePolaroidClasses();
+      syncAllPolaroidPreviews();
+      requestAnimationFrame(syncAllPolaroidPreviews);
+      window.addEventListener('load', syncAllPolaroidPreviews);
       restartPcTimer();
 
       /* 10. ACT 7: ZIP-TEAR DAWN POSTER + INTERACTIVE WATERCOLOR COLORING ON BW SKETCH */
@@ -4761,12 +5235,36 @@
         playPaperRustle();
       });
 
+      /* Cool Dada Shards Confetti Burst (declared BEFORE openDawn so click & drag listeners fire it!) */
+      function spawnDadaShards(cx, cy, count = 22) {
+        const colors = ['#1430c4', '#b83b4b', '#f7c948', '#141413', '#fdfbf7'];
+        for (let i = 0; i < count; i++) {
+          const el = document.createElement('div');
+          el.className = 'dada-shard';
+          el.style.left = `${cx}px`;
+          el.style.top = `${cy}px`;
+          el.style.background = colors[i % colors.length];
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+          const dist = 70 + Math.random() * 170;
+          el.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
+          el.style.setProperty('--dy', `${Math.sin(angle) * dist - 40}px`);
+          el.style.setProperty('--dr', `${(Math.random() - 0.5) * 520}deg`);
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 1200);
+        }
+      }
+
       function openDawn() {
+        const alreadyOpen = dawnCurtain.classList.contains('opened');
         dawnCurtain.classList.add('opened');
         dawnFrame.classList.add('is-dawn');
         playPaperRustle();
         setTimeout(() => playChime(523.25, 0.35, 0.045), 90);
         setTimeout(() => playChime(659.25, 0.45, 0.045), 210);
+        if (!alreadyOpen) {
+          const r = dawnFrame.getBoundingClientRect();
+          spawnDadaShards(r.left + r.width * 0.5, r.top + r.height * 0.5, 28);
+        }
       }
       tearRail.addEventListener('pointerdown', (e) => { tearing = true; tearStartX = e.clientX; });
       window.addEventListener('pointermove', (e) => {
@@ -4795,33 +5293,6 @@
         playPaperRustle();
       });
 
-      /* Cool Dada Shards Confetti Burst */
-      function spawnDadaShards(cx, cy, count = 22) {
-        const colors = ['#1430c4', '#b83b4b', '#f7c948', '#141413', '#fdfbf7'];
-        for (let i = 0; i < count; i++) {
-          const el = document.createElement('div');
-          el.className = 'dada-shard';
-          el.style.left = `${cx}px`;
-          el.style.top = `${cy}px`;
-          el.style.background = colors[i % colors.length];
-          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
-          const dist = 70 + Math.random() * 170;
-          el.style.setProperty('--dx', `${Math.cos(angle) * dist}px`);
-          el.style.setProperty('--dy', `${Math.sin(angle) * dist - 40}px`);
-          el.style.setProperty('--dr', `${(Math.random() - 0.5) * 520}deg`);
-          document.body.appendChild(el);
-          setTimeout(() => el.remove(), 1200);
-        }
-      }
-
-      /* Enhance openDawn with shards burst */
-      const _origOpenDawn = openDawn;
-      openDawn = function() {
-        _origOpenDawn();
-        const r = dawnFrame.getBoundingClientRect();
-        spawnDadaShards(r.left + r.width * 0.5, r.top + r.height * 0.5, 28);
-      };
-
       const startTime = new Date('2026-08-25T00:00:00+08:00').getTime();
       const tDays = document.getElementById('t-days'), tHours = document.getElementById('t-hours'), tMins = document.getElementById('t-mins'), tSecs = document.getElementById('t-secs');
       const voucherPack = document.getElementById('voucher-pack');
@@ -4831,6 +5302,43 @@
       const voucherSealBadge = document.getElementById('voucher-seal-badge');
 
       let currentDays = 0;
+
+      /* 21st.dev Number Flow Rolling Digit Reel */
+      function setNumberFlow(el, valStr) {
+        if (!el) return;
+        const str = String(valStr);
+        el.dataset.val = str;
+        el.setAttribute('aria-label', str);
+        el.classList.add('nf-group');
+        const chars = str.split('');
+        const slots = el.querySelectorAll(':scope > .nf-slot');
+        if (slots.length !== chars.length) {
+          el.innerHTML = '';
+          chars.forEach((ch) => {
+            const slot = document.createElement('span');
+            slot.className = 'nf-slot';
+            slot.setAttribute('aria-hidden', 'true');
+            const reel = document.createElement('span');
+            reel.className = 'nf-reel';
+            for (let d = 0; d <= 9; d++) {
+              const s = document.createElement('span');
+              s.textContent = String(d);
+              reel.appendChild(s);
+            }
+            const digit = /\d/.test(ch) ? parseInt(ch, 10) : 0;
+            reel.style.setProperty('--digit', String(digit));
+            slot.appendChild(reel);
+            el.appendChild(slot);
+          });
+        } else {
+          chars.forEach((ch, idx) => {
+            const reel = slots[idx].firstElementChild;
+            if (!reel) return;
+            const digit = /\d/.test(ch) ? parseInt(ch, 10) : 0;
+            reel.style.setProperty('--digit', String(digit));
+          });
+        }
+      }
 
       function updateVoucherStatus() {
         const unlocked = currentDays >= 100;
@@ -4850,10 +5358,10 @@
       function updateCounter() {
         const diff = Math.max(0, Date.now() - startTime);
         currentDays = Math.floor(diff / 86400000);
-        tDays.textContent = String(currentDays);
-        tHours.textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
-        tMins.textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-        tSecs.textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        setNumberFlow(tDays, String(currentDays));
+        setNumberFlow(tHours, String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0'));
+        setNumberFlow(tMins, String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'));
+        setNumberFlow(tSecs, String(Math.floor((diff % 60000) / 1000)).padStart(2, '0'));
         updateVoucherStatus();
       }
       updateCounter();
@@ -4893,7 +5401,6 @@
       voucherPack.addEventListener('click', handleVoucherClick);
       voucherPack.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleVoucherClick(e); } });
 
-      
       /* 11. INTERACTIVE DADA STICKERS BOING */
       document.querySelectorAll('.dada-sticker').forEach((st, idx) => {
         st.addEventListener('click', (e) => {
@@ -4905,8 +5412,74 @@
         });
       });
 
+      /* 12. 21ST.DEV LIGHT MOTION: MAGNETIZE BUTTONS & TEXT CURSOR PROXIMITY */
+      const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!prefersReducedMotion) {
+        const magButtons = document.querySelectorAll('#gift-unwrap-btn, #studio-mode-btn, #studio-save, #dawn-fill-color-btn, #pc-edit-active-btn, [data-open-pc]');
+        magButtons.forEach((btn) => {
+          btn.classList.add('mag-btn');
+          btn.addEventListener('pointermove', (e) => {
+            const r = btn.getBoundingClientRect();
+            if (!r.width || !r.height) return;
+            const rx = ((e.clientX - r.left) / r.width) * 2 - 1;
+            const ry = ((e.clientY - r.top) / r.height) * 2 - 1;
+            const maxPull = 4.5;
+            const mx = clampVal(rx * maxPull, -maxPull, maxPull);
+            const my = clampVal(ry * maxPull, -maxPull, maxPull);
+            btn.classList.add('is-mag-active');
+            btn.style.setProperty('--mag-x', `${mx.toFixed(2)}px`);
+            btn.style.setProperty('--mag-y', `${my.toFixed(2)}px`);
+          });
+          const resetMag = () => {
+            btn.classList.remove('is-mag-active');
+            btn.style.setProperty('--mag-x', '0px');
+            btn.style.setProperty('--mag-y', '0px');
+          };
+          btn.addEventListener('pointerleave', resetMag);
+          btn.addEventListener('pointercancel', resetMag);
+          btn.addEventListener('blur', resetMag);
+        });
+
+        function bindProximityGroup(container, selector, radius = 150) {
+          if (!container) return;
+          const items = Array.from(container.querySelectorAll(selector));
+          if (!items.length) return;
+          items.forEach((el) => el.classList.add('prox-item'));
+          let rafId = 0, lastX = 0, lastY = 0;
+          function update() {
+            rafId = 0;
+            items.forEach((el) => {
+              const r = el.getBoundingClientRect();
+              const cx = r.left + r.width * 0.5;
+              const cy = r.top + r.height * 0.5;
+              const dist = Math.hypot(lastX - cx, lastY - cy);
+              const t = Math.max(0, 1 - dist / radius);
+              const eased = t * t * (3 - 2 * t);
+              el.style.setProperty('--prox-y', `${(-4 * eased).toFixed(2)}px`);
+              el.style.setProperty('--prox-s', (1 + 0.06 * eased).toFixed(4));
+            });
+          }
+          container.addEventListener('pointermove', (e) => {
+            lastX = e.clientX;
+            lastY = e.clientY;
+            if (!rafId) rafId = requestAnimationFrame(update);
+          });
+          const resetProx = () => {
+            if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+            items.forEach((el) => {
+              el.style.setProperty('--prox-y', '0px');
+              el.style.setProperty('--prox-s', '1');
+            });
+          };
+          container.addEventListener('pointerleave', resetProx);
+          container.addEventListener('pointercancel', resetProx);
+        }
+        bindProximityGroup(document.querySelector('.hero-name-collage'), '.char-a, .char-b, .char-c', 150);
+        bindProximityGroup(document.querySelector('.dawn-statement'), '.prox-word', 150);
+      }
+
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') { letterModal.classList.remove('open'); studioModal.classList.remove('open'); }
+        if (e.key === 'Escape') { letterModal.classList.remove('open'); closeStudioModal(); }
       });
     })();
   </script>
